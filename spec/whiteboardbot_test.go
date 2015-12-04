@@ -1,21 +1,22 @@
-package main_test
+package spec_test
 
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/xtreme-andleung/whiteboardbot/app"
 	"github.com/nlopes/slack"
-	"github.com/xtreme-andleung/whiteboardbot/interfaces"
+	"github.com/xtreme-andleung/whiteboardbot/spec"
 )
 
 var _ = Describe("Whiteboardbot", func() {
 	var (
 		helloWorldEvent slack.MessageEvent
 		randomEvent slack.MessageEvent
-		client interfaces.MockSlackClient
+		client spec.MockSlackClient
 	)
 
 	BeforeEach(func() {
-		client = interfaces.MockSlackClient{}
+		client = spec.MockSlackClient{}
 		helloWorldEvent = slack.MessageEvent{}
 		helloWorldEvent.Text = "wb hello world"
 
@@ -26,7 +27,7 @@ var _ = Describe("Whiteboardbot", func() {
 	Describe("When receiving a MessageEvent", func() {
 		Context("with text containing keywords", func() {
 			It("should post a message with username and text", func() {
-				Username, Text := interfaces.ParseMessageEvent(&client, &helloWorldEvent)
+				Username, Text := ParseMessageEvent(&client, &helloWorldEvent)
 				Expect(client.GetPostMessageCalled()).To(Equal(true))
 				Expect(Username).To(Equal("aleung"))
 				Expect(Text).To(Equal("aleung hello world"))
@@ -35,7 +36,7 @@ var _ = Describe("Whiteboardbot", func() {
 		})
 		Context("with text not containing keywords", func() {
 			It("ignore the event", func() {
-				Username, Text := interfaces.ParseMessageEvent(&client, &randomEvent)
+				Username, Text := ParseMessageEvent(&client, &randomEvent)
 				Expect(client.GetPostMessageCalled()).To(Equal(false))
 				Expect(Username).To(BeEmpty())
 				Expect(Text).To(BeEmpty())
