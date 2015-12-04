@@ -42,10 +42,9 @@ func ParseMessageEvent(client SlackClient, ev *slack.MessageEvent) (string, stri
 			fmt.Printf("%v, %v", ev.User, err)
 			return "", ""
 		}
-
-		fmt.Printf("%v", user.Name)
 		message = strings.Join([]string{user.Name, message}, " ")
 		client.PostMessage(ev.Channel, message, slack.PostMessageParameters{})
+		fmt.Printf("Posting message: %v", message)
 		return user.Name, message
 	}
 	return "", ""

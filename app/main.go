@@ -2,7 +2,7 @@ package main
 import (
 	"fmt"
 	"github.com/nlopes/slack"
-	"whiteboardbot/interfaces"
+	"github.com/xtreme-andleung/whiteboardbot/interfaces"
 )
 
 func main() {
@@ -35,7 +35,6 @@ func main() {
 			switch ev := msg.Data.(type) {
 
 			case *slack.MessageEvent:
-				fmt.Printf("%s\n", ev.Msg.Text)
 				interfaces.ParseMessageEvent(rtm, ev)
 			case *slack.InvalidAuthEvent:
 				fmt.Printf("Invalid credentials")

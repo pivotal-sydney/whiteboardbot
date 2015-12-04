@@ -4,7 +4,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/nlopes/slack"
-	"whiteboardbot/interfaces"
+	"github.com/xtreme-andleung/whiteboardbot/interfaces"
 )
 
 var _ = Describe("Whiteboardbot", func() {
