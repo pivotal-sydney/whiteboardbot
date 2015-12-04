@@ -36,5 +36,5 @@ func (face Face) Validate() bool {
 }
 
 func (face Face) String() string {
-	return fmt.Sprintf("faces\n*name: %v\ndate: %v", face.Name, face.Time.Format("2006-01-02"))
+	return fmt.Sprintf("faces\n  *name: %v\n  date: %v", face.Name, face.Time.Format("2006-01-02"))
 }
