@@ -2,6 +2,7 @@ package spec
 
 import (
 	"github.com/nlopes/slack"
+	"time"
 )
 
 type MockSlackClient struct {
@@ -21,4 +22,10 @@ func (client *MockSlackClient) GetUserInfo(user string) (*slack.User, error) {
 	User := slack.User{}
 	User.Name = "aleung"
 	return &User, nil
+}
+
+type MockClock struct {}
+
+func (clock MockClock) Now() time.Time {
+	return time.Date(2015, 1, 2, 0, 0, 0, 0, time.UTC)
 }
