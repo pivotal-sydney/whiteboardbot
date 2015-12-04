@@ -1,0 +1,3 @@
+notify:
+webhooks:
+- url: http://pulse.pivotallabs.com/projects/fdd15628-d25a-4590-8cf4-902552825586/status
