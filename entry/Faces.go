@@ -7,28 +7,14 @@ import (
 type Face struct {
 	Time time.Time
 	Name string
+	Author string
 }
 
-func NewFace(clock Clock) (face Face) {
-	face = Face{}
+func NewFace(clock Clock, author string) (*Face) {
+	face := Face{}
 	face.Time = clock.Now()
-	return
-}
-
-func (face Face) GetDate() time.Time {
-	return face.Time
-}
-
-func (face *Face) SetDate(time time.Time) {
-	face.Time = time
-}
-
-func (face Face) GetName() string {
-	return face.Name
-}
-
-func (face *Face) SetName(name string) {
-	face.Name = name
+	face.Author = author
+	return &face
 }
 
 func (face Face) Validate() bool {

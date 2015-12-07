@@ -3,18 +3,15 @@ package spec
 import (
 	"github.com/nlopes/slack"
 	"time"
+	"github.com/xtreme-andleung/whiteboardbot/rest"
 )
 
 type MockSlackClient struct {
-	postMessageCalled bool
-}
-
-func (client *MockSlackClient) GetPostMessageCalled() (bool) {
-	return client.postMessageCalled
+	PostMessageCalled bool
 }
 
 func (client *MockSlackClient) PostMessage(channel, text string, params slack.PostMessageParameters) (string, string, error) {
-	client.postMessageCalled = true
+	client.PostMessageCalled = true
 	return "channel", "timestamp", nil
 }
 
@@ -24,8 +21,16 @@ func (client *MockSlackClient) GetUserInfo(user string) (*slack.User, error) {
 	return &User, nil
 }
 
-type MockClock struct {}
+type MockClock struct{}
 
 func (clock MockClock) Now() time.Time {
 	return time.Date(2015, 1, 2, 0, 0, 0, 0, time.UTC)
+}
+
+type MockRestClient struct {
+	PostCalled bool
+}
+
+func (client *MockRestClient) Post(request rest.WhiteboardRequest) {
+	client.PostCalled = true
 }

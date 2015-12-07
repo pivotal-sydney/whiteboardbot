@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-var face Face
+var face *Face
 
 type SlackClient interface {
 	PostMessage(channel, text string, params slack.PostMessageParameters) (string, string, error)
@@ -25,7 +25,7 @@ func ParseMessageEvent(client SlackClient, clock Clock, ev *slack.MessageEvent) 
 		username = user.Name
 		message = ev.Text[3:]
 		if strings.HasPrefix(message, "faces") {
-			face = NewFace(clock)
+			face = NewFace(clock, username)
 			message = face.String()
 		} else if strings.HasPrefix(message, "name ") {
 			face.Name = message[5:]
