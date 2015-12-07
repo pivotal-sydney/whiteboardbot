@@ -23,7 +23,7 @@ var _ = Describe("Whiteboard Request", func() {
 
 	Describe("when creating a NewCreateFaceRequest", func() {
 		It("should create request", func() {
-			var request = NewCreateFaceRequest(face)
+			var request = NewCreateFaceRequest(*face)
 			Expect(request.Utf8).To(Equal(""))
 			Expect(request.Method).To(Equal(""))
 			Expect(request.Token).To(Equal("token"))

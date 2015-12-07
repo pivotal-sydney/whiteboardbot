@@ -1,12 +1,12 @@
 package rest
 
 type RestClient interface {
-	Post(request WhiteboardRequest) string
+	Post(request WhiteboardRequest)
 }
 
 type RealRestClient struct {
 
 }
 
-func (client RealRestClient) Post(request WhiteboardRequest) {
+func (client *RealRestClient) Post(request WhiteboardRequest) {
 }

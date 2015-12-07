@@ -5,6 +5,7 @@ import (
 	"strings"
 	"fmt"
 	. "github.com/xtreme-andleung/whiteboardbot/entry"
+	. "github.com/xtreme-andleung/whiteboardbot/rest"
 	"time"
 )
 
@@ -15,9 +16,9 @@ type SlackClient interface {
 	GetUserInfo(user string) (*slack.User, error)
 }
 
-func ParseMessageEvent(client SlackClient, clock Clock, ev *slack.MessageEvent) (username string, message string) {
+func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clock, ev *slack.MessageEvent) (username string, message string) {
 	if strings.HasPrefix(ev.Text, "wb ") {
-		user, err := client.GetUserInfo(ev.User)
+		user, err := slackClient.GetUserInfo(ev.User)
 		if err != nil {
 			fmt.Printf("%v, %v", ev.User, err)
 			return
@@ -41,8 +42,12 @@ func ParseMessageEvent(client SlackClient, clock Clock, ev *slack.MessageEvent) 
 		} else {
 			message = strings.Join([]string{user.Name, "no you", message}, " ")
 		}
+		if face != nil && face.Validate() {
+			request := WhiteboardRequest(*NewCreateFaceRequest(*face))
+			restClient.Post(request)
+		}
 		fmt.Printf("Posting message: %v", message)
-		client.PostMessage(ev.Channel, message, slack.PostMessageParameters{})
+		slackClient.PostMessage(ev.Channel, message, slack.PostMessageParameters{})
 	}
 	return
 }

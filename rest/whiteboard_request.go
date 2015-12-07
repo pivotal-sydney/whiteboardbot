@@ -25,7 +25,7 @@ type Item struct {
 
 type FaceRequest WhiteboardRequest
 
-func NewCreateFaceRequest(face *Face) (*FaceRequest) {
+func NewCreateFaceRequest(face Face) (*FaceRequest) {
 	item := Item{1, face.Name, face.Time.Format("2006-01-02"), "", false, "New Face", "", face.Author}
 	return &FaceRequest{"", "", os.Getenv("token"), item, "Create New Face", ""}
 }

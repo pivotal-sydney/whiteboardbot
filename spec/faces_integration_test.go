@@ -13,13 +13,15 @@ var _ = Describe("Faces Integration", func() {
 		newFaceEvent slack.MessageEvent
 		setNameEvent slack.MessageEvent
 		setDateEvent slack.MessageEvent
-		client spec.MockSlackClient
+		slackClient spec.MockSlackClient
 		clock spec.MockClock
+		restClient spec.MockRestClient
 	)
 
 	BeforeEach(func() {
-		client = spec.MockSlackClient{}
+		slackClient = spec.MockSlackClient{}
 		clock = spec.MockClock{}
+		restClient = spec.MockRestClient{}
 
 		newFaceEvent = slack.MessageEvent{}
 		newFaceEvent.Text = "wb faces"
@@ -33,7 +35,7 @@ var _ = Describe("Faces Integration", func() {
 
 	Describe("with faces keyword", func() {
 		It("should begin creating a new face entry and respond with face string", func() {
-			_, Text := ParseMessageEvent(&client, clock, &newFaceEvent)
+			_, Text := ParseMessageEvent(&slackClient, &restClient, clock, &newFaceEvent)
 			Expect(Text).To(Equal("faces\n  *name: \n  date: 2015-01-02"))
 		})
 	})
@@ -41,18 +43,23 @@ var _ = Describe("Faces Integration", func() {
 	Context("setting a name detail", func() {
 		Describe("with a new face entry started", func() {
 			BeforeEach(func() {
-				ParseMessageEvent(&client, clock, &newFaceEvent)
+				ParseMessageEvent(&slackClient, &restClient, clock, &newFaceEvent)
 			})
 			Describe("with correct keyword", func() {
 				It("should set the name of the entry and respond with face string", func() {
-					_, Text := ParseMessageEvent(&client, clock, &setNameEvent)
+					_, Text := ParseMessageEvent(&slackClient, &restClient, clock, &setNameEvent)
 					Expect(Text).To(Equal("faces\n  *name: Dariusz Lorenc\n  date: 2015-01-02"))
+				})
+				It("should post new face entry to whiteboard since all mandatory fields are set", func() {
+					ParseMessageEvent(&slackClient, &restClient, clock, &setNameEvent)
+					Expect(restClient.PostCalled).To(BeTrue())
+					Expect(restClient.Request.Commit).To(Equal("Create New Face"))
 				})
 			})
 			Describe("with incorrect keyword", func() {
 				It("should respond with default", func() {
 					setNameEvent.Text = "wb nameSomethingWrong"
-					_, Text := ParseMessageEvent(&client, clock, &setNameEvent)
+					_, Text := ParseMessageEvent(&slackClient, &restClient, clock, &setNameEvent)
 					Expect(Text).To(Equal("aleung no you nameSomethingWrong"))
 				})
 			})
@@ -61,23 +68,23 @@ var _ = Describe("Faces Integration", func() {
 	Context("setting a date detail", func() {
 		Describe("with a new face entry started", func() {
 			BeforeEach(func() {
-				ParseMessageEvent(&client, clock, &newFaceEvent)
+				ParseMessageEvent(&slackClient, &restClient, clock, &newFaceEvent)
 			})
 			Describe("with correct keyword", func() {
 				It("should set the date of the entry and respond with face string", func() {
-					_, Text := ParseMessageEvent(&client, clock, &setDateEvent)
+					_, Text := ParseMessageEvent(&slackClient, &restClient, clock, &setDateEvent)
 					Expect(Text).To(Equal("faces\n  *name: \n  date: 2015-12-01"))
 				})
 				It("should not set invalid date and respond with help message", func() {
 					setDateEvent.Text = "wb date 12/01/2015"
-					_, Text := ParseMessageEvent(&client, clock, &setDateEvent)
+					_, Text := ParseMessageEvent(&slackClient, &restClient, clock, &setDateEvent)
 					Expect(Text).To(Equal("faces\n  *name: \n  date: 2015-01-02\nDate not set, use YYYY-MM-DD as date format"))
 				})
 			})
 			Describe("with incorrect keyword", func() {
 				It("should respond with default", func() {
 					setDateEvent.Text = "wb date2015-12-01"
-					_, Text := ParseMessageEvent(&client, clock, &setDateEvent)
+					_, Text := ParseMessageEvent(&slackClient, &restClient, clock, &setDateEvent)
 					Expect(Text).To(Equal("aleung no you date2015-12-01"))
 				})
 			})

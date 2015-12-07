@@ -29,8 +29,10 @@ func (clock MockClock) Now() time.Time {
 
 type MockRestClient struct {
 	PostCalled bool
+	Request    rest.WhiteboardRequest
 }
 
 func (client *MockRestClient) Post(request rest.WhiteboardRequest) {
 	client.PostCalled = true
+	client.Request = request
 }
