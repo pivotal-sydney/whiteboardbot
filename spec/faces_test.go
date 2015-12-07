@@ -61,5 +61,4 @@ var _ = Describe("Faces Entry", func() {
 			Expect(face.String()).To(Equal("faces\n  *name: some name\n  date: 2015-01-02"))
 		})
 	})
-
 })
