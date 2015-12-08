@@ -4,7 +4,7 @@ import (
 	"github.com/nlopes/slack"
 	"strings"
 	"fmt"
-	. "github.com/xtreme-andleung/whiteboardbot/entry"
+	. "github.com/xtreme-andleung/whiteboardbot/model"
 	. "github.com/xtreme-andleung/whiteboardbot/rest"
 	"time"
 )
@@ -65,9 +65,9 @@ func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clo
 
 func createFaceRequest(face Face) (request WhiteboardRequest) {
 	if len(face.Id) > 0 {
-		request = NewUpdateFaceRequest(face)
+		request = face.MakeUpdateRequest()
 	} else {
-		request = NewCreateFaceRequest(face)
+		request = face.MakeCreateRequest()
 	}
 	return
 }

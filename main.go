@@ -2,8 +2,7 @@ package main
 import (
 	"fmt"
 	"github.com/nlopes/slack"
-	. "github.com/xtreme-andleung/whiteboardbot/app"
-	"github.com/xtreme-andleung/whiteboardbot/entry"
+	"github.com/xtreme-andleung/whiteboardbot/model"
 	"github.com/xtreme-andleung/whiteboardbot/rest"
 )
 
@@ -13,7 +12,7 @@ func main() {
 	rtm := api.NewRTM()
 	go rtm.ManageConnection()
 
-	clock := entry.RealClock{}
+	clock := model.RealClock{}
 	restClient := rest.RealRestClient{}
 
 	Loop:

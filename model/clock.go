@@ -1,4 +1,4 @@
-package entry
+package model
 import "time"
 
 type Clock interface {

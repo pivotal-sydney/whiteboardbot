@@ -3,7 +3,7 @@ package spec
 import (
 	"github.com/nlopes/slack"
 	"time"
-	"github.com/xtreme-andleung/whiteboardbot/rest"
+	"github.com/xtreme-andleung/whiteboardbot/model"
 )
 
 type MockSlackClient struct {
@@ -29,10 +29,10 @@ func (clock MockClock) Now() time.Time {
 
 type MockRestClient struct {
 	PostCalledCount int
-	Request         rest.WhiteboardRequest
+	Request         model.WhiteboardRequest
 }
 
-func (client *MockRestClient) Post(request rest.WhiteboardRequest) (itemId string, ok bool) {
+func (client *MockRestClient) Post(request model.WhiteboardRequest) (itemId string, ok bool) {
 	client.PostCalledCount++
 	client.Request = request
 	ok = true

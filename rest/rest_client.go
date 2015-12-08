@@ -7,15 +7,16 @@ import (
 	"os"
 	"errors"
 	"strings"
+	"github.com/xtreme-andleung/whiteboardbot/model"
 )
 
 type RestClient interface {
-	Post(request WhiteboardRequest) (itemId string, ok bool)
+	Post(request model.WhiteboardRequest) (itemId string, ok bool)
 }
 
 type RealRestClient struct{}
 
-func (RealRestClient) Post(request WhiteboardRequest) (itemId string, ok bool) {
+func (RealRestClient) Post(request model.WhiteboardRequest) (itemId string, ok bool) {
 	json, _ := json.Marshal(request)
 	http.DefaultClient.CheckRedirect = noRedirect
 	url := os.Getenv("WB_HOST_URL")
