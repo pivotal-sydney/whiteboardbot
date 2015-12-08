@@ -9,6 +9,7 @@ type EntryType interface {
 	Validate() bool
 	MakeCreateRequest() (request WhiteboardRequest)
 	MakeUpdateRequest() (request WhiteboardRequest)
+	String() string
 }
 
 type Entry struct {
@@ -30,12 +31,8 @@ func (entry Entry) Validate() bool {
 	return entry.Title != ""
 }
 
-func (face Face) String() string {
-	return fmt.Sprintf("faces\n  *name: %v\n  date: %v", face.Title, face.Time.Format("2006-01-02"))
-}
-
 func (entry Entry) String() string {
-	return fmt.Sprintf("\n  *title: %v\n  body: %v\n  date: %v", entry.Title, entry.Body, entry.Time.Format("2006-01-02"))
+	return fmt.Sprintf("faces\n  *name: %v\n  date: %v", entry.Title, entry.Time.Format("2006-01-02"))
 }
 
 func (face Face) MakeCreateRequest() (request WhiteboardRequest) {
