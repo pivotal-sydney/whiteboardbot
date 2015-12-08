@@ -32,7 +32,10 @@ type MockRestClient struct {
 	Request    rest.WhiteboardRequest
 }
 
-func (client *MockRestClient) Post(request rest.WhiteboardRequest) {
+func (client *MockRestClient) Post(request rest.WhiteboardRequest) (itemId string, ok bool) {
 	client.PostCalled = true
 	client.Request = request
+	ok = true
+	itemId = "1"
+	return
 }

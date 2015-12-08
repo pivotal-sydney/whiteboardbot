@@ -10,11 +10,9 @@ type Face struct {
 	Author string
 }
 
-func NewFace(clock Clock, author string) (*Face) {
-	face := Face{}
-	face.Time = clock.Now()
-	face.Author = author
-	return &face
+func NewFace(clock Clock, author string) (face Face) {
+	face = Face{clock.Now(), "", author}
+	return
 }
 
 func (face Face) Validate() bool {

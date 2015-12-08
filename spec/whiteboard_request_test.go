@@ -12,18 +12,19 @@ import (
 var _ = Describe("Whiteboard Request", func() {
 
 	var (
-		face *entry.Face
+		face entry.Face
 	)
 
 	BeforeEach(func() {
 		face = entry.NewFace(spec.MockClock{}, "aleung")
 		face.Name = "Dariusz"
-		os.Setenv("token", "token")
+		os.Setenv("WB_AUTH_TOKEN", "token")
 	})
 
 	Describe("when creating a NewCreateFaceRequest", func() {
 		It("should create request", func() {
-			var request = NewCreateFaceRequest(*face)
+			var request FaceRequest
+			request = NewCreateFaceRequest(face)
 			Expect(request.Utf8).To(Equal(""))
 			Expect(request.Method).To(Equal(""))
 			Expect(request.Token).To(Equal("token"))
@@ -33,8 +34,8 @@ var _ = Describe("Whiteboard Request", func() {
 			Expect(request.Item.Title).To(Equal("Dariusz"))
 			Expect(request.Item.Date).To(Equal("2015-01-02"))
 			Expect(request.Item.PostId).To(Equal(""))
-			Expect(request.Item.Public).To(Equal(false))
-			Expect(request.Item.Kind).To(Equal("New Face"))
+			Expect(request.Item.Public).To(Equal("false"))
+			Expect(request.Item.Kind).To(Equal("New face"))
 			Expect(request.Item.Description).To(Equal(""))
 			Expect(request.Item.Author).To(Equal("aleung"))
 		})

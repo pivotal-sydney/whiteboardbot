@@ -11,7 +11,7 @@ import (
 var _ = Describe("Faces Entry", func() {
 
 	var (
-		face *Face
+		face Face
 	)
 
 	BeforeEach( func() {

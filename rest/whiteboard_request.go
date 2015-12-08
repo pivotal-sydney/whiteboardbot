@@ -17,7 +17,7 @@ type Item struct {
 	Title       string `json:"title"`
 	Date        string `json:"date"`
 	PostId      string `json:"post_id"`
-	Public      bool `json:"public"`
+	Public      string `json:"public"`
 	Kind        string `json:"kind"`
 	Description string `json:"description,omitempty"`
 	Author      string `json:"author,omitempty"`
@@ -25,7 +25,8 @@ type Item struct {
 
 type FaceRequest WhiteboardRequest
 
-func NewCreateFaceRequest(face Face) (*FaceRequest) {
-	item := Item{1, face.Name, face.Time.Format("2006-01-02"), "", false, "New Face", "", face.Author}
-	return &FaceRequest{"", "", os.Getenv("token"), item, "Create New Face", ""}
+func NewCreateFaceRequest(face Face) (request FaceRequest) {
+	item := Item{1, face.Name, face.Time.Format("2006-01-02"), "", "false", "New face", "", face.Author}
+	request = FaceRequest{"", "", os.Getenv("WB_AUTH_TOKEN"), item, "Create New Face", ""}
+	return
 }

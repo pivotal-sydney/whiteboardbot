@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-var face *Face
+var face Face
 
 type SlackClient interface {
 	PostMessage(channel, text string, params slack.PostMessageParameters) (string, string, error)
@@ -42,9 +42,12 @@ func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clo
 		} else {
 			message = strings.Join([]string{user.Name, "no you", message}, " ")
 		}
-		if face != nil && face.Validate() {
-			request := WhiteboardRequest(*NewCreateFaceRequest(*face))
-			restClient.Post(request)
+		if face.Validate() {
+			request := WhiteboardRequest(NewCreateFaceRequest(face))
+			_ , ok := restClient.Post(request)
+			if ok {
+				message += "\nnew face created"
+			}
 		}
 		fmt.Printf("Posting message: %v", message)
 		slackClient.PostMessage(ev.Channel, message, slack.PostMessageParameters{})

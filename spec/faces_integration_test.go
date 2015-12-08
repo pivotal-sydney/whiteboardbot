@@ -48,12 +48,13 @@ var _ = Describe("Faces Integration", func() {
 			Describe("with correct keyword", func() {
 				It("should set the name of the entry and respond with face string", func() {
 					_, Text := ParseMessageEvent(&slackClient, &restClient, clock, &setNameEvent)
-					Expect(Text).To(Equal("faces\n  *name: Dariusz Lorenc\n  date: 2015-01-02"))
+					Expect(Text).Should(HavePrefix("faces\n  *name: Dariusz Lorenc\n  date: 2015-01-02"))
 				})
 				It("should post new face entry to whiteboard since all mandatory fields are set", func() {
-					ParseMessageEvent(&slackClient, &restClient, clock, &setNameEvent)
+					_, message := ParseMessageEvent(&slackClient, &restClient, clock, &setNameEvent)
 					Expect(restClient.PostCalled).To(BeTrue())
 					Expect(restClient.Request.Commit).To(Equal("Create New Face"))
+					Expect(message).Should(HaveSuffix("new face created"))
 				})
 			})
 			Describe("with incorrect keyword", func() {
