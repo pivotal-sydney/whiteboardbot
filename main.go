@@ -4,6 +4,7 @@ import (
 	"github.com/nlopes/slack"
 	"github.com/xtreme-andleung/whiteboardbot/model"
 	"github.com/xtreme-andleung/whiteboardbot/rest"
+	"github.com/xtreme-andleung/whiteboardbot/app"
 )
 
 func main() {
@@ -21,7 +22,7 @@ func main() {
 		case msg := <-rtm.IncomingEvents:
 			switch ev := msg.Data.(type) {
 			case *slack.MessageEvent:
-				go ParseMessageEvent(rtm, restClient, clock, ev)
+				go app.ParseMessageEvent(rtm, restClient, clock, ev)
 			case *slack.InvalidAuthEvent:
 				fmt.Printf("Invalid credentials")
 				break Loop

@@ -21,9 +21,20 @@ type Entry struct {
 }
 
 type Face struct { Entry }
+type Interesting struct { Entry }
+
+func NewEntry(clock Clock, author string) (entry Entry) {
+	entry = Entry{Time: clock.Now(), Author: author}
+	return
+}
 
 func NewFace(clock Clock, author string) (face Face) {
-	face = Face{Entry{Time: clock.Now(), Author: author}}
+	face = Face{NewEntry(clock, author)}
+	return
+}
+
+func NewInteresting(clock Clock, author string) (interesting Interesting) {
+	interesting = Interesting{NewEntry(clock, author)}
 	return
 }
 
@@ -33,6 +44,10 @@ func (entry Entry) Validate() bool {
 
 func (entry Entry) String() string {
 	return fmt.Sprintf("faces\n  *name: %v\n  date: %v", entry.Title, entry.Time.Format("2006-01-02"))
+}
+
+func (interesting Interesting) String() string {
+	return fmt.Sprintf("interestings\n  *title: %v\n  body: %v\n  date: %v", interesting.Title, interesting.Body, interesting.Time.Format("2006-01-02"))
 }
 
 func (face Face) MakeCreateRequest() (request WhiteboardRequest) {

@@ -13,6 +13,7 @@ var _ = Describe("Entry", func() {
 
 	var (
 		face Face
+		interesting Interesting
 		clock spec.MockClock
 		entry Entry
 	)
@@ -21,6 +22,7 @@ var _ = Describe("Entry", func() {
 		clock = spec.MockClock{}
 		entry = Entry{}
 		face = NewFace(clock, "aleung")
+		interesting = NewInteresting(clock, "aleung")
 	})
 
 	Context("Entry", func() {
@@ -100,6 +102,27 @@ var _ = Describe("Entry", func() {
 					Expect(request.Item.Description).To(Equal(""))
 					Expect(request.Item.Author).To(Equal("aleung"))
 				})
+			})
+		})
+	})
+
+	Context("Interestings", func() {
+		Describe("creating a new Interesting", func() {
+			It("should have proper defaults", func() {
+				Expect(interesting.Time).To(Equal(time.Date(2015, 1, 2, 0, 0, 0, 0, time.UTC)))
+				Expect(interesting.Title).To(BeEmpty())
+				Expect(interesting.Body).To(BeEmpty())
+				Expect(interesting.Author).To(Equal("aleung"))
+				Expect(interesting.Id).To(BeEmpty())
+			})
+		})
+
+
+		Describe("when printing out an interesting", func() {
+			It("should print the interesting", func() {
+				interesting.Title = "some title"
+				interesting.Body = "some body"
+				Expect(interesting.String()).To(Equal("interestings\n  *title: some title\n  body: some body\n  date: 2015-01-02"))
 			})
 		})
 	})
