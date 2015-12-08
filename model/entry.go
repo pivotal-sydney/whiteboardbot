@@ -23,7 +23,7 @@ type Entry struct {
 type Face struct { Entry }
 
 func NewFace(clock Clock, author string) (face Face) {
-	face = Face{Entry{clock.Now(), "", "", author, ""}}
+	face = Face{Entry{Time: clock.Now(), Author: author}}
 	return
 }
 
@@ -36,14 +36,14 @@ func (entry Entry) String() string {
 }
 
 func (face Face) MakeCreateRequest() (request WhiteboardRequest) {
-	item := Item{1, face.Title, face.Time.Format("2006-01-02"), "", "false", "New face", "", face.Author}
-	request = WhiteboardRequest{"", "", os.Getenv("WB_AUTH_TOKEN"), item, "Create New Face", ""}
+	item := Item{StandupId: 1, Title: face.Title, Date: face.Time.Format("2006-01-02"), Public: "false", Kind: "New face", Author: face.Author}
+	request = WhiteboardRequest{Token: os.Getenv("WB_AUTH_TOKEN"), Item: item, Commit: "Create New Face"}
 	return
 }
 
 func  (face Face) MakeUpdateRequest() (request WhiteboardRequest) {
-	item := Item{1, face.Title, face.Time.Format("2006-01-02"), "", "false", "New face", "", face.Author}
-	request = WhiteboardRequest{"", "patch", os.Getenv("WB_AUTH_TOKEN"), item, "Update New Face", face.Id}
+	item := Item{StandupId: 1, Title: face.Title, Date: face.Time.Format("2006-01-02"), Public: "false", Kind: "New face", Author: face.Author}
+	request = WhiteboardRequest{ Method: "patch", Token: os.Getenv("WB_AUTH_TOKEN"), Item: item, Commit: "Update New Face", Id: face.Id}
 	return
 }
 
