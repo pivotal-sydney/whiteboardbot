@@ -8,10 +8,11 @@ type Face struct {
 	Time time.Time
 	Name string
 	Author string
+	Id string
 }
 
 func NewFace(clock Clock, author string) (face Face) {
-	face = Face{clock.Now(), "", author}
+	face = Face{clock.Now(), "", author, ""}
 	return
 }
 

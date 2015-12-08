@@ -30,3 +30,9 @@ func NewCreateFaceRequest(face Face) (request FaceRequest) {
 	request = FaceRequest{"", "", os.Getenv("WB_AUTH_TOKEN"), item, "Create New Face", ""}
 	return
 }
+
+func NewUpdateFaceRequest(face Face) (request FaceRequest) {
+	item := Item{1, face.Name, face.Time.Format("2006-01-02"), "", "false", "New face", "", face.Author}
+	request = FaceRequest{"", "patch", os.Getenv("WB_AUTH_TOKEN"), item, "Update New Face", face.Id}
+	return
+}

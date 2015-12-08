@@ -22,6 +22,7 @@ var _ = Describe("Faces Entry", func() {
 		It("should default the date to today", func() {
 			Expect(face.Time).To(Equal(time.Date(2015, 1, 2, 0, 0, 0, 0, time.UTC)))
 			Expect(face.Name).To(BeEmpty())
+			Expect(face.Id).To(BeEmpty())
 		})
 	})
 

@@ -40,17 +40,34 @@ func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clo
 				message = face.String()
 			}
 		} else {
-			message = strings.Join([]string{user.Name, "no you", message}, " ")
+			message = fmt.Sprintf("%v no you %v", user.Name, message)
+			slackClient.PostMessage(ev.Channel, message, slack.PostMessageParameters{})
+			return
 		}
+
 		if face.Validate() {
-			request := WhiteboardRequest(NewCreateFaceRequest(face))
-			_ , ok := restClient.Post(request)
+			var request = createFaceRequest(face)
+			itemId, ok := restClient.Post(request)
 			if ok {
-				message += "\nnew face created"
+				face.Id = itemId
+				if len(request.Id) > 0 {
+					message += "\nnew face updated"
+				} else {
+					message += "\nnew face created"
+				}
 			}
 		}
 		fmt.Printf("Posting message: %v", message)
 		slackClient.PostMessage(ev.Channel, message, slack.PostMessageParameters{})
+	}
+	return
+}
+
+func createFaceRequest(face Face) (request WhiteboardRequest) {
+	if len(face.Id) > 0 {
+		request = WhiteboardRequest(NewUpdateFaceRequest(face))
+	} else {
+		request = WhiteboardRequest(NewCreateFaceRequest(face))
 	}
 	return
 }
