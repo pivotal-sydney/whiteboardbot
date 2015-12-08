@@ -24,19 +24,12 @@ func (RealRestClient) Post(request WhiteboardRequest) (itemId string, ok bool) {
 	} else {
 		url += "/standups/1/items"
 	}
-//	http.NewRequest()
-	var methodLength int
-	var method string
-	if methodLength = len(request.Method); methodLength > 0 {
-		method = request.Method
-	} else {
-		method = "post"
-	}
-	httpRequest, err := http.NewRequest(strings.ToUpper(method), url, bytes.NewReader(json))
+	httpRequest, err := http.NewRequest(toHttpVerb(request.Method), url, bytes.NewReader(json))
 	httpRequest.Header.Add("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(httpRequest)
 	fmt.Printf("\nResponse: %v, Err: %v, json: %v", resp, err, string(json))
 	fmt.Printf("\nURL %v", url)
+
 	ok = resp.StatusCode == http.StatusFound
 	if ok {
 		itemId = resp.Header.Get("Item-Id")
@@ -46,6 +39,16 @@ func (RealRestClient) Post(request WhiteboardRequest) (itemId string, ok bool) {
 	}
 	return
 }
+
 func noRedirect(req *http.Request, via []*http.Request) error {
 	return errors.New("Don't redirect!")
+}
+
+func toHttpVerb(method string) (httpVerb string) {
+	if len(method) > 0 {
+		httpVerb = strings.ToUpper(method)
+	} else {
+		httpVerb = "POST"
+	}
+	return
 }

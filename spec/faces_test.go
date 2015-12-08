@@ -27,21 +27,6 @@ var _ = Describe("Faces Entry", func() {
 	})
 
 	Describe("creating a new Faces", func() {
-		Context("when setting a date", func() {
-			It("should update the date", func() {
-				now := time.Now()
-				face.Time = now
-				Expect(face.Time).To(Equal(now))
-			})
-		})
-		Context("when setting a name", func() {
-			It("should update the name", func() {
-				name := "new name"
-				face.Name = name
-				Expect(face.Name).To(Equal(name))
-			})
-		})
-
 		Context("validating when not all mandatory fields are set", func() {
 			It("should return false", func() {
 				Expect(face.Validate()).To(BeFalse())

@@ -28,6 +28,9 @@ func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clo
 		if strings.HasPrefix(message, "faces") {
 			face = NewFace(clock, username)
 			message = face.String()
+		} else if strings.HasPrefix(message, "interestings") {
+			interesting := NewInteresting(clock, username)
+			message = interesting.String()
 		} else if strings.HasPrefix(message, "name ") {
 			face.Name = message[5:]
 			message = face.String()
