@@ -23,16 +23,14 @@ type Item struct {
 	Author      string `json:"author,omitempty"`
 }
 
-type FaceRequest WhiteboardRequest
-
-func NewCreateFaceRequest(face Face) (request FaceRequest) {
-	item := Item{1, face.Name, face.Time.Format("2006-01-02"), "", "false", "New face", "", face.Author}
-	request = FaceRequest{"", "", os.Getenv("WB_AUTH_TOKEN"), item, "Create New Face", ""}
+func NewCreateFaceRequest(face Face) (request WhiteboardRequest) {
+	item := Item{1, face.Title, face.Time.Format("2006-01-02"), "", "false", "New face", "", face.Author}
+	request = WhiteboardRequest{"", "", os.Getenv("WB_AUTH_TOKEN"), item, "Create New Face", ""}
 	return
 }
 
-func NewUpdateFaceRequest(face Face) (request FaceRequest) {
-	item := Item{1, face.Name, face.Time.Format("2006-01-02"), "", "false", "New face", "", face.Author}
-	request = FaceRequest{"", "patch", os.Getenv("WB_AUTH_TOKEN"), item, "Update New Face", face.Id}
+func NewUpdateFaceRequest(face Face) (request WhiteboardRequest) {
+	item := Item{1, face.Title, face.Time.Format("2006-01-02"), "", "false", "New face", "", face.Author}
+	request = WhiteboardRequest{"", "patch", os.Getenv("WB_AUTH_TOKEN"), item, "Update New Face", face.Id}
 	return
 }

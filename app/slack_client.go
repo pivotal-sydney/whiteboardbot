@@ -28,11 +28,8 @@ func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clo
 		if strings.HasPrefix(message, "faces") {
 			face = NewFace(clock, username)
 			message = face.String()
-		} else if strings.HasPrefix(message, "interestings") {
-			interesting := NewInteresting(clock, username)
-			message = interesting.String()
 		} else if strings.HasPrefix(message, "name ") {
-			face.Name = message[5:]
+			face.Title = message[5:]
 			message = face.String()
 		} else if strings.HasPrefix(message, "date ") {
 			parsedDate, err := time.Parse("2006-01-02", message[5:])
@@ -68,9 +65,9 @@ func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clo
 
 func createFaceRequest(face Face) (request WhiteboardRequest) {
 	if len(face.Id) > 0 {
-		request = WhiteboardRequest(NewUpdateFaceRequest(face))
+		request = NewUpdateFaceRequest(face)
 	} else {
-		request = WhiteboardRequest(NewCreateFaceRequest(face))
+		request = NewCreateFaceRequest(face)
 	}
 	return
 }

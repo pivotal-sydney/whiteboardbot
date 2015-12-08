@@ -30,7 +30,7 @@ func (RealRestClient) Post(request WhiteboardRequest) (itemId string, ok bool) {
 	fmt.Printf("\nResponse: %v, Err: %v, json: %v", resp, err, string(json))
 	fmt.Printf("\nURL %v", url)
 
-	ok = resp.StatusCode == http.StatusFound
+	ok = resp !=nil && resp.StatusCode == http.StatusFound
 	if ok {
 		itemId = resp.Header.Get("Item-Id")
 	}
