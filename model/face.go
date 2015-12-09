@@ -1,10 +1,9 @@
 package model
 import (
-	"os"
 	"fmt"
 )
 
-type Face struct { *Entry }
+type Face struct{ *Entry }
 
 func NewFace(clock Clock, author string) (face Face) {
 	face = Face{NewEntry(clock, author)}
@@ -16,14 +15,15 @@ func (face Face) String() string {
 }
 
 func (face Face) MakeCreateRequest() (request WhiteboardRequest) {
-	item := Item{StandupId: 1, Title: face.Title, Date: face.Time.Format("2006-01-02"), Public: "false", Kind: "New face", Author: face.Author}
-	request = WhiteboardRequest{Token: os.Getenv("WB_AUTH_TOKEN"), Item: item, Commit: "Create New Face"}
+	request = face.Entry.MakeCreateRequest()
+	request.Item.Kind = "New face"
+	request.Commit = "Create New Face"
 	return
 }
 
-func  (face Face) MakeUpdateRequest() (request WhiteboardRequest) {
-	item := Item{StandupId: 1, Title: face.Title, Date: face.Time.Format("2006-01-02"), Public: "false", Kind: "New face", Author: face.Author}
-	request = WhiteboardRequest{ Method: "patch", Token: os.Getenv("WB_AUTH_TOKEN"), Item: item, Commit: "Update New Face", Id: face.Id}
+func (face Face) MakeUpdateRequest() (request WhiteboardRequest) {
+	request = face.Entry.MakeUpdateRequest()
+	request.Item.Kind = "New face"
+	request.Commit = "Update New Face"
 	return
 }
-
