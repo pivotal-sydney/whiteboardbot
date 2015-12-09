@@ -18,7 +18,7 @@ type SlackClient interface {
 }
 
 func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clock, ev *slack.MessageEvent) (username string, message string) {
-	if strings.HasPrefix(ev.Text, "wb ") {
+	if strings.HasPrefix(strings.ToLower(ev.Text), "wb ") {
 		user, err := slackClient.GetUserInfo(ev.User)
 		if err != nil {
 			fmt.Printf("%v, %v", ev.User, err)
@@ -38,21 +38,28 @@ func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clo
 				entry = entryType.(Help).Entry
 			}
 		}
-		if strings.HasPrefix(message, "faces") {
+
+		index := strings.Index(message, " ")
+		if index == -1 {
+			index = len(message)
+		}
+
+		switch strings.ToLower(message[:index]) {
+		case "faces":
 			entryType = NewFace(clock, username)
-		} else if strings.HasPrefix(message, "interestings") {
+		case "interestings":
 			entryType = NewInteresting(clock, username)
-		} else if strings.HasPrefix(message, "events") {
-			entryType = NewEvent(clock, username)
-		} else if strings.HasPrefix(message, "helps") {
+		case "helps":
 			entryType = NewHelp(clock, username)
-		} else if strings.HasPrefix(message, "name ") {
-			entry.Title = message[5:]
-		} else if strings.HasPrefix(message, "title ") {
-			entry.Title = message[6:]
-		} else if strings.HasPrefix(message, "body ") {
+		case "events":
+			entryType = NewEvent(clock, username)
+		case "name":
+			fallthrough
+		case "title":
+			entry.Title = message[index+1:]
+		case "body":
 			entry.Body = message[5:]
-		} else if strings.HasPrefix(message, "date ") {
+		case "date":
 			parsedDate, err := time.Parse("2006-01-02", message[5:])
 			if err != nil {
 				message = entryType.String() + "\nDate not set, use YYYY-MM-DD as date format"
@@ -61,21 +68,22 @@ func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clo
 			} else {
 				entry.Time = parsedDate
 			}
-		} else {
+		default:
 			message = fmt.Sprintf("%v no you %v", user.Name, message)
 			slackClient.PostMessage(ev.Channel, message, slack.PostMessageParameters{})
 			return
 		}
+
 		message = entryType.String()
 		if entryType.Validate() {
-			var request = createRequest(entryType, entry)
+			var request = createRequest(entryType, isExistingEntry(entry))
 			itemId, ok := restClient.Post(request)
 			if ok {
-				entry.Id = itemId
-				if len(request.Id) > 0 {
+				if isExistingEntry(entry) {
 					message += "\nitem updated"
 				} else {
 					message += "\nitem created"
+					entry.Id = itemId
 				}
 			}
 		}
@@ -85,8 +93,12 @@ func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clo
 	return
 }
 
-func createRequest(entryType EntryType, entry *Entry) (request WhiteboardRequest) {
-	if len(entry.Id) > 0 {
+func isExistingEntry(entry *Entry) bool {
+	return entry != nil && len(entry.Id) > 0
+}
+
+func createRequest(entryType EntryType, existingEntry bool) (request WhiteboardRequest) {
+	if existingEntry {
 		request = entryType.MakeUpdateRequest()
 	} else {
 		request = entryType.MakeCreateRequest()
