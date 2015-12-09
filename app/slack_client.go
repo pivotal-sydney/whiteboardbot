@@ -44,23 +44,24 @@ func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clo
 			index = len(message)
 		}
 
-		switch strings.ToLower(message[:index]) {
-		case "faces":
+		keyword := strings.ToLower(message[:index])
+		switch {
+		case matches(keyword, "faces"):
 			entryType = NewFace(clock, username)
-		case "interestings":
+		case matches(keyword, "interestings"):
 			entryType = NewInteresting(clock, username)
-		case "helps":
+		case matches(keyword, "helps"):
 			entryType = NewHelp(clock, username)
-		case "events":
+		case matches(keyword, "events"):
 			entryType = NewEvent(clock, username)
-		case "name":
+		case matches(keyword, "name"):
 			fallthrough
-		case "title":
+		case matches(keyword, "title"):
 			entry.Title = message[index+1:]
-		case "body":
-			entry.Body = message[5:]
-		case "date":
-			parsedDate, err := time.Parse("2006-01-02", message[5:])
+		case matches(keyword, "body"):
+			entry.Body = message[index+1:]
+		case matches(keyword, "date"):
+			parsedDate, err := time.Parse("2006-01-02", message[index+1:])
 			if err != nil {
 				message = entryType.String() + "\nDate not set, use YYYY-MM-DD as date format"
 				slackClient.PostMessage(ev.Channel, message, slack.PostMessageParameters{})
@@ -91,6 +92,10 @@ func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clo
 		slackClient.PostMessage(ev.Channel, message, slack.PostMessageParameters{})
 	}
 	return
+}
+
+func matches(keyword string, command string) bool {
+	return len(keyword) <= len(command) && command[:len(keyword)] == keyword
 }
 
 func isExistingEntry(entry *Entry) bool {

@@ -14,7 +14,7 @@ var _ = Describe("Entry Integration", func() {
 		clock spec.MockClock
 		restClient spec.MockRestClient
 
-		newCaseInsensitiveEvent, newInterestingEvent, newEventEvent, newHelpEvent, setTitleEvent, setDateEvent, setBodyEvent MessageEvent
+		newInterestingEvent, newEventEvent, newHelpEvent, setTitleEvent, setDateEvent, setBodyEvent MessageEvent
 	)
 
 	BeforeEach(func() {
@@ -22,13 +22,12 @@ var _ = Describe("Entry Integration", func() {
 		clock = spec.MockClock{}
 		restClient = spec.MockRestClient{}
 
-		newCaseInsensitiveEvent = MessageEvent{Msg: Msg{Text: "WB InTeRestings"}}
-		newInterestingEvent = MessageEvent{Msg: Msg{Text: "wb Interestings"}}
-		newEventEvent = MessageEvent{Msg: Msg{Text: "wb Events"}}
-		newHelpEvent = MessageEvent{Msg: Msg{Text: "wb hElps"}}
-		setTitleEvent = MessageEvent{Msg: Msg{Text: "Wb tItle something interesting"}}
-		setDateEvent = MessageEvent{Msg: Msg{Text: "Wb dAte 2015-12-01"}}
-		setBodyEvent = MessageEvent{Msg: Msg{Text: "wB Body more info"}}
+		newInterestingEvent = MessageEvent{Msg: Msg{Text: "wb Intere"}}
+		newEventEvent = MessageEvent{Msg: Msg{Text: "wb Ev"}}
+		newHelpEvent = MessageEvent{Msg: Msg{Text: "wb hEl"}}
+		setTitleEvent = MessageEvent{Msg: Msg{Text: "Wb tI something interesting"}}
+		setDateEvent = MessageEvent{Msg: Msg{Text: "Wb dA 2015-12-01"}}
+		setBodyEvent = MessageEvent{Msg: Msg{Text: "wB Bod more info"}}
 	})
 
 	Describe("with interesting keyword", func() {
@@ -49,13 +48,6 @@ var _ = Describe("Entry Integration", func() {
 		It("should begin creating a new help entry and respond with help string", func() {
 			_, Text := ParseMessageEvent(&slackClient, &restClient, clock, &newHelpEvent)
 			Expect(Text).To(Equal("helps\n  *title: \n  body: \n  date: 2015-01-02"))
-		})
-	})
-
-	Describe("with case insensitive keyword", func() {
-		It("should still recognize keyword", func() {
-			_, Text := ParseMessageEvent(&slackClient, &restClient, clock, &newCaseInsensitiveEvent)
-			Expect(Text).To(Equal("interestings\n  *title: \n  body: \n  date: 2015-01-02"))
 		})
 	})
 
