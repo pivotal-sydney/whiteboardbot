@@ -14,7 +14,7 @@ var _ = Describe("Entry Integration", func() {
 		clock spec.MockClock
 		restClient spec.MockRestClient
 
-		newInterestingEvent, newEventEvent, setTitleEvent, setDateEvent, setBodyEvent MessageEvent
+		newInterestingEvent, newEventEvent, newHelpEvent, setTitleEvent, setDateEvent, setBodyEvent MessageEvent
 	)
 
 	BeforeEach(func() {
@@ -24,6 +24,7 @@ var _ = Describe("Entry Integration", func() {
 
 		newInterestingEvent = MessageEvent{Msg: Msg{Text: "wb interestings"}}
 		newEventEvent = MessageEvent{Msg: Msg{Text: "wb events"}}
+		newHelpEvent = MessageEvent{Msg: Msg{Text: "wb helps"}}
 		setTitleEvent = MessageEvent{Msg: Msg{Text: "wb title something interesting"}}
 		setDateEvent = MessageEvent{Msg: Msg{Text: "wb date 2015-12-01"}}
 		setBodyEvent = MessageEvent{Msg: Msg{Text: "wb body more info"}}
@@ -40,6 +41,13 @@ var _ = Describe("Entry Integration", func() {
 		It("should begin creating a new event entry and respond with event string", func() {
 			_, Text := ParseMessageEvent(&slackClient, &restClient, clock, &newEventEvent)
 			Expect(Text).To(Equal("events\n  *title: \n  body: \n  date: 2015-01-02"))
+		})
+	})
+
+	Describe("with help keyword", func() {
+		It("should begin creating a new help entry and respond with help string", func() {
+			_, Text := ParseMessageEvent(&slackClient, &restClient, clock, &newHelpEvent)
+			Expect(Text).To(Equal("helps\n  *title: \n  body: \n  date: 2015-01-02"))
 		})
 	})
 

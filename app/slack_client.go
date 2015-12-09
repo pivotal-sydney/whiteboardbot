@@ -34,6 +34,8 @@ func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clo
 				entry = entryType.(Interesting).Entry
 			case Event:
 				entry = entryType.(Event).Entry
+			case Help:
+				entry = entryType.(Help).Entry
 			}
 		}
 		if strings.HasPrefix(message, "faces") {
@@ -42,6 +44,8 @@ func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clo
 			entryType = NewInteresting(clock, username)
 		} else if strings.HasPrefix(message, "events") {
 			entryType = NewEvent(clock, username)
+		} else if strings.HasPrefix(message, "helps") {
+			entryType = NewHelp(clock, username)
 		} else if strings.HasPrefix(message, "name ") {
 			entry.Title = message[5:]
 		} else if strings.HasPrefix(message, "title ") {
