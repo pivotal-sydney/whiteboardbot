@@ -8,13 +8,13 @@ import (
 	"github.com/xtreme-andleung/whiteboardbot/spec"
 )
 
-var _ = Describe("Faces Integration", func() {
+var _ = Describe("Entry Integration", func() {
 	var (
 		slackClient spec.MockSlackClient
 		clock spec.MockClock
 		restClient spec.MockRestClient
 
-		newInterestingEvent, setTitleEvent, setDateEvent, setBodyEvent MessageEvent
+		newInterestingEvent, newEventEvent, setTitleEvent, setDateEvent, setBodyEvent MessageEvent
 	)
 
 	BeforeEach(func() {
@@ -23,6 +23,7 @@ var _ = Describe("Faces Integration", func() {
 		restClient = spec.MockRestClient{}
 
 		newInterestingEvent = MessageEvent{Msg: Msg{Text: "wb interestings"}}
+		newEventEvent = MessageEvent{Msg: Msg{Text: "wb events"}}
 		setTitleEvent = MessageEvent{Msg: Msg{Text: "wb title something interesting"}}
 		setDateEvent = MessageEvent{Msg: Msg{Text: "wb date 2015-12-01"}}
 		setBodyEvent = MessageEvent{Msg: Msg{Text: "wb body more info"}}
@@ -32,6 +33,13 @@ var _ = Describe("Faces Integration", func() {
 		It("should begin creating a new interesting entry and respond with interesting string", func() {
 			_, Text := ParseMessageEvent(&slackClient, &restClient, clock, &newInterestingEvent)
 			Expect(Text).To(Equal("interestings\n  *title: \n  body: \n  date: 2015-01-02"))
+		})
+	})
+
+	Describe("with event keyword", func() {
+		It("should begin creating a new event entry and respond with event string", func() {
+			_, Text := ParseMessageEvent(&slackClient, &restClient, clock, &newEventEvent)
+			Expect(Text).To(Equal("events\n  *title: \n  body: \n  date: 2015-01-02"))
 		})
 	})
 
