@@ -1,10 +1,9 @@
-# whiteboardbot
-Whiteboard Slack Bot
+# Whiteboard Slack Bot
 
 WhiteboardBot is a slack bot that allows users to easily create new entries into whiteboard directly from Slack!
 
-To improve the user experience of creating entries during your commute to work, by talking to the bot with a set of keywords
-will allow you to create and update new faces, events, interestings and helps.
+To improve the user experience of creating entries during your commute to work, by talking to the bot with a set of keywords,
+it will allow you to create and update new faces, events, interestings and helps.
 
 # Usage
 ## <a name="create">Creating a new Whiteboard Entry
@@ -38,6 +37,19 @@ wb date 2015-12-01   // December 1st, 2015
 
 Once all mandatory fields (fields denoted with a *) have been set on an entry, the entry will be saved and uploaded to Whiteboard.
 You can continue to edit the entry until you begin [creating a new entry](#create)
+
+## Setting up and running bot
+In order to have the bot work correctly, you need to have several ENV variables configured.
+
+```
+WB_HOST_URL=http://localhost:3000     // The host url of the whiteboard app
+WB_BOT_API_TOKEN=someapitoken         // The API token of your bot.  See Slack docs to create a bot, and get API token
+```
+
+```
+go build
+```
+will create a whiteboardbot binary which can be run from the command line.
 
 # Additional Features
 ## Abbreviations
