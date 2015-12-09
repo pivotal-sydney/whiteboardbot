@@ -5,10 +5,11 @@ import (
 	"github.com/xtreme-andleung/whiteboardbot/model"
 	"github.com/xtreme-andleung/whiteboardbot/rest"
 	"github.com/xtreme-andleung/whiteboardbot/app"
+	"os"
 )
 
 func main() {
-	api := slack.New("xoxb-15808945314-Pztfx4s7YG00QAO6DlajZZdO")
+	api := slack.New(os.Getenv("WB_BOT_API_TOKEN"))
 
 	rtm := api.NewRTM()
 	go rtm.ManageConnection()
