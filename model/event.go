@@ -22,3 +22,7 @@ func (event Event) MakeUpdateRequest() (request WhiteboardRequest) {
 	request.Item.Kind = "Event"
 	return
 }
+
+func (event Event) GetEntry() *Entry {
+	return event.Entry
+}

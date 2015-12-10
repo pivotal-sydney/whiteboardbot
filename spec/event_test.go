@@ -24,7 +24,7 @@ var _ = Describe("Event", func() {
 
 	Describe("creating a new Event", func() {
 		It("should have proper defaults", func() {
-			Expect(event.Time).To(Equal(time.Date(2015, 1, 2, 0, 0, 0, 0, time.UTC)))
+			Expect(event.Date).To(Equal(time.Date(2015, 1, 2, 0, 0, 0, 0, time.UTC)))
 			Expect(event.Title).To(BeEmpty())
 			Expect(event.Body).To(BeEmpty())
 			Expect(event.Author).To(Equal("aleung"))

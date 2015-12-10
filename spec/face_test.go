@@ -24,7 +24,7 @@ var _ = Describe("Face", func() {
 
 	Describe("creating a new Face", func() {
 		It("should have proper defaults", func() {
-			Expect(face.Time).To(Equal(time.Date(2015, 1, 2, 0, 0, 0, 0, time.UTC)))
+			Expect(face.Date).To(Equal(time.Date(2015, 1, 2, 0, 0, 0, 0, time.UTC)))
 			Expect(face.Title).To(BeEmpty())
 			Expect(face.Body).To(BeEmpty())
 			Expect(face.Author).To(Equal("aleung"))

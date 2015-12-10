@@ -17,7 +17,11 @@ func (client *MockSlackClient) PostMessage(channel, text string, params slack.Po
 
 func (client *MockSlackClient) GetUserInfo(user string) (*slack.User, error) {
 	User := slack.User{}
-	User.Name = "aleung"
+	if user == "" {
+		User.Name = "aleung"
+	} else {
+		User.Name = user
+	}
 	return &User, nil
 }
 

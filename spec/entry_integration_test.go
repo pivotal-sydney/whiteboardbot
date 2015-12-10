@@ -7,32 +7,32 @@ import (
 	. "github.com/nlopes/slack"
 	"github.com/xtreme-andleung/whiteboardbot/spec"
 )
-
 var _ = Describe("Entry Integration", func() {
 	var (
 		slackClient spec.MockSlackClient
 		clock spec.MockClock
 		restClient spec.MockRestClient
 
-		newInterestingEvent, newEventEvent, newHelpEvent, newFaceEventTitleEvent, newInterestingWithTitleEvent, newHelpEventTitleEvent, newEventEventWithTitleEvent, setTitleEvent, setDateEvent, setBodyEvent MessageEvent
+		newInterestingEvent, newEventEvent, newHelpEvent,
+		newFaceEventTitleEvent, newInterestingWithTitleEvent, newHelpEventTitleEvent, newEventEventWithTitleEvent,
+		setTitleEvent, setDateEvent, setBodyEvent MessageEvent
 	)
 
 	BeforeEach(func() {
 		slackClient = spec.MockSlackClient{}
 		clock = spec.MockClock{}
 		restClient = spec.MockRestClient{}
+		newInterestingEvent = createMessageEvent("wb Intere")
+		newEventEvent = createMessageEvent("wb Ev")
+		newHelpEvent = createMessageEvent("wb hEl")
+		newInterestingWithTitleEvent = createMessageEvent("wb int something interesting")
+		newEventEventWithTitleEvent = createMessageEvent("wb e some event")
+		newHelpEventTitleEvent = createMessageEvent("wb h some help")
+		newFaceEventTitleEvent = createMessageEvent("wb f some face")
+		setTitleEvent = createMessageEvent("Wb tI something interesting")
+		setDateEvent = createMessageEvent("Wb dA 2015-12-01")
+		setBodyEvent = createMessageEvent("wB Bod more info")
 
-		newInterestingEvent = MessageEvent{Msg: Msg{Text: "wb Intere"}}
-		newEventEvent = MessageEvent{Msg: Msg{Text: "wb Ev"}}
-		newHelpEvent = MessageEvent{Msg: Msg{Text: "wb hEl"}}
-		newInterestingWithTitleEvent = MessageEvent{Msg: Msg{Text: "wb int something interesting"}}
-		newEventEventWithTitleEvent = MessageEvent{Msg: Msg{Text: "wb e some event"}}
-		newHelpEventTitleEvent = MessageEvent{Msg: Msg{Text: "wb h some help"}}
-		newFaceEventTitleEvent = MessageEvent{Msg: Msg{Text: "wb f some face"}}
-		newInterestingWithTitleEvent = MessageEvent{Msg: Msg{Text: "wb int something interesting"}}
-		setTitleEvent = MessageEvent{Msg: Msg{Text: "Wb tI something interesting"}}
-		setDateEvent = MessageEvent{Msg: Msg{Text: "Wb dA 2015-12-01"}}
-		setBodyEvent = MessageEvent{Msg: Msg{Text: "wB Bod more info"}}
 	})
 
 	Describe("with interesting keyword", func() {
@@ -173,6 +173,37 @@ var _ = Describe("Entry Integration", func() {
 		})
 	})
 
+	Context("with multiple users", func() {
+		var (
+			newEventAndrew, newEventDariusz,
+			setNameAndrew, setNameDariusz MessageEvent
+		)
+		BeforeEach(func() {
+			newEventAndrew = createMessageEventWithUser("wb f", "aleung")
+			newEventDariusz = createMessageEventWithUser("wb f", "dlorenc")
+			setNameAndrew = createMessageEventWithUser("wb n Andrew Leung", "aleung")
+			setNameDariusz = createMessageEventWithUser("wb n Dariusz Lorenc", "dlorenc")
+		})
+		Describe("sending commands", func() {
+			It("should create entries uniquely to each user", func() {
+				ParseMessageEvent(&slackClient, &restClient, clock, &newEventAndrew)
+				ParseMessageEvent(&slackClient, &restClient, clock, &newEventDariusz)
+				_, Text :=ParseMessageEvent(&slackClient, &restClient, clock, &setNameAndrew)
+				Expect(Text).To(Equal("faces\n  *name: Andrew Leung\n  date: 2015-01-02\nitem created"))
+				_, Text = ParseMessageEvent(&slackClient, &restClient, clock, &setNameDariusz)
+				Expect(Text).To(Equal("faces\n  *name: Dariusz Lorenc\n  date: 2015-01-02\nitem created"))
+			})
+		})
+	})
+
 })
 
 
+func createMessageEvent(text string) (event MessageEvent) {
+	return createMessageEventWithUser(text, "aleung")
+}
+
+func createMessageEventWithUser(text string, user string) (event MessageEvent) {
+	event = MessageEvent{Msg: Msg{Text: text, User: user}}
+	return
+}

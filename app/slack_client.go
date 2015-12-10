@@ -9,8 +9,7 @@ import (
 	"time"
 )
 
-var entryType EntryType
-var entry *Entry
+var entryMap = make(map[string]EntryType)
 
 type SlackClient interface {
 	PostMessage(channel, text string, params slack.PostMessageParameters) (string, string, error)
@@ -27,7 +26,11 @@ func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clo
 		username = user.Name
 		message = ev.Text[3:]
 
-		entry = castEntry(entryType)
+		entryType, ok := entryMap[username]
+		if !ok {
+			entryMap[username] = &Entry{}
+			entryType = entryMap[username]
+		}
 
 		index := strings.Index(message, " ")
 		if index == -1 {
@@ -38,22 +41,26 @@ func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clo
 		switch {
 		case matches(keyword, "faces"):
 			entryType = NewFace(clock, username)
-			entry = populateEntry(message, index, entryType)
+			entryMap[username] = entryType
+			populateEntry(message, index, entryType)
 		case matches(keyword, "interestings"):
 			entryType = NewInteresting(clock, username)
-			entry = populateEntry(message, index, entryType)
+			entryMap[username] = entryType
+			populateEntry(message, index, entryType)
 		case matches(keyword, "helps"):
 			entryType = NewHelp(clock, username)
-			entry = populateEntry(message, index, entryType)
+			entryMap[username] = entryType
+			populateEntry(message, index, entryType)
 		case matches(keyword, "events"):
 			entryType = NewEvent(clock, username)
-			entry = populateEntry(message, index, entryType)
+			entryMap[username] = entryType
+			populateEntry(message, index, entryType)
 		case matches(keyword, "name"):
 			fallthrough
 		case matches(keyword, "title"):
-			entry.Title = message[index + 1:]
+			entryType.GetEntry().Title = message[index + 1:]
 		case matches(keyword, "body"):
-			entry.Body = message[index + 1:]
+			entryType.GetEntry().Body = message[index + 1:]
 		case matches(keyword, "date"):
 			parsedDate, err := time.Parse("2006-01-02", message[index + 1:])
 			if err != nil {
@@ -61,7 +68,7 @@ func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clo
 				slackClient.PostMessage(ev.Channel, message, slack.PostMessageParameters{})
 				return
 			} else {
-				entry.Time = parsedDate
+				entryType.GetEntry().Date = parsedDate
 			}
 		default:
 			message = fmt.Sprintf("%v no you %v", user.Name, message)
@@ -71,14 +78,14 @@ func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clo
 
 		message = entryType.String()
 		if entryType.Validate() {
-			var request = createRequest(entryType, isExistingEntry(entry))
+			var request = createRequest(entryType, isExistingEntry(entryType.GetEntry()))
 			itemId, ok := restClient.Post(request)
 			if ok {
-				if isExistingEntry(entry) {
+				if isExistingEntry(entryType.GetEntry()) {
 					message += "\nitem updated"
 				} else {
 					message += "\nitem created"
-					entry.Id = itemId
+					entryType.GetEntry().Id = itemId
 				}
 			}
 		}
@@ -105,26 +112,6 @@ func createRequest(entryType EntryType, existingEntry bool) (request WhiteboardR
 	return
 }
 
-func castEntry(EntryType EntryType) (entry *Entry) {
-	if entryType != nil {
-		switch entryType.(type) {
-		case Face:
-			entry = entryType.(Face).Entry
-		case Interesting:
-			entry = entryType.(Interesting).Entry
-		case Event:
-			entry = entryType.(Event).Entry
-		case Help:
-			entry = entryType.(Help).Entry
-		default:
-			fmt.Printf("Cannot cast Entry")
-		}
-	}
-	return
-}
-
-func populateEntry(message string, index int, entryType EntryType) (entry *Entry) {
-	entry = castEntry(entryType)
-	entry.Title = strings.TrimPrefix(message[index:], " ")
-	return
+func populateEntry(message string, index int, entryType EntryType) {
+	entryType.GetEntry().Title = strings.TrimPrefix(message[index:], " ")
 }

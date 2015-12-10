@@ -24,7 +24,7 @@ var _ = Describe("Interesting", func() {
 
 	Describe("creating a new Interesting", func() {
 		It("should have proper defaults", func() {
-			Expect(interesting.Time).To(Equal(time.Date(2015, 1, 2, 0, 0, 0, 0, time.UTC)))
+			Expect(interesting.Date).To(Equal(time.Date(2015, 1, 2, 0, 0, 0, 0, time.UTC)))
 			Expect(interesting.Title).To(BeEmpty())
 			Expect(interesting.Body).To(BeEmpty())
 			Expect(interesting.Author).To(Equal("aleung"))

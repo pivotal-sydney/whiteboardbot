@@ -22,3 +22,7 @@ func (help Help) MakeUpdateRequest() (request WhiteboardRequest) {
 	request.Item.Kind = "Help"
 	return
 }
+
+func (help Help) GetEntry() *Entry {
+	return help.Entry
+}

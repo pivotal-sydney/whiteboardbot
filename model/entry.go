@@ -10,10 +10,11 @@ type EntryType interface {
 	MakeCreateRequest() (request WhiteboardRequest)
 	MakeUpdateRequest() (request WhiteboardRequest)
 	String() string
+	GetEntry() *Entry
 }
 
 type Entry struct {
-	Time   time.Time
+	Date   time.Time
 	Title  string
 	Body   string
 	Author string
@@ -21,7 +22,7 @@ type Entry struct {
 }
 
 func NewEntry(clock Clock, author string) (entry *Entry) {
-	entry = &Entry{Time: clock.Now(), Author: author}
+	entry = &Entry{Date: clock.Now(), Author: author}
 	return
 }
 
@@ -39,11 +40,15 @@ func (entry Entry) MakeUpdateRequest() (request WhiteboardRequest) {
 	return
 }
 
+func (entry Entry) GetEntry() *Entry {
+	return &entry
+}
+
 func (entry Entry) String() string {
-	return fmt.Sprintf("\n  *title: %v\n  body: %v\n  date: %v", entry.Title, entry.Body, entry.Time.Format("2006-01-02"))
+	return fmt.Sprintf("\n  *title: %v\n  body: %v\n  date: %v", entry.Title, entry.Body, entry.Date.Format("2006-01-02"))
 }
 
 func createItem(entry Entry) (item Item) {
-	item = Item{StandupId: 1, Title: entry.Title, Date: entry.Time.Format("2006-01-02"), Public: "false", Description: entry.Body, Author: entry.Author}
+	item = Item{StandupId: 1, Title: entry.Title, Date: entry.Date.Format("2006-01-02"), Public: "false", Description: entry.Body, Author: entry.Author}
 	return
 }

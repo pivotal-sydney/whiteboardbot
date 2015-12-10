@@ -22,3 +22,7 @@ func (interesting Interesting) MakeUpdateRequest() (request WhiteboardRequest) {
 	request.Item.Kind = "Interesting"
 	return
 }
+
+func (interesting Interesting) GetEntry() *Entry {
+	return interesting.Entry
+}
