@@ -14,7 +14,7 @@ var _ = Describe("Entry Integration", func() {
 		clock spec.MockClock
 		restClient spec.MockRestClient
 
-		newInterestingEvent, newEventEvent, newHelpEvent, setTitleEvent, setDateEvent, setBodyEvent MessageEvent
+		newInterestingEvent, newEventEvent, newHelpEvent, newFaceEventTitleEvent, newInterestingWithTitleEvent, newHelpEventTitleEvent, newEventEventWithTitleEvent, setTitleEvent, setDateEvent, setBodyEvent MessageEvent
 	)
 
 	BeforeEach(func() {
@@ -25,6 +25,11 @@ var _ = Describe("Entry Integration", func() {
 		newInterestingEvent = MessageEvent{Msg: Msg{Text: "wb Intere"}}
 		newEventEvent = MessageEvent{Msg: Msg{Text: "wb Ev"}}
 		newHelpEvent = MessageEvent{Msg: Msg{Text: "wb hEl"}}
+		newInterestingWithTitleEvent = MessageEvent{Msg: Msg{Text: "wb int something interesting"}}
+		newEventEventWithTitleEvent = MessageEvent{Msg: Msg{Text: "wb e some event"}}
+		newHelpEventTitleEvent = MessageEvent{Msg: Msg{Text: "wb h some help"}}
+		newFaceEventTitleEvent = MessageEvent{Msg: Msg{Text: "wb f some face"}}
+		newInterestingWithTitleEvent = MessageEvent{Msg: Msg{Text: "wb int something interesting"}}
 		setTitleEvent = MessageEvent{Msg: Msg{Text: "Wb tI something interesting"}}
 		setDateEvent = MessageEvent{Msg: Msg{Text: "Wb dA 2015-12-01"}}
 		setBodyEvent = MessageEvent{Msg: Msg{Text: "wB Bod more info"}}
@@ -34,6 +39,34 @@ var _ = Describe("Entry Integration", func() {
 		It("should begin creating a new interesting entry and respond with interesting string", func() {
 			_, Text := ParseMessageEvent(&slackClient, &restClient, clock, &newInterestingEvent)
 			Expect(Text).To(Equal("interestings\n  *title: \n  body: \n  date: 2015-01-02"))
+		})
+	})
+
+	Describe("with interesting keyword and title", func() {
+		It("should create a new interesting entry with title and respond with string", func() {
+			_, Text := ParseMessageEvent(&slackClient, &restClient, clock, &newInterestingWithTitleEvent)
+			Expect(Text).To(Equal("interestings\n  *title: something interesting\n  body: \n  date: 2015-01-02\nitem created"))
+		})
+	})
+
+	Describe("with help keyword and title", func() {
+		It("should create a new help entry with title and respond with string", func() {
+			_, Text := ParseMessageEvent(&slackClient, &restClient, clock, &newHelpEventTitleEvent)
+			Expect(Text).To(Equal("helps\n  *title: some help\n  body: \n  date: 2015-01-02\nitem created"))
+		})
+	})
+
+	Describe("with event keyword and title", func() {
+		It("should create a new event entry with title and respond with string", func() {
+			_, Text := ParseMessageEvent(&slackClient, &restClient, clock, &newEventEventWithTitleEvent)
+			Expect(Text).To(Equal("events\n  *title: some event\n  body: \n  date: 2015-01-02\nitem created"))
+		})
+	})
+
+	Describe("with face keyword and title", func() {
+		It("should create a new face entry with title and respond with string", func() {
+			_, Text := ParseMessageEvent(&slackClient, &restClient, clock, &newFaceEventTitleEvent)
+			Expect(Text).To(Equal("faces\n  *name: some face\n  date: 2015-01-02\nitem created"))
 		})
 	})
 

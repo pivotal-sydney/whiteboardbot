@@ -26,18 +26,8 @@ func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clo
 		}
 		username = user.Name
 		message = ev.Text[3:]
-		if entryType != nil {
-			switch entryType.(type) {
-			case Face:
-				entry = entryType.(Face).Entry
-			case Interesting:
-				entry = entryType.(Interesting).Entry
-			case Event:
-				entry = entryType.(Event).Entry
-			case Help:
-				entry = entryType.(Help).Entry
-			}
-		}
+
+		entry = castEntry(entryType)
 
 		index := strings.Index(message, " ")
 		if index == -1 {
@@ -48,20 +38,24 @@ func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clo
 		switch {
 		case matches(keyword, "faces"):
 			entryType = NewFace(clock, username)
+			entry = populateEntry(message, index, entryType)
 		case matches(keyword, "interestings"):
 			entryType = NewInteresting(clock, username)
+			entry = populateEntry(message, index, entryType)
 		case matches(keyword, "helps"):
 			entryType = NewHelp(clock, username)
+			entry = populateEntry(message, index, entryType)
 		case matches(keyword, "events"):
 			entryType = NewEvent(clock, username)
+			entry = populateEntry(message, index, entryType)
 		case matches(keyword, "name"):
 			fallthrough
 		case matches(keyword, "title"):
-			entry.Title = message[index+1:]
+			entry.Title = message[index + 1:]
 		case matches(keyword, "body"):
-			entry.Body = message[index+1:]
+			entry.Body = message[index + 1:]
 		case matches(keyword, "date"):
-			parsedDate, err := time.Parse("2006-01-02", message[index+1:])
+			parsedDate, err := time.Parse("2006-01-02", message[index + 1:])
 			if err != nil {
 				message = entryType.String() + "\nDate not set, use YYYY-MM-DD as date format"
 				slackClient.PostMessage(ev.Channel, message, slack.PostMessageParameters{})
@@ -108,5 +102,29 @@ func createRequest(entryType EntryType, existingEntry bool) (request WhiteboardR
 	} else {
 		request = entryType.MakeCreateRequest()
 	}
+	return
+}
+
+func castEntry(EntryType EntryType) (entry *Entry) {
+	if entryType != nil {
+		switch entryType.(type) {
+		case Face:
+			entry = entryType.(Face).Entry
+		case Interesting:
+			entry = entryType.(Interesting).Entry
+		case Event:
+			entry = entryType.(Event).Entry
+		case Help:
+			entry = entryType.(Help).Entry
+		default:
+			fmt.Printf("Cannot cast Entry")
+		}
+	}
+	return
+}
+
+func populateEntry(message string, index int, entryType EntryType) (entry *Entry) {
+	entry = castEntry(entryType)
+	entry.Title = strings.TrimPrefix(message[index:], " ")
 	return
 }
