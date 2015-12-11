@@ -16,13 +16,14 @@ func (client *MockSlackClient) PostMessage(channel, text string, params slack.Po
 }
 
 func (client *MockSlackClient) GetUserInfo(user string) (*slack.User, error) {
-	User := slack.User{}
+	slackUser := slack.User{}
+	slackUser.Profile = slack.UserProfile{RealName: "Andrew Leung"}
 	if user == "" {
-		User.Name = "aleung"
+		slackUser.Name = "aleung"
 	} else {
-		User.Name = user
+		slackUser.Name = user
 	}
-	return &User, nil
+	return &slackUser, nil
 }
 
 type MockClock struct{}

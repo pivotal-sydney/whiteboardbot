@@ -13,7 +13,7 @@ var _ = Describe("Entry Integration", func() {
 		clock spec.MockClock
 		restClient spec.MockRestClient
 
-		newInterestingEvent, newEventEvent, newHelpEvent,
+		usageEvent, newInterestingEvent, newEventEvent, newHelpEvent,
 		newFaceEventTitleEvent, newInterestingWithTitleEvent, newHelpEventTitleEvent, newEventEventWithTitleEvent,
 		setTitleEvent, setDateEvent, setBodyEvent MessageEvent
 	)
@@ -22,6 +22,7 @@ var _ = Describe("Entry Integration", func() {
 		slackClient = spec.MockSlackClient{}
 		clock = spec.MockClock{}
 		restClient = spec.MockRestClient{}
+		usageEvent = createMessageEvent("wb ?")
 		newInterestingEvent = createMessageEvent("wb Intere")
 		newEventEvent = createMessageEvent("wb Ev")
 		newHelpEvent = createMessageEvent("wb hEl")
@@ -32,7 +33,6 @@ var _ = Describe("Entry Integration", func() {
 		setTitleEvent = createMessageEvent("Wb tI something interesting")
 		setDateEvent = createMessageEvent("Wb dA 2015-12-01")
 		setBodyEvent = createMessageEvent("wB Bod more info")
-
 	})
 
 	Describe("with interesting keyword", func() {
@@ -98,6 +98,7 @@ var _ = Describe("Entry Integration", func() {
 					_, message := ParseMessageEvent(&slackClient, &restClient, clock, &setTitleEvent)
 					Expect(restClient.PostCalledCount).To(Equal(1))
 					Expect(restClient.Request.Commit).To(Equal("Create Item"))
+					Expect(restClient.Request.Item.Author).To(Equal("Andrew Leung"))
 					Expect(message).Should(HaveSuffix("item created"))
 				})
 				It("should update existing interesting entry in the whiteboard ", func() {
@@ -110,6 +111,7 @@ var _ = Describe("Entry Integration", func() {
 					Expect(restClient.Request.Commit).To(Equal("Update Item"))
 					Expect(restClient.Request.Item.Title).To(Equal("updated title"))
 					Expect(restClient.Request.Item.Description).To(BeEmpty())
+					Expect(restClient.Request.Item.Author).To(Equal("Andrew Leung"))
 					Expect(restClient.Request.Id).To(Equal("1"))
 					Expect(message).Should(HaveSuffix("item updated"))
 				})
@@ -127,6 +129,12 @@ var _ = Describe("Entry Integration", func() {
 					setTitleEvent.Text = "wb titleSomethingWrong"
 					_, Text := ParseMessageEvent(&slackClient, &restClient, clock, &setTitleEvent)
 					Expect(Text).To(Equal("aleung no you titleSomethingWrong"))
+				})
+			})
+			Describe("with question mark", func() {
+				It("should respond with usage screen", func() {
+					_, Text := ParseMessageEvent(&slackClient, &restClient, clock, &usageEvent)
+					Expect(Text).Should(HavePrefix("*Usage*:\n    `wb [command] [text...]`"))
 				})
 			})
 		})
@@ -197,7 +205,6 @@ var _ = Describe("Entry Integration", func() {
 	})
 
 })
-
 
 func createMessageEvent(text string) (event MessageEvent) {
 	return createMessageEventWithUser(text, "aleung")

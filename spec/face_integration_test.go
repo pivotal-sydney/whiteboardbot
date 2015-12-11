@@ -85,6 +85,15 @@ var _ = Describe("Faces Integration", func() {
 					Expect(Text).To(Equal("aleung no you nameSomethingWrong"))
 				})
 			})
+			Describe("with not allowed keyword", func() {
+				It("should respond with random insult", func() {
+					setNameEvent.Text = "wb body no body"
+					_, Text := ParseMessageEvent(&slackClient, &restClient, clock, &setNameEvent)
+					Expect(Text).To(Equal("Face does not have a body! Stupid."))
+					_, Text = ParseMessageEvent(&slackClient, &restClient, clock, &setNameEvent)
+					Expect(Text).To(Equal("Face does not have a body! You idiot."))
+				})
+			})
 		})
 	})
 })
