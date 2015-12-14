@@ -8,10 +8,12 @@ import (
 
 type MockSlackClient struct {
 	PostMessageCalled bool
+	Message string
 }
 
 func (client *MockSlackClient) PostMessage(channel, text string, params slack.PostMessageParameters) (string, string, error) {
 	client.PostMessageCalled = true
+	client.Message = text
 	return "channel", "timestamp", nil
 }
 

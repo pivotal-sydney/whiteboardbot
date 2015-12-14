@@ -44,86 +44,82 @@ type SlackClient interface {
 	GetUserInfo(user string) (*slack.User, error)
 }
 
-func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clock, ev *slack.MessageEvent) (username string, message string) {
-	if strings.HasPrefix(strings.ToLower(ev.Text), "wb ") {
-		user, err := slackClient.GetUserInfo(ev.User)
-		if err != nil {
-			fmt.Printf("%v, %v", ev.User, err)
-			return
-		}
-		username = user.Name
-		message = ev.Text[3:]
-
-		entryType, ok := entryMap[username]
-		if !ok {
-			entryMap[username] = &Entry{}
-			entryType = entryMap[username]
-		}
-
-		index := strings.Index(message, " ")
-		if index == -1 {
-			index = len(message)
-		}
-
-		keyword := strings.ToLower(message[:index])
-		switch {
-		case matches(keyword, "?"):
-			message = usage
-			postMarkdownMessageToSlack(usage, slackClient, ev.Channel)
-			return
-		case matches(keyword, "faces"):
-			entryType = NewFace(clock, GetAuthor(user))
-			entryMap[username] = entryType
-			populateEntry(message, index, entryType)
-		case matches(keyword, "interestings"):
-			entryType = NewInteresting(clock, GetAuthor(user))
-			entryMap[username] = entryType
-			populateEntry(message, index, entryType)
-		case matches(keyword, "helps"):
-			entryType = NewHelp(clock, GetAuthor(user))
-			entryMap[username] = entryType
-			populateEntry(message, index, entryType)
-		case matches(keyword, "events"):
-			entryType = NewEvent(clock, GetAuthor(user))
-			entryMap[username] = entryType
-			populateEntry(message, index, entryType)
-		case matches(keyword, "name") || matches(keyword, "title"):
-			entryType.GetEntry().Title = message[index + 1:]
-		case matches(keyword, "body"):
-			switch entryType.(type) {
-			default:
-				entryType.GetEntry().Body = message[index + 1:]
-			case Face:
-				message = "Face does not have a body! " + randomInsult();
-				postMessageToSlack(message, slackClient, ev.Channel)
-				return
-		}
-		case matches(keyword, "date"):
-			parsedDate, err := time.Parse("2006-01-02", message[index + 1:])
-			if err != nil {
-				message = entryType.String() + "\nDate not set, use YYYY-MM-DD as date format"
-				postMessageToSlack(message, slackClient, ev.Channel)
-				return
-			} else {
-				entryType.GetEntry().Date = parsedDate
-			}
-		default:
-			message = fmt.Sprintf("%v no you %v", user.Name, message)
-			postMessageToSlack(message, slackClient, ev.Channel)
-			return
-		}
-
-		message = entryType.String()
-		if entryType.Validate() {
-			itemId, ok := postEntryToWhiteboard(restClient, entryType)
-			if ok {
-				message = appendStatus(entryType, message)
-				entryType.GetEntry().Id = itemId
-			}
-		}
-		fmt.Printf("Posting message: %v", message)
-		postMessageToSlack(message, slackClient, ev.Channel)
+func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clock, ev *slack.MessageEvent) {
+	if !strings.HasPrefix(strings.ToLower(ev.Text), "wb ") {
+		return
 	}
+
+	username, author, ok := getSlackUser(slackClient, ev.User)
+	if !ok {
+		return
+	}
+
+	input := ev.Text[3:]
+
+	entryType, ok := entryMap[username]
+	if !ok {
+		entryMap[username] = &Entry{}
+		entryType = entryMap[username]
+	}
+
+	index := strings.Index(input, " ")
+	if index == -1 {
+		index = len(input)
+	}
+
+	keyword := strings.ToLower(input[:index])
+	switch {
+	case matches(keyword, "?"):
+		postMarkdownMessageToSlack(usage, slackClient, ev.Channel)
+		return
+	case matches(keyword, "faces"):
+		entryType = NewFace(clock, author)
+		entryMap[username] = entryType
+		populateEntry(input, index, entryType)
+	case matches(keyword, "interestings"):
+		entryType = NewInteresting(clock, author)
+		entryMap[username] = entryType
+		populateEntry(input, index, entryType)
+	case matches(keyword, "helps"):
+		entryType = NewHelp(clock, author)
+		entryMap[username] = entryType
+		populateEntry(input, index, entryType)
+	case matches(keyword, "events"):
+		entryType = NewEvent(clock, author)
+		entryMap[username] = entryType
+		populateEntry(input, index, entryType)
+	case matches(keyword, "name") || matches(keyword, "title"):
+		entryType.GetEntry().Title = input[index + 1:]
+	case matches(keyword, "body"):
+		switch entryType.(type) {
+		default:
+			entryType.GetEntry().Body = input[index + 1:]
+		case Face:
+			postMessageToSlack("Face does not have a body! " + randomInsult(), slackClient, ev.Channel)
+			return
+	}
+	case matches(keyword, "date"):
+		if parsedDate, err := time.Parse("2006-01-02", input[index + 1:]); err == nil {
+			entryType.GetEntry().Date = parsedDate
+		} else {
+			postMessageToSlack(entryType.String() + "\nDate not set, use YYYY-MM-DD as date format", slackClient, ev.Channel)
+			return
+		}
+	default:
+		postMessageToSlack(fmt.Sprintf("%v no you %v", username, input), slackClient, ev.Channel)
+		return
+	}
+
+	output := entryType.String()
+	if entryType.Validate() {
+		itemId, ok := postEntryToWhiteboard(restClient, entryType)
+		if ok {
+			output = appendStatus(entryType, output)
+			entryType.GetEntry().Id = itemId
+		}
+	}
+	fmt.Printf("Posting message: %v\n", output)
+	postMessageToSlack(output, slackClient, ev.Channel)
 	return
 }
 
@@ -164,6 +160,18 @@ func postEntryToWhiteboard(restClient RestClient, entryType EntryType) (itemId s
 
 func randomInsult() string {
 	return insults[rand.Intn(len(insults))]
+}
+
+func getSlackUser(slackClient SlackClient, eventUser string) (username, author string, ok bool) {
+	if slackUser, err := slackClient.GetUserInfo(eventUser); err == nil {
+		username = slackUser.Name
+		author = GetAuthor(slackUser)
+		ok = true
+	} else {
+		fmt.Printf("%v, %v", username, err)
+		ok = false
+	}
+	return
 }
 
 func GetAuthor(user *slack.User) (realName string) {

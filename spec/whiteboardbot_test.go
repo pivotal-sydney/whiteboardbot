@@ -31,19 +31,17 @@ var _ = Describe("Whiteboardbot", func() {
 
 	Context("when receiving a MessageEvent", func() {
 		Describe("with text containing keywords", func() {
-			It("should post a message with username and text", func() {
-				Username, Text := ParseMessageEvent(&client, &restClient, clock, &helloWorldEvent)
+			It("should post a message with text", func() {
+				ParseMessageEvent(&client, &restClient, clock, &helloWorldEvent)
 				Expect(client.PostMessageCalled).To(Equal(true))
-				Expect(Username).To(Equal("aleung"))
-				Expect(Text).To(Equal("aleung no you hello world"))
+				Expect(client.Message).To(Equal("aleung no you hello world"))
 			})
 		})
 		Describe("with text not containing keywords", func() {
 			It("should ignore the event", func() {
-				Username, Text := ParseMessageEvent(&client, &restClient, clock, &randomEvent)
+				ParseMessageEvent(&client, &restClient, clock, &randomEvent)
 				Expect(client.PostMessageCalled).To(Equal(false))
-				Expect(Username).To(BeEmpty())
-				Expect(Text).To(BeEmpty())
+				Expect(client.Message).To(BeEmpty())
 			})
 		})
 	})
