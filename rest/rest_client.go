@@ -21,7 +21,7 @@ func (RealRestClient) Post(request model.WhiteboardRequest) (itemId string, ok b
 	fmt.Printf("Posting entry to whiteboard:\n%v\n", string(json))
 	http.DefaultClient.CheckRedirect = noRedirect
 	url := os.Getenv("WB_HOST_URL")
-	standupId := os.Getenv("WB_STANDUP_IP")
+	standupId := os.Getenv("WB_STANDUP_ID")
 	if len(request.Id) > 0 {
 		url += "/items/" + request.Id
 	} else {
