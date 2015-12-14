@@ -16,7 +16,6 @@ const (
 
 func main() {
 	api := slack.New(os.Getenv("WB_BOT_API_TOKEN"))
-
 	rtm := api.NewRTM()
 	go rtm.ManageConnection()
 
@@ -56,6 +55,6 @@ func getHealthCheckPort() (port string){
 	return
 }
 
-func HealthCheckServer(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintln(w, "I'm alive")
+func HealthCheckServer(responseWriter http.ResponseWriter, req *http.Request) {
+	fmt.Fprintln(responseWriter, "I'm alive")
 }
