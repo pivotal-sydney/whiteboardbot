@@ -1,11 +1,12 @@
 package spec_test
 
 import (
+	"github.com/nlopes/slack"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/xtreme-andleung/whiteboardbot/app"
-	"github.com/nlopes/slack"
 )
+
 var _ = Describe("Slack Client", func() {
 
 	var slackUser *slack.User
@@ -25,6 +26,3 @@ var _ = Describe("Slack Client", func() {
 		})
 	})
 })
-
-
-

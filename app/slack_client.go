@@ -1,18 +1,18 @@
 package app
 
 import (
-	"github.com/nlopes/slack"
-	"strings"
 	"fmt"
+	"github.com/nlopes/slack"
 	. "github.com/xtreme-andleung/whiteboardbot/model"
 	. "github.com/xtreme-andleung/whiteboardbot/rest"
-	"time"
 	"math/rand"
+	"strings"
+	"time"
 )
 
 const (
-	botName = "whiteboard-bot"
-	usage string = "*Usage*:\n" +
+	botName        = "whiteboard-bot"
+	usage   string = "*Usage*:\n" +
 		"    `wb [command] [text...]`\n" +
 		"where commands include:\n" +
 		"    *Create Commands*\n" +
@@ -81,7 +81,7 @@ func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clo
 		case Face:
 			postMessageToSlack("Face does not have a body! " + randomInsult(), slackClient, ev.Channel)
 			return
-	}
+		}
 	case matches(command, "date"):
 		if parsedDate, err := time.Parse("2006-01-02", input); err == nil {
 			entryType.GetEntry().Date = parsedDate
@@ -102,7 +102,6 @@ func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clo
 			entryType.GetEntry().Id = itemId
 		}
 	}
-	fmt.Printf("Posting message: %v\n", output)
 	postMessageToSlack(output, slackClient, ev.Channel)
 	return
 }
@@ -125,11 +124,18 @@ func createRequest(entryType EntryType, existingEntry bool) (request WhiteboardR
 }
 
 func postMessageToSlack(message string, slackClient SlackClient, channel string) {
-	slackClient.PostMessage(channel, message, slack.PostMessageParameters{Username: botName})
+	postToSlack(message, slackClient, channel, slack.PostMessageParameters{})
 }
 
 func postMarkdownMessageToSlack(message string, slackClient SlackClient, channel string) {
-	slackClient.PostMessage(channel, message, slack.PostMessageParameters{Markdown: true, Username: botName})
+	params := slack.PostMessageParameters{Markdown: true}
+	postToSlack(message, slackClient, channel, params)
+}
+
+func postToSlack(message string, slackClient SlackClient, channel string, params slack.PostMessageParameters) {
+	fmt.Printf("Posting message to slack:\n%v\n", message)
+	params.Username = botName
+	slackClient.PostMessage(channel, message, params)
 }
 
 func postEntryToWhiteboard(restClient RestClient, entryType EntryType) (itemId string, ok bool) {
@@ -148,7 +154,7 @@ func getSlackUser(slackClient SlackClient, eventUser string) (username, author s
 		author = GetAuthor(slackUser)
 		ok = true
 	} else {
-		fmt.Printf("%v, %v", username, err)
+		fmt.Printf("%v, %v\n", username, err)
 	}
 	return
 }

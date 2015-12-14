@@ -4,16 +4,16 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/xtreme-andleung/whiteboardbot/model"
-	"time"
 	"github.com/xtreme-andleung/whiteboardbot/spec"
 	"os"
+	"time"
 )
 
 var _ = Describe("Interesting", func() {
 
 	var (
 		interesting Interesting
-		clock spec.MockClock
+		clock       spec.MockClock
 	)
 
 	BeforeEach(func() {

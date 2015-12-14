@@ -1,17 +1,18 @@
 package spec_test
 
 import (
+	. "github.com/nlopes/slack"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/xtreme-andleung/whiteboardbot/app"
-	. "github.com/nlopes/slack"
 	"github.com/xtreme-andleung/whiteboardbot/spec"
 )
+
 var _ = Describe("Entry Integration", func() {
 	var (
 		slackClient spec.MockSlackClient
-		clock spec.MockClock
-		restClient spec.MockRestClient
+		clock       spec.MockClock
+		restClient  spec.MockRestClient
 
 		usageEvent, newInterestingEvent, newEventEvent, newHelpEvent,
 		newFaceEventTitleEvent, newInterestingWithTitleEvent, newHelpEventTitleEvent, newEventEventWithTitleEvent,

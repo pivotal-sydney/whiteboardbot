@@ -2,13 +2,13 @@ package spec
 
 import (
 	"github.com/nlopes/slack"
-	"time"
 	"github.com/xtreme-andleung/whiteboardbot/model"
+	"time"
 )
 
 type MockSlackClient struct {
 	PostMessageCalled bool
-	Message string
+	Message           string
 }
 
 func (client *MockSlackClient) PostMessage(channel, text string, params slack.PostMessageParameters) (string, string, error) {

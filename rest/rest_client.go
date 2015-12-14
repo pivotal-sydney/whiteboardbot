@@ -18,6 +18,7 @@ type RealRestClient struct{}
 
 func (RealRestClient) Post(request model.WhiteboardRequest) (itemId string, ok bool) {
 	json, _ := json.Marshal(request)
+	fmt.Printf("Posting entry to whiteboard:\n%v\n", string(json))
 	http.DefaultClient.CheckRedirect = noRedirect
 	url := os.Getenv("WB_HOST_URL")
 	if len(request.Id) > 0 {
@@ -28,14 +29,15 @@ func (RealRestClient) Post(request model.WhiteboardRequest) (itemId string, ok b
 	httpRequest, err := http.NewRequest(toHttpVerb(request.Method), url, bytes.NewReader(json))
 	httpRequest.Header.Add("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(httpRequest)
-	fmt.Printf("\nResponse: %v, Err: %v, json: %v", resp, err, string(json))
-	fmt.Printf("\nURL %v", url)
+	fmt.Printf("Whitebord Response: %v, Err: %v\n, Url: %v\n", resp, err, url)
 
 	ok = resp !=nil && resp.StatusCode == http.StatusFound
 	if ok {
 		itemId = resp.Header.Get("Item-Id")
-	}
-	if len(itemId) == 0 {
+		if (len(itemId) == 0) {
+			ok = false
+		}
+	} else {
 		itemId = request.Id
 	}
 	return
