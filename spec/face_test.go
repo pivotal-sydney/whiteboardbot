@@ -18,14 +18,14 @@ var _ = Describe("Face", func() {
 
 	BeforeEach(func() {
 		clock = spec.MockClock{}
-		face = NewFace(clock, "aleung")
+		face = NewFace(clock, "aleung", "title")
 		os.Setenv("WB_AUTH_TOKEN", "token")
 	})
 
 	Describe("creating a new Face", func() {
 		It("should have proper defaults", func() {
 			Expect(face.Date).To(Equal(time.Date(2015, 1, 2, 0, 0, 0, 0, time.UTC)))
-			Expect(face.Title).To(BeEmpty())
+			Expect(face.Title).To(Equal("title"))
 			Expect(face.Body).To(BeEmpty())
 			Expect(face.Author).To(Equal("aleung"))
 			Expect(face.Id).To(BeEmpty())

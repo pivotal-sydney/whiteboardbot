@@ -21,8 +21,8 @@ type Entry struct {
 	Id     string
 }
 
-func NewEntry(clock Clock, author string) (entry *Entry) {
-	entry = &Entry{Date: clock.Now(), Author: author}
+func NewEntry(clock Clock, author, title string) (entry *Entry) {
+	entry = &Entry{Date: clock.Now(), Author: author, Title: title}
 	return
 }
 

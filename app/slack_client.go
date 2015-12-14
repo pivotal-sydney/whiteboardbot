@@ -45,7 +45,10 @@ type SlackClient interface {
 }
 
 func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clock, ev *slack.MessageEvent) {
-	if !strings.HasPrefix(strings.ToLower(ev.Text), "wb ") {
+	input := ev.Text
+
+	command, input := readNextCommand(input)
+	if !matches(command, "wb") {
 		return
 	}
 
@@ -54,66 +57,47 @@ func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clo
 		return
 	}
 
-	input := ev.Text[3:]
+	entryType := entryMap[username]
 
-	entryType, ok := entryMap[username]
-	if !ok {
-		entryMap[username] = &Entry{}
-		entryType = entryMap[username]
-	}
-
-	index := strings.Index(input, " ")
-	if index == -1 {
-		index = len(input)
-	}
-
-	keyword := strings.ToLower(input[:index])
+	command, input = readNextCommand(input)
 	switch {
-	case matches(keyword, "?"):
+	case matches(command, "?"):
 		postMarkdownMessageToSlack(usage, slackClient, ev.Channel)
 		return
-	case matches(keyword, "faces"):
-		entryType = NewFace(clock, author)
-		entryMap[username] = entryType
-		populateEntry(input, index, entryType)
-	case matches(keyword, "interestings"):
-		entryType = NewInteresting(clock, author)
-		entryMap[username] = entryType
-		populateEntry(input, index, entryType)
-	case matches(keyword, "helps"):
-		entryType = NewHelp(clock, author)
-		entryMap[username] = entryType
-		populateEntry(input, index, entryType)
-	case matches(keyword, "events"):
-		entryType = NewEvent(clock, author)
-		entryMap[username] = entryType
-		populateEntry(input, index, entryType)
-	case matches(keyword, "name") || matches(keyword, "title"):
-		entryType.GetEntry().Title = input[index + 1:]
-	case matches(keyword, "body"):
+	case matches(command, "faces"):
+		entryMap[username] = NewFace(clock, author, input)
+	case matches(command, "interestings"):
+		entryMap[username] = NewInteresting(clock, author, input)
+	case matches(command, "helps"):
+		entryMap[username] = NewHelp(clock, author, input)
+	case matches(command, "events"):
+		entryMap[username] = NewEvent(clock, author, input)
+	case matches(command, "name") || matches(command, "title"):
+		entryType.GetEntry().Title = input
+	case matches(command, "body"):
 		switch entryType.(type) {
 		default:
-			entryType.GetEntry().Body = input[index + 1:]
+			entryType.GetEntry().Body = input
 		case Face:
 			postMessageToSlack("Face does not have a body! " + randomInsult(), slackClient, ev.Channel)
 			return
 	}
-	case matches(keyword, "date"):
-		if parsedDate, err := time.Parse("2006-01-02", input[index + 1:]); err == nil {
+	case matches(command, "date"):
+		if parsedDate, err := time.Parse("2006-01-02", input); err == nil {
 			entryType.GetEntry().Date = parsedDate
 		} else {
 			postMessageToSlack(entryType.String() + "\nDate not set, use YYYY-MM-DD as date format", slackClient, ev.Channel)
 			return
 		}
 	default:
-		postMessageToSlack(fmt.Sprintf("%v no you %v", username, input), slackClient, ev.Channel)
+		postMessageToSlack(fmt.Sprintf("%v no you %v", username, ev.Text[3:]), slackClient, ev.Channel)
 		return
 	}
 
+	entryType = entryMap[username]
 	output := entryType.String()
 	if entryType.Validate() {
-		itemId, ok := postEntryToWhiteboard(restClient, entryType)
-		if ok {
+		if itemId, ok := postEntryToWhiteboard(restClient, entryType); ok {
 			output = appendStatus(entryType, output)
 			entryType.GetEntry().Id = itemId
 		}
@@ -138,10 +122,6 @@ func createRequest(entryType EntryType, existingEntry bool) (request WhiteboardR
 		request = entryType.MakeCreateRequest()
 	}
 	return
-}
-
-func populateEntry(message string, index int, entryType EntryType) {
-	entryType.GetEntry().Title = strings.TrimPrefix(message[index:], " ")
 }
 
 func postMessageToSlack(message string, slackClient SlackClient, channel string) {
@@ -169,7 +149,6 @@ func getSlackUser(slackClient SlackClient, eventUser string) (username, author s
 		ok = true
 	} else {
 		fmt.Printf("%v, %v", username, err)
-		ok = false
 	}
 	return
 }
@@ -182,10 +161,20 @@ func GetAuthor(user *slack.User) (realName string) {
 	return
 }
 
-func appendStatus(entryType EntryType, message string) string {
+func appendStatus(entryType EntryType, output string) string {
 	if isExistingEntry(entryType.GetEntry()) {
-		return message + "\nitem updated"
+		return output + "\nitem updated"
 	} else {
-		return message + "\nitem created"
+		return output + "\nitem created"
 	}
+}
+
+func readNextCommand(input string) (keyword string, newInput string) {
+	index := strings.Index(input, " ")
+	if index == -1 {
+		index = len(input)
+	}
+	keyword = strings.ToLower(input[:index])
+	newInput = strings.TrimPrefix(input[index:], " ")
+	return
 }

@@ -5,8 +5,8 @@ import (
 
 type Face struct{ *Entry }
 
-func NewFace(clock Clock, author string) (face Face) {
-	face = Face{NewEntry(clock, author)}
+func NewFace(clock Clock, author, title string) (face Face) {
+	face = Face{NewEntry(clock, author, title)}
 	return
 }
 

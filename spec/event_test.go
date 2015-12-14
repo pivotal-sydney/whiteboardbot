@@ -18,14 +18,14 @@ var _ = Describe("Event", func() {
 
 	BeforeEach(func() {
 		clock = spec.MockClock{}
-		event = NewEvent(clock, "aleung")
+		event = NewEvent(clock, "aleung", "title")
 		os.Setenv("WB_AUTH_TOKEN", "token")
 	})
 
 	Describe("creating a new Event", func() {
 		It("should have proper defaults", func() {
 			Expect(event.Date).To(Equal(time.Date(2015, 1, 2, 0, 0, 0, 0, time.UTC)))
-			Expect(event.Title).To(BeEmpty())
+			Expect(event.Title).To(Equal("title"))
 			Expect(event.Body).To(BeEmpty())
 			Expect(event.Author).To(Equal("aleung"))
 			Expect(event.Id).To(BeEmpty())

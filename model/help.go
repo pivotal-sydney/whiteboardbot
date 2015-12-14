@@ -2,8 +2,8 @@ package model
 
 type Help struct{ *Entry }
 
-func NewHelp(clock Clock, author string) (help Help) {
-	help = Help{NewEntry(clock, author)}
+func NewHelp(clock Clock, author, title string) (help Help) {
+	help = Help{NewEntry(clock, author, title)}
 	return
 }
 

@@ -2,8 +2,8 @@ package model
 
 type Event struct{ *Entry }
 
-func NewEvent(clock Clock, author string) (event Event) {
-	event = Event{NewEntry(clock, author)}
+func NewEvent(clock Clock, author, title string) (event Event) {
+	event = Event{NewEntry(clock, author, title)}
 	return
 }
 
