@@ -44,6 +44,7 @@ In order to have the bot work correctly, you need to have several ENV variables 
 ```
 WB_HOST_URL=http://localhost:3000     // The host url of the whiteboard app
 WB_BOT_API_TOKEN=someapitoken         // The API token of your bot.  See Slack docs to create a bot, and get API token
+WB_STANDUP_ID=id                      // The Whiteboard Standup ID
 ```
 
 ```
