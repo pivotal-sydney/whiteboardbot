@@ -13,7 +13,7 @@ var _ = Describe("Entry Integration", func() {
 		slackClient spec.MockSlackClient
 		clock       spec.MockClock
 		restClient  spec.MockRestClient
-		whiteboard WhiteboardApp
+		whiteboard  WhiteboardApp
 		usageEvent, newInterestingEvent, newEventEvent, newHelpEvent,
 		newFaceEventTitleEvent, newInterestingWithTitleEvent, newHelpEventTitleEvent, newEventEventWithTitleEvent,
 		setTitleEvent, setDateEvent, setBodyEvent MessageEvent

@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"github.com/nlopes/slack"
 	. "github.com/xtreme-andleung/whiteboardbot/model"
+	. "github.com/xtreme-andleung/whiteboardbot/persistance"
 	. "github.com/xtreme-andleung/whiteboardbot/rest"
+	. "github.com/xtreme-andleung/whiteboardbot/slack_client"
 	"math/rand"
+	"strconv"
 	"strings"
 	"time"
-	"strconv"
-	. "github.com/xtreme-andleung/whiteboardbot/slack_client"
-	. "github.com/xtreme-andleung/whiteboardbot/persistance"
 )
 
 const (
@@ -38,9 +38,9 @@ var entryMap = make(map[string]EntryType)
 
 type WhiteboardApp struct {
 	SlackClient SlackClient
-	RestClient RestClient
-	Clock Clock
-	Store Store
+	RestClient  RestClient
+	Clock       Clock
+	Store       Store
 }
 
 var insults = [...]string{"Stupid.", "You idiot.", "You fool."}
@@ -79,7 +79,7 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 		return
 	}
 
-	standupId, ok := whiteboard.Store.Get(ev.Channel);
+	standupId, ok := whiteboard.Store.Get(ev.Channel)
 	if !ok {
 		handleRegisterationFailure(whiteboard.SlackClient, ev.Channel)
 		return
@@ -110,19 +110,19 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 		default:
 			entryType.GetEntry().Body = input
 		case Face:
-			postMessageToSlack("Face does not have a body! " + randomInsult(), whiteboard.SlackClient, ev.Channel)
+			postMessageToSlack("Face does not have a body! "+randomInsult(), whiteboard.SlackClient, ev.Channel)
 			return
 		}
 	case matches(command, "date"):
 		if parsedDate, err := time.Parse("2006-01-02", input); err == nil {
 			entryType.GetEntry().Date = parsedDate
 		} else {
-			postMessageToSlack(entryType.String() + "\nDate not set, use YYYY-MM-DD as date format", whiteboard.SlackClient, ev.Channel)
+			postMessageToSlack(entryType.String()+"\nDate not set, use YYYY-MM-DD as date format", whiteboard.SlackClient, ev.Channel)
 			return
 		}
 	default:
 		var userInput string
-		if (fileUpload) {
+		if fileUpload {
 			userInput = ev.File.Title[3:]
 		} else {
 			userInput = ev.Text[3:]

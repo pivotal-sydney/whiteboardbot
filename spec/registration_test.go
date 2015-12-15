@@ -11,11 +11,11 @@ import (
 var _ = Describe("Standup Registration", func() {
 	var (
 		slackClient spec.MockSlackClient
-		clock spec.MockClock
-		restClient spec.MockRestClient
-		whiteboard WhiteboardApp
+		clock       spec.MockClock
+		restClient  spec.MockRestClient
+		whiteboard  WhiteboardApp
 
-		event MessageEvent
+		event             MessageEvent
 		registrationEvent MessageEvent
 	)
 

@@ -13,12 +13,12 @@ var _ = Describe("Faces Integration", func() {
 		slackClient spec.MockSlackClient
 		clock       spec.MockClock
 		restClient  spec.MockRestClient
-		whiteboard WhiteboardApp
+		whiteboard  WhiteboardApp
 
 		registrationEvent MessageEvent
-		newFaceEvent MessageEvent
-		setNameEvent MessageEvent
-		setDateEvent MessageEvent
+		newFaceEvent      MessageEvent
+		setNameEvent      MessageEvent
+		setDateEvent      MessageEvent
 	)
 
 	BeforeEach(func() {

@@ -1,7 +1,7 @@
 package persistance
+
 import (
 	"github.com/garyburd/redigo/redis"
-	"strconv"
 	"os"
 )
 
@@ -14,18 +14,13 @@ type RealStore struct{}
 
 func (store RealStore) Get(key string) (value int64, ok bool) {
 
-	client, err := redis.Dial("tcp", os.Getenv("WB_DB_HOST") + ":6379")
+	client, err := redis.Dial("tcp", os.Getenv("WB_DB_HOST"))
 	if err != nil {
 		ok = false
 	}
 	defer client.Close()
 
-	x, err := client.Do("GET", key)
-	if err != nil {
-		ok = false
-	}
-	bytearray := string(x.([]byte))
-	value, err = strconv.ParseInt(bytearray, 10, 64)
+	value, err = redis.Int64(client.Do("GET", key))
 	ok = err == nil
 	return
 }

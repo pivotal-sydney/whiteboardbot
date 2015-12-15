@@ -10,15 +10,14 @@ import (
 
 var _ = Describe("Whiteboardbot", func() {
 	var (
-		helloWorldEvent slack.MessageEvent
-		randomEvent slack.MessageEvent
+		helloWorldEvent   slack.MessageEvent
+		randomEvent       slack.MessageEvent
 		registrationEvent slack.MessageEvent
-		slackClient spec.MockSlackClient
-		clock spec.MockClock
-		restClient spec.MockRestClient
+		slackClient       spec.MockSlackClient
+		clock             spec.MockClock
+		restClient        spec.MockRestClient
 
 		whiteboard WhiteboardApp
-
 	)
 
 	BeforeEach(func() {
