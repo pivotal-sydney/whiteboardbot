@@ -16,7 +16,7 @@ where `<command>` can be one of [faces, events, interestings, helps]
 The bot remembers the context of what type of entry you are working with. If the command is accepted, it will respond with
 the current state of the entry you are working with.
 
-## Setting details on Whiteboard Entry
+##  <a name="detail">Setting details on Whiteboard Entry
 * To set/update a name/title (they do the same thing)
 ```
 wb name My Name
@@ -79,6 +79,16 @@ wb f My new face!
 wb i Some intersting title
 wb e The new event title happening soon!
 wb h How does the whiteboard bot work!?
+```
+
+## Uploading images via Mobile
+You can now upload an image to Whiteboard (via any Slack client like iOS, Android, or Desktop).  Simply share an image, use a [create command](#create) via the title section of the upload, and add any text into the body via the comment section.  Making changes remains the same as before by [setting details](#detail) on the entry.
+```
+[Share an image via Slack]
+[Title]
+wb i Here's the title of the image I'm uploading
+[Comment]
+More context about the image I'm uploading
 ```
 
 ## Command Case Insensitivity
