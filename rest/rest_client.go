@@ -35,10 +35,8 @@ func (RealRestClient) Post(request model.WhiteboardRequest) (itemId string, ok b
 	ok = resp !=nil && resp.StatusCode == http.StatusFound
 	if ok {
 		itemId = resp.Header.Get("Item-Id")
-		if (len(itemId) == 0) {
-			ok = false
-		}
-	} else {
+	}
+	if (len(itemId) == 0) {
 		itemId = request.Id
 	}
 	return

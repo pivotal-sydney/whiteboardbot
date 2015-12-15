@@ -47,6 +47,12 @@ type SlackClient interface {
 func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clock, ev *slack.MessageEvent) {
 	input := ev.Text
 
+	var fileUpload bool
+	if ev.Upload {
+		input = ev.File.Title
+		fileUpload = true
+	}
+
 	command, input := readNextCommand(input)
 	if !matches(command, "wb") {
 		return
@@ -90,11 +96,22 @@ func ParseMessageEvent(slackClient SlackClient, restClient RestClient, clock Clo
 			return
 		}
 	default:
-		postMessageToSlack(fmt.Sprintf("%v no you %v", username, ev.Text[3:]), slackClient, ev.Channel)
+		var userInput string
+		if (fileUpload) {
+			userInput = ev.File.Title[3:]
+		} else {
+			userInput = ev.Text[3:]
+		}
+		postMessageToSlack(fmt.Sprintf("%v no you %v", username, userInput), slackClient, ev.Channel)
 		return
 	}
 
 	entryType = entryMap[username]
+
+	if fileUpload {
+		entryType.GetEntry().Body = fmt.Sprintf("%v\n![](%v)", ev.File.InitialComment.Comment, ev.File.URL)
+	}
+
 	output := entryType.String()
 	if entryType.Validate() {
 		if itemId, ok := postEntryToWhiteboard(restClient, entryType); ok {
