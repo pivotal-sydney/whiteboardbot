@@ -8,6 +8,7 @@ import (
 	"github.com/xtreme-andleung/whiteboardbot/rest"
 	"os"
 	"net/http"
+	"github.com/xtreme-andleung/whiteboardbot/persistance"
 )
 
 const (
@@ -21,8 +22,8 @@ func main() {
 
 	go startHttpServer()
 
-	clock := model.RealClock{}
-	restClient := rest.RealRestClient{}
+
+	whiteboard := app.WhiteboardApp{SlackClient: rtm, Clock: model.RealClock{}, RestClient: rest.RealRestClient{}, Store: persistance.RealStore{}}
 
 	Loop:
 	for {
@@ -30,7 +31,7 @@ func main() {
 		case msg := <-rtm.IncomingEvents:
 			switch ev := msg.Data.(type) {
 			case *slack.MessageEvent:
-				go app.ParseMessageEvent(rtm, restClient, clock, ev)
+				go whiteboard.ParseMessageEvent(ev)
 			case *slack.InvalidAuthEvent:
 				fmt.Println("Invalid credentials")
 				break Loop

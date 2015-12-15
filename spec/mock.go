@@ -39,10 +39,29 @@ type MockRestClient struct {
 	Request         model.WhiteboardRequest
 }
 
-func (client *MockRestClient) Post(request model.WhiteboardRequest) (itemId string, ok bool) {
+func (client *MockRestClient) Post(request model.WhiteboardRequest, standupId int64) (itemId string, ok bool) {
 	client.PostCalledCount++
 	client.Request = request
 	ok = true
 	itemId = "1"
 	return
+}
+
+type MockStore struct {
+	StoreMap map[string]int64
+}
+
+func (store *MockStore) Get(key string) (value int64, ok bool) {
+	if store.StoreMap == nil {
+		store.StoreMap = make(map[string]int64)
+	}
+	value, ok = store.StoreMap[key]
+	return
+}
+
+func (store *MockStore) Set(key string, value int64) {
+	if store.StoreMap == nil {
+		store.StoreMap = make(map[string]int64)
+	}
+	store.StoreMap[key] = value
 }

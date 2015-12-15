@@ -11,21 +11,20 @@ import (
 )
 
 type RestClient interface {
-	Post(request model.WhiteboardRequest) (itemId string, ok bool)
+	Post(request model.WhiteboardRequest, standupId int64) (itemId string, ok bool)
 }
 
 type RealRestClient struct{}
 
-func (RealRestClient) Post(request model.WhiteboardRequest) (itemId string, ok bool) {
+func (RealRestClient) Post(request model.WhiteboardRequest, standupId int64) (itemId string, ok bool) {
 	json, _ := json.Marshal(request)
 	fmt.Printf("Posting entry to whiteboard:\n%v\n", string(json))
 	http.DefaultClient.CheckRedirect = noRedirect
 	url := os.Getenv("WB_HOST_URL")
-	standupId := os.Getenv("WB_STANDUP_ID")
 	if len(request.Id) > 0 {
 		url += "/items/" + request.Id
 	} else {
-		url += "/standups/" + standupId + "/items"
+		url += fmt.Sprintf("/standups/%v/items", standupId)
 	}
 	httpRequest, err := http.NewRequest(toHttpVerb(request.Method), url, bytes.NewReader(json))
 	httpRequest.Header.Add("Content-Type", "application/json")
@@ -36,6 +35,7 @@ func (RealRestClient) Post(request model.WhiteboardRequest) (itemId string, ok b
 	if ok {
 		itemId = resp.Header.Get("Item-Id")
 	}
+	defer resp.Body.Close()
 	if (len(itemId) == 0) {
 		itemId = request.Id
 	}
