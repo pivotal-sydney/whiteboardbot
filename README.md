@@ -45,6 +45,7 @@ In order to have the bot work correctly, you need to have several ENV variables 
 WB_HOST_URL=http://localhost:3000     // The host url of the Whiteboard App
 WB_BOT_API_TOKEN=someapitoken         // The API token of your bot.  See Slack docs to create a bot, and get API token
 WB_DB_HOST=localhost:6379             // The Redis IP address with port 
+WB_DB_PASSWORD=password               // The Redis password 
 ```
 
 ```

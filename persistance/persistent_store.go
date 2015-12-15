@@ -14,7 +14,7 @@ type RealStore struct{}
 
 func (store RealStore) Get(key string) (value int64, ok bool) {
 
-	client, err := redis.Dial("tcp", os.Getenv("WB_DB_HOST"))
+	client, err := redis.Dial("tcp", os.Getenv("WB_DB_HOST"), redis.DialPassword(os.Getenv("WB_DB_PASSWORD")))
 	if err != nil {
 		ok = false
 	}
@@ -26,7 +26,7 @@ func (store RealStore) Get(key string) (value int64, ok bool) {
 }
 
 func (store RealStore) Set(key string, value int64) {
-	client, err := redis.Dial("tcp", os.Getenv("WB_DB_HOST") + ":6379")
+	client, err := redis.Dial("tcp", os.Getenv("WB_DB_HOST"), redis.DialPassword(os.Getenv("WB_DB_PASSWORD")))
 	if err != nil {
 		return
 	}
