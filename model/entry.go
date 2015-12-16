@@ -19,10 +19,11 @@ type Entry struct {
 	Body   string
 	Author string
 	Id     string
+	StandupId int
 }
 
-func NewEntry(clock Clock, author, title string) (entry *Entry) {
-	entry = &Entry{Date: clock.Now(), Author: author, Title: title}
+func NewEntry(clock Clock, author, title string, standupId int) (entry *Entry) {
+	entry = &Entry{Date: clock.Now(), Author: author, Title: title, StandupId: standupId}
 	return
 }
 
@@ -49,6 +50,6 @@ func (entry Entry) String() string {
 }
 
 func createItem(entry Entry) (item Item) {
-	item = Item{StandupId: 1, Title: entry.Title, Date: entry.Date.Format("2006-01-02"), Public: "false", Description: entry.Body, Author: entry.Author}
+	item = Item{StandupId: entry.StandupId, Title: entry.Title, Date: entry.Date.Format("2006-01-02"), Public: "false", Description: entry.Body, Author: entry.Author}
 	return
 }

@@ -11,12 +11,12 @@ import (
 )
 
 type RestClient interface {
-	Post(request model.WhiteboardRequest, standupId int64) (itemId string, ok bool)
+	Post(request model.WhiteboardRequest, standupId int) (itemId string, ok bool)
 }
 
 type RealRestClient struct{}
 
-func (RealRestClient) Post(request model.WhiteboardRequest, standupId int64) (itemId string, ok bool) {
+func (RealRestClient) Post(request model.WhiteboardRequest, standupId int) (itemId string, ok bool) {
 	json, _ := json.Marshal(request)
 	fmt.Printf("Posting entry to whiteboard:\n%v\n", string(json))
 	http.DefaultClient.CheckRedirect = noRedirect

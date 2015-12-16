@@ -2,8 +2,8 @@ package model
 
 type Interesting struct{ *Entry }
 
-func NewInteresting(clock Clock, author, title string) (interesting Interesting) {
-	interesting = Interesting{NewEntry(clock, author, title)}
+func NewInteresting(clock Clock, author, title string, standupId int) (interesting Interesting) {
+	interesting = Interesting{NewEntry(clock, author, title, standupId)}
 	return
 }
 

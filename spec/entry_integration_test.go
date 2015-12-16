@@ -104,6 +104,7 @@ var _ = Describe("Entry Integration", func() {
 					Expect(restClient.PostCalledCount).To(Equal(1))
 					Expect(restClient.Request.Commit).To(Equal("Create Item"))
 					Expect(restClient.Request.Item.Author).To(Equal("Andrew Leung"))
+					Expect(restClient.Request.Item.StandupId).To(Equal(1))
 					Expect(slackClient.Message).Should(HaveSuffix("item created"))
 				})
 				It("should update existing interesting entry in the whiteboard ", func() {
@@ -117,6 +118,7 @@ var _ = Describe("Entry Integration", func() {
 					Expect(restClient.Request.Item.Title).To(Equal("updated title"))
 					Expect(restClient.Request.Item.Description).To(BeEmpty())
 					Expect(restClient.Request.Item.Author).To(Equal("Andrew Leung"))
+					Expect(restClient.Request.Item.StandupId).To(Equal(1))
 					Expect(restClient.Request.Id).To(Equal("1"))
 					Expect(slackClient.Message).Should(HaveSuffix("item updated"))
 				})
@@ -205,6 +207,20 @@ var _ = Describe("Entry Integration", func() {
 				Expect(slackClient.Message).To(Equal("faces\n  *name: Andrew Leung\n  date: 2015-01-02\nitem created"))
 				whiteboard.ParseMessageEvent(&setNameDariusz)
 				Expect(slackClient.Message).To(Equal("faces\n  *name: Dariusz Lorenc\n  date: 2015-01-02\nitem created"))
+			})
+		})
+	})
+
+	Context("posting to another standup ID", func() {
+		BeforeEach(func() {
+			registrationEvent.Text = "wb r 123"
+			whiteboard.ParseMessageEvent(&registrationEvent)
+		})
+
+		Describe("when channel registered with another standup ID", func() {
+			It("should post entry with correct standup ID", func() {
+				whiteboard.ParseMessageEvent(&newInterestingWithTitleEvent)
+				Expect(restClient.Request.Item.StandupId).To(Equal(123))
 			})
 		})
 	})

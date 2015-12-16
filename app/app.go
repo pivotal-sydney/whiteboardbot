@@ -65,14 +65,11 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 
 	command, input = readNextCommand(input)
 
-	var channelId int64
-
 	if matches(command, "register") {
-		var err error
-		channelId, err = strconv.ParseInt(input, 10, 64)
+		channelId, err := strconv.ParseInt(input, 10, 64)
 		if err == nil {
-			whiteboard.Store.Set(ev.Channel, channelId)
-			postMessageToSlack(fmt.Sprintf("Standup Id: %v has been registered!  You can now start creating Whiteboard entries!", channelId), whiteboard.SlackClient, ev.Channel)
+			whiteboard.Store.Set(ev.Channel, int(channelId))
+			postMessageToSlack(fmt.Sprintf("Standup Id: %v has been registered! You can now start creating Whiteboard entries!", channelId), whiteboard.SlackClient, ev.Channel)
 		} else {
 			handleRegisterationFailure(whiteboard.SlackClient, ev.Channel)
 		}
@@ -96,13 +93,13 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 		postMarkdownMessageToSlack(usage, whiteboard.SlackClient, ev.Channel)
 		return
 	case matches(command, "faces"):
-		entryMap[username] = NewFace(whiteboard.Clock, author, input)
+		entryMap[username] = NewFace(whiteboard.Clock, author, input, standupId)
 	case matches(command, "interestings"):
-		entryMap[username] = NewInteresting(whiteboard.Clock, author, input)
+		entryMap[username] = NewInteresting(whiteboard.Clock, author, input, standupId)
 	case matches(command, "helps"):
-		entryMap[username] = NewHelp(whiteboard.Clock, author, input)
+		entryMap[username] = NewHelp(whiteboard.Clock, author, input, standupId)
 	case matches(command, "events"):
-		entryMap[username] = NewEvent(whiteboard.Clock, author, input)
+		entryMap[username] = NewEvent(whiteboard.Clock, author, input, standupId)
 	case matches(command, "name") || matches(command, "title"):
 		entryType.GetEntry().Title = input
 	case matches(command, "body"):
@@ -180,7 +177,7 @@ func postToSlack(message string, slackClient SlackClient, channel string, params
 	slackClient.PostMessage(channel, message, params)
 }
 
-func postEntryToWhiteboard(restClient RestClient, entryType EntryType, standupId int64) (itemId string, ok bool) {
+func postEntryToWhiteboard(restClient RestClient, entryType EntryType, standupId int) (itemId string, ok bool) {
 	var request = createRequest(entryType, isExistingEntry(entryType.GetEntry()))
 	itemId, ok = restClient.Post(request, standupId)
 	return

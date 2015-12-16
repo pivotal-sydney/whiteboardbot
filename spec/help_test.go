@@ -18,7 +18,7 @@ var _ = Describe("Help", func() {
 
 	BeforeEach(func() {
 		clock = spec.MockClock{}
-		help = NewHelp(clock, "aleung", "title")
+		help = NewHelp(clock, "aleung", "title", 1)
 		os.Setenv("WB_AUTH_TOKEN", "token")
 	})
 
@@ -29,6 +29,7 @@ var _ = Describe("Help", func() {
 			Expect(help.Body).To(BeEmpty())
 			Expect(help.Author).To(Equal("aleung"))
 			Expect(help.Id).To(BeEmpty())
+			Expect(help.StandupId).To(Equal(1))
 		})
 	})
 

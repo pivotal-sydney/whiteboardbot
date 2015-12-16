@@ -18,7 +18,7 @@ var _ = Describe("Event", func() {
 
 	BeforeEach(func() {
 		clock = spec.MockClock{}
-		event = NewEvent(clock, "aleung", "title")
+		event = NewEvent(clock, "aleung", "title", 1)
 		os.Setenv("WB_AUTH_TOKEN", "token")
 	})
 
@@ -29,6 +29,7 @@ var _ = Describe("Event", func() {
 			Expect(event.Body).To(BeEmpty())
 			Expect(event.Author).To(Equal("aleung"))
 			Expect(event.Id).To(BeEmpty())
+			Expect(event.StandupId).To(Equal(1))
 		})
 	})
 

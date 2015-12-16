@@ -6,13 +6,13 @@ import (
 )
 
 type Store interface {
-	Get(key string) (value int64, ok bool)
-	Set(key string, value int64)
+	Get(key string) (value int, ok bool)
+	Set(key string, value int)
 }
 
 type RealStore struct{}
 
-func (store RealStore) Get(key string) (value int64, ok bool) {
+func (store RealStore) Get(key string) (value int, ok bool) {
 
 	client, err := redis.Dial("tcp", os.Getenv("WB_DB_HOST"), redis.DialPassword(os.Getenv("WB_DB_PASSWORD")))
 	if err != nil {
@@ -20,12 +20,12 @@ func (store RealStore) Get(key string) (value int64, ok bool) {
 	}
 	defer client.Close()
 
-	value, err = redis.Int64(client.Do("GET", key))
+	value, err = redis.Int(client.Do("GET", key))
 	ok = err == nil
 	return
 }
 
-func (store RealStore) Set(key string, value int64) {
+func (store RealStore) Set(key string, value int) {
 	client, err := redis.Dial("tcp", os.Getenv("WB_DB_HOST"), redis.DialPassword(os.Getenv("WB_DB_PASSWORD")))
 	if err != nil {
 		return

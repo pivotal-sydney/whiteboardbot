@@ -39,7 +39,7 @@ var _ = Describe("Standup Registration", func() {
 		Describe("with an integer as standup id", func() {
 			It("should respond registration successful", func() {
 				whiteboard.ParseMessageEvent(&registrationEvent)
-				Expect(slackClient.Message).To(Equal("Standup Id: 1 has been registered!  You can now start creating Whiteboard entries!"))
+				Expect(slackClient.Message).To(Equal("Standup Id: 1 has been registered! You can now start creating Whiteboard entries!"))
 			})
 		})
 
