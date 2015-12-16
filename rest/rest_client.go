@@ -32,10 +32,10 @@ func (RealRestClient) Post(request model.WhiteboardRequest, standupId int) (item
 	fmt.Printf("Whitebord Response: %v, Err: %v\n, Url: %v\n", resp, err, url)
 
 	ok = resp !=nil && resp.StatusCode == http.StatusFound
+	defer resp.Body.Close()
 	if ok {
 		itemId = resp.Header.Get("Item-Id")
 	}
-	defer resp.Body.Close()
 	if (len(itemId) == 0) {
 		itemId = request.Id
 	}

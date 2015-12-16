@@ -14,10 +14,13 @@ import (
 )
 
 const (
-	botName        = "whiteboard-bot"
+	botName        = "whiteboardbot"
 	usage   string = "*Usage*:\n" +
 		"    `wb [command] [text...]`\n" +
 		"where commands include:\n" +
+		"    *Registration Command*\n" +
+		"        `register`, `r` - followed by <standup id> - registers current channel to whiteboard's standup ID\n" +
+		"\n" +
 		"    *Create Commands*\n" +
 		"        `faces`, `f` - creates a new faces entry\n" +
 		"        `interestings`, `i` - creates a new interestings entry\n" +

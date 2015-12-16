@@ -9,20 +9,36 @@ import (
 	"github.com/xtreme-andleung/whiteboardbot/rest"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 const (
 	DEFAULT_PORT = "9000"
 )
 
+var redisConnectionPool = persistance.NewPool()
+
+func init() {
+	shutdownChannel := make(chan os.Signal, 1)
+	signal.Notify(shutdownChannel, os.Interrupt)
+	signal.Notify(shutdownChannel, syscall.SIGTERM)
+	go func() {
+		<-shutdownChannel
+		cleanup()
+		os.Exit(1)
+	}()
+}
+
 func main() {
 	api := slack.New(os.Getenv("WB_BOT_API_TOKEN"))
 	rtm := api.NewRTM()
 	go rtm.ManageConnection()
 
-	go startHttpServer()
+	store := persistance.RealStore{redisConnectionPool}
+	whiteboard := app.WhiteboardApp{SlackClient: rtm, Clock: model.RealClock{}, RestClient: rest.RealRestClient{}, Store: &store}
 
-	whiteboard := app.WhiteboardApp{SlackClient: rtm, Clock: model.RealClock{}, RestClient: rest.RealRestClient{}, Store: persistance.RealStore{}}
+	go startHttpServer()
 
 Loop:
 	for {
@@ -37,6 +53,13 @@ Loop:
 			default:
 			}
 		}
+	}
+}
+
+func cleanup() {
+	if redisConnectionPool != nil {
+		fmt.Println("Closing Redis connection pool")
+		redisConnectionPool.Close()
 	}
 }
 
