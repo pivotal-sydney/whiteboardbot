@@ -134,7 +134,7 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 	entryType = entryMap[username]
 
 	if fileUpload {
-		entryType.GetEntry().Body = fmt.Sprintf("%v\n![](%v)", ev.File.InitialComment.Comment, ev.File.URL)
+		entryType.GetEntry().Body = fmt.Sprintf("%v\n<img src=\"%v\" style=\"max-width: 500px\">", ev.File.InitialComment.Comment, ev.File.URL)
 	}
 
 	output := entryType.String()

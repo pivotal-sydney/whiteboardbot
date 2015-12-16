@@ -40,7 +40,7 @@ var _ = Describe("Upload Integration", func() {
 	Describe("when uploading an image", func() {
 		It("should create an entry using the title command and set the body to the comment with file URL", func() {
 			whiteboard.ParseMessageEvent(&uploadEvent)
-			Expect(slackClient.Message).To(Equal("interestings\n  *title: My Title\n  body: Body of the event\n![](http://upload/link)\n  date: 2015-01-02\nitem created"))
+			Expect(slackClient.Message).To(Equal("interestings\n  *title: My Title\n  body: Body of the event\n<img src=\"http://upload/link\" style=\"max-width: 500px\">\n  date: 2015-01-02\nitem created"))
 		})
 		Context("with invalid keyword", func() {
 			BeforeEach(func() {
