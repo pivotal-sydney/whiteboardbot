@@ -37,6 +37,13 @@ func (clock MockClock) Now() time.Time {
 type MockRestClient struct {
 	PostCalledCount int
 	Request         model.WhiteboardRequest
+	StandupItems    model.StandupItems
+}
+
+func (client MockRestClient) GetStandupItems(standupId int) (items model.StandupItems, ok bool) {
+	items = client.StandupItems
+	ok = true
+	return
 }
 
 func (client *MockRestClient) Post(request model.WhiteboardRequest, standupId int) (itemId string, ok bool) {

@@ -2,6 +2,7 @@ package model
 import (
 	"os"
 	"fmt"
+	"bytes"
 )
 
 type EntryType interface {
@@ -58,4 +59,49 @@ func (entry Entry) String() string {
 func createItem(entry Entry) (item Item) {
 	item = Item{StandupId: entry.StandupId, Title: entry.Title, Date: entry.Date, Public: "false", Description: entry.Body, Author: entry.Author}
 	return
+}
+
+func (items StandupItems) FacesString() string {
+	var buffer bytes.Buffer
+	buffer.WriteString("New Faces:")
+	for _, face := range items.Faces {
+		buffer.WriteString("\n" + Face{&face}.String())
+	}
+	return buffer.String()
+}
+
+func (items StandupItems) InterestingsString() string {
+	var buffer bytes.Buffer
+	buffer.WriteString("Interestings:")
+	for _, interesting := range items.Interestings {
+		buffer.WriteString("\n" + Interesting{&interesting}.String())
+	}
+	return buffer.String()
+}
+
+
+func (items StandupItems) HelpsString() string {
+	var buffer bytes.Buffer
+	buffer.WriteString("Helps:")
+	for _, help := range items.Helps {
+		buffer.WriteString("\n" + Help{&help}.String())
+	}
+	return buffer.String()
+}
+
+func (items StandupItems) EventsString() string {
+	var buffer bytes.Buffer
+	buffer.WriteString("Events:")
+	for _, event := range items.Events {
+		buffer.WriteString("\n" + Event{&event}.String())
+	}
+	return buffer.String()
+}
+
+func (items StandupItems) String() string {
+	return fmt.Sprintf("%v\n%v\n%v\n%v", items.FacesString(), items.InterestingsString(), items.HelpsString(), items.EventsString())
+}
+
+func (items StandupItems) Empty() bool {
+	return len(items.Faces) == 0 && len(items.Events) == 0 && len(items.Helps) == 0 && len(items.Interestings) == 0
 }

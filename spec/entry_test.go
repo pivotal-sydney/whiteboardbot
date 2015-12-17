@@ -6,6 +6,8 @@ import (
 	. "github.com/xtreme-andleung/whiteboardbot/model"
 	"github.com/xtreme-andleung/whiteboardbot/spec"
 	"os"
+	"github.com/xtreme-andleung/whiteboardbot/model"
+	"fmt"
 )
 
 var _ = Describe("Entry", func() {
@@ -42,6 +44,56 @@ var _ = Describe("Entry", func() {
 	Describe("validating when all mandatory fields are set", func() {
 		It("should return true", func() {
 			Expect(entry.Validate()).To(BeTrue())
+		})
+	})
+
+	Context("StandupItems string methods", func() {
+		var (
+			items StandupItems
+		)
+		BeforeEach(func() {
+			items = model.StandupItems{}
+			items.Faces = []model.Entry{model.Entry{Title: "Dariusz", Date: "2015-12-03", Author: "Andrew"}, model.Entry{Title: "Andrew", Date: "2015-12-03", Author: "Dariusz"}}
+			items.Interestings = []model.Entry{model.Entry{Title: "Something interesting", Body: "link", Author: "Mik", Date: "2015-12-03"}}
+			items.Events = []model.Entry{model.Entry{Title: "Another meetup", Body: "link", Author: "Dariusz", Date: "2015-12-03"}}
+			items.Helps = []model.Entry{model.Entry{Title: "Help me!", Author: "Lawrence", Date: "2015-12-03"}}
+		})
+
+
+		Describe("convert standup items to string", func() {
+			It("should return string representation of standup items", func() {
+
+				itemsString := items.String()
+				Expect(itemsString).To(Equal(fmt.Sprintf("%v\n%v\n%v\n%v", items.FacesString(), items.InterestingsString(), items.HelpsString(), items.EventsString())))
+			})
+		})
+
+		Describe("convert standup faces items to string", func() {
+			It("should print faces in presentation mode", func() {
+				itemsString := items.FacesString()
+				Expect(itemsString).To(Equal("New Faces:\n" + Face{&items.Faces[0]}.String() + "\n" + Face{&items.Faces[1]}.String()))
+			})
+		})
+
+		Describe("convert standup interestings items to string", func() {
+			It("should print interestings in presentation mode", func() {
+				itemsString := items.InterestingsString()
+				Expect(itemsString).To(Equal("Interestings:\n" + Interesting{&items.Interestings[0]}.String()))
+			})
+		})
+
+		Describe("convert standup helps items to string", func() {
+			It("should print helps in presentation mode", func() {
+				itemsString := items.HelpsString()
+				Expect(itemsString).To(Equal("Helps:\n" + Help{&items.Helps[0]}.String()))
+			})
+		})
+
+		Describe("convert standup events items to string", func() {
+			It("should print events in presentation mode", func() {
+				itemsString := items.EventsString()
+				Expect(itemsString).To(Equal("Events:\n" + Event{&items.Events[0]}.String()))
+			})
 		})
 	})
 })

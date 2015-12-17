@@ -21,6 +21,9 @@ const (
 		"    *Registration Command*\n" +
 		"        `register`, `r` - followed by <standup id> - registers current channel to whiteboard's standup ID\n" +
 		"\n" +
+	    "    *Presentation Command*\n" +
+		"		 `present`, `p` - presents today's standup\n" +
+		"\n" +
 		"    *Create Commands*\n" +
 		"        `faces`, `f` - creates a new faces entry\n" +
 		"        `interestings`, `i` - creates a new interestings entry\n" +
@@ -118,6 +121,16 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 			entryType.GetEntry().Date = parsedDate.Format("2006-01-02")
 		} else {
 			postMessageToSlack(entryType.String()+"\nDate not set, use YYYY-MM-DD as date format", whiteboard.SlackClient, ev.Channel)
+			return
+		}
+	case matches(command, "present"):
+		items, ok := whiteboard.RestClient.GetStandupItems(standupId)
+		if ok {
+			if items.Empty() {
+				postMessageToSlack("Hey, there's no entries in today's standup yet, why not add some?", whiteboard.SlackClient, ev.Channel)
+				return
+			}
+			postMessageToSlack(items.String(), whiteboard.SlackClient, ev.Channel)
 			return
 		}
 	default:

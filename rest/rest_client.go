@@ -8,10 +8,12 @@ import (
 	"errors"
 	"strings"
 	"github.com/xtreme-andleung/whiteboardbot/model"
+	"io/ioutil"
 )
 
 type RestClient interface {
 	Post(request model.WhiteboardRequest, standupId int) (itemId string, ok bool)
+	GetStandupItems(standupId int) (items model.StandupItems, ok bool)
 }
 
 type RealRestClient struct{}
@@ -38,6 +40,25 @@ func (RealRestClient) Post(request model.WhiteboardRequest, standupId int) (item
 	}
 	if (len(itemId) == 0) {
 		itemId = request.Id
+	}
+	return
+}
+
+func (RealRestClient) GetStandupItems(standupId int) (items model.StandupItems, ok bool) {
+	url := fmt.Sprintf("%v/standups/%v/items", os.Getenv("WB_HOST_URL"), standupId)
+	httpRequest, _ := http.NewRequest("GET", url, nil)
+	httpRequest.Header.Add("Accept", "application/json")
+	resp, err := http.DefaultClient.Do(httpRequest)
+	defer resp.Body.Close()
+	ok = err == nil && resp != nil && resp.StatusCode == http.StatusOK
+
+	if ok {
+		jsonBlob, err := ioutil.ReadAll(resp.Body)
+		ok = err == nil
+		if ok {
+			err = json.Unmarshal(jsonBlob, &items)
+			ok = err == nil
+		}
 	}
 	return
 }
