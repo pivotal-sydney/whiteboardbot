@@ -6,14 +6,13 @@ import (
 	. "github.com/xtreme-andleung/whiteboardbot/model"
 	"github.com/xtreme-andleung/whiteboardbot/spec"
 	"os"
-	"time"
 )
 
 var _ = Describe("Interesting", func() {
 
 	var (
 		interesting Interesting
-		clock       spec.MockClock
+		clock spec.MockClock
 	)
 
 	BeforeEach(func() {
@@ -24,7 +23,7 @@ var _ = Describe("Interesting", func() {
 
 	Describe("creating a new Interesting", func() {
 		It("should have proper defaults", func() {
-			Expect(interesting.Date).To(Equal(time.Date(2015, 1, 2, 0, 0, 0, 0, time.UTC)))
+			Expect(interesting.Date).To(Equal("2015-01-02"))
 			Expect(interesting.Title).To(Equal("title"))
 			Expect(interesting.Body).To(BeEmpty())
 			Expect(interesting.Author).To(Equal("aleung"))

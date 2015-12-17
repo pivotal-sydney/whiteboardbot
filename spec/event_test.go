@@ -6,7 +6,6 @@ import (
 	. "github.com/xtreme-andleung/whiteboardbot/model"
 	"github.com/xtreme-andleung/whiteboardbot/spec"
 	"os"
-	"time"
 )
 
 var _ = Describe("Event", func() {
@@ -24,7 +23,7 @@ var _ = Describe("Event", func() {
 
 	Describe("creating a new Event", func() {
 		It("should have proper defaults", func() {
-			Expect(event.Date).To(Equal(time.Date(2015, 1, 2, 0, 0, 0, 0, time.UTC)))
+			Expect(event.Date).To(Equal("2015-01-02"))
 			Expect(event.Title).To(Equal("title"))
 			Expect(event.Body).To(BeEmpty())
 			Expect(event.Author).To(Equal("aleung"))

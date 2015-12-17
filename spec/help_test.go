@@ -6,13 +6,12 @@ import (
 	. "github.com/xtreme-andleung/whiteboardbot/model"
 	"github.com/xtreme-andleung/whiteboardbot/spec"
 	"os"
-	"time"
 )
 
 var _ = Describe("Help", func() {
 
 	var (
-		help  Help
+		help Help
 		clock spec.MockClock
 	)
 
@@ -24,7 +23,7 @@ var _ = Describe("Help", func() {
 
 	Describe("creating a new Help", func() {
 		It("should have proper defaults", func() {
-			Expect(help.Date).To(Equal(time.Date(2015, 1, 2, 0, 0, 0, 0, time.UTC)))
+			Expect(help.Date).To(Equal("2015-01-02"))
 			Expect(help.Title).To(Equal("title"))
 			Expect(help.Body).To(BeEmpty())
 			Expect(help.Author).To(Equal("aleung"))

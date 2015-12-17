@@ -115,7 +115,7 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 		}
 	case matches(command, "date"):
 		if parsedDate, err := time.Parse("2006-01-02", input); err == nil {
-			entryType.GetEntry().Date = parsedDate
+			entryType.GetEntry().Date = parsedDate.Format("2006-01-02")
 		} else {
 			postMessageToSlack(entryType.String()+"\nDate not set, use YYYY-MM-DD as date format", whiteboard.SlackClient, ev.Channel)
 			return

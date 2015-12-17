@@ -6,13 +6,12 @@ import (
 	. "github.com/xtreme-andleung/whiteboardbot/model"
 	"github.com/xtreme-andleung/whiteboardbot/spec"
 	"os"
-	"time"
 )
 
 var _ = Describe("Face", func() {
 
 	var (
-		face  Face
+		face Face
 		clock spec.MockClock
 	)
 
@@ -24,7 +23,7 @@ var _ = Describe("Face", func() {
 
 	Describe("creating a new Face", func() {
 		It("should have proper defaults", func() {
-			Expect(face.Date).To(Equal(time.Date(2015, 1, 2, 0, 0, 0, 0, time.UTC)))
+			Expect(face.Date).To(Equal("2015-01-02"))
 			Expect(face.Title).To(Equal("title"))
 			Expect(face.Body).To(BeEmpty())
 			Expect(face.Author).To(Equal("aleung"))

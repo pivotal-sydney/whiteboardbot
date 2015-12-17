@@ -1,6 +1,5 @@
 package model
 import (
-	"time"
 	"os"
 	"fmt"
 )
@@ -14,16 +13,23 @@ type EntryType interface {
 }
 
 type Entry struct {
-	Date   time.Time
-	Title  string
-	Body   string
-	Author string
-	Id     string
-	StandupId int
+	Date      string     	`json:"date"`
+	Title     string        `json:"title"`
+	Body      string        `json:"description"`
+	Author    string        `json:"author"`
+	Id        string        `json:"-"`
+	StandupId int            `json:"-"`
+}
+
+type StandupItems struct {
+	Helps        []Entry            `json:"Help"`
+	Interestings []Entry  			`json:"Interesting"`
+	Faces        []Entry            `json:"New face"`
+	Events       []Entry        	`json:"Event"`
 }
 
 func NewEntry(clock Clock, author, title string, standupId int) (entry *Entry) {
-	entry = &Entry{Date: clock.Now(), Author: author, Title: title, StandupId: standupId}
+	entry = &Entry{Date: clock.Now().Format("2006-01-02"), Author: author, Title: title, StandupId: standupId}
 	return
 }
 
@@ -37,7 +43,7 @@ func (entry Entry) MakeCreateRequest() (request WhiteboardRequest) {
 }
 
 func (entry Entry) MakeUpdateRequest() (request WhiteboardRequest) {
-	request = WhiteboardRequest{ Method: "patch", Token: os.Getenv("WB_AUTH_TOKEN"), Item: createItem(entry), Commit: "Update Item", Id: entry.Id}
+	request = WhiteboardRequest{Method: "patch", Token: os.Getenv("WB_AUTH_TOKEN"), Item: createItem(entry), Commit: "Update Item", Id: entry.Id}
 	return
 }
 
@@ -46,10 +52,10 @@ func (entry Entry) GetEntry() *Entry {
 }
 
 func (entry Entry) String() string {
-	return fmt.Sprintf("\n  *title: %v\n  body: %v\n  date: %v", entry.Title, entry.Body, entry.Date.Format("2006-01-02"))
+	return fmt.Sprintf("\n  *title: %v\n  body: %v\n  date: %v", entry.Title, entry.Body, entry.Date)
 }
 
 func createItem(entry Entry) (item Item) {
-	item = Item{StandupId: entry.StandupId, Title: entry.Title, Date: entry.Date.Format("2006-01-02"), Public: "false", Description: entry.Body, Author: entry.Author}
+	item = Item{StandupId: entry.StandupId, Title: entry.Title, Date: entry.Date, Public: "false", Description: entry.Body, Author: entry.Author}
 	return
 }
