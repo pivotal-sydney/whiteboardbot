@@ -41,13 +41,12 @@ const (
 		"    `wb f New Face!` - will create a new face with the name 'New Face!'"
 )
 
-var entryMap = make(map[string]EntryType)
-
 type WhiteboardApp struct {
 	SlackClient SlackClient
 	RestClient  RestClient
 	Clock       Clock
 	Store       Store
+	EntryMap    map[string]EntryType
 }
 
 var insults = [...]string{"Stupid.", "You idiot.", "You fool."}
@@ -94,22 +93,30 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 		return
 	}
 
-	entryType := entryMap[username]
+	entryType := whiteboard.EntryMap[username]
 	switch {
 	case matches(command, "?"):
 		postMarkdownMessageToSlack(usage, whiteboard.SlackClient, ev.Channel)
 		return
 	case matches(command, "faces"):
-		entryMap[username] = NewFace(whiteboard.Clock, author, input, standupId)
+		whiteboard.EntryMap[username] = NewFace(whiteboard.Clock, author, input, standupId)
 	case matches(command, "interestings"):
-		entryMap[username] = NewInteresting(whiteboard.Clock, author, input, standupId)
+		whiteboard.EntryMap[username] = NewInteresting(whiteboard.Clock, author, input, standupId)
 	case matches(command, "helps"):
-		entryMap[username] = NewHelp(whiteboard.Clock, author, input, standupId)
+		whiteboard.EntryMap[username] = NewHelp(whiteboard.Clock, author, input, standupId)
 	case matches(command, "events"):
-		entryMap[username] = NewEvent(whiteboard.Clock, author, input, standupId)
+		whiteboard.EntryMap[username] = NewEvent(whiteboard.Clock, author, input, standupId)
 	case matches(command, "name") || matches(command, "title"):
+		if missingEntry(entryType) {
+			handleMissingEntry(whiteboard.SlackClient, ev.Channel)
+			return
+		}
 		entryType.GetEntry().Title = input
 	case matches(command, "body"):
+		if missingEntry(entryType) {
+			handleMissingEntry(whiteboard.SlackClient, ev.Channel)
+			return
+		}
 		switch entryType.(type) {
 		default:
 			entryType.GetEntry().Body = input
@@ -118,6 +125,11 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 			return
 		}
 	case matches(command, "date"):
+		if missingEntry(entryType) {
+			handleMissingEntry(whiteboard.SlackClient, ev.Channel)
+			return
+		}
+
 		if parsedDate, err := time.Parse("2006-01-02", input); err == nil {
 			entryType.GetEntry().Date = parsedDate.Format("2006-01-02")
 		} else {
@@ -145,7 +157,7 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 		return
 	}
 
-	entryType = entryMap[username]
+	entryType = whiteboard.EntryMap[username]
 
 	if fileUpload {
 		entryType.GetEntry().Body = fmt.Sprintf("%v\n<img src=\"%v\" style=\"max-width: 500px\">", ev.File.InitialComment.Comment, ev.File.URL)
@@ -247,4 +259,12 @@ func readNextCommand(input string) (keyword string, newInput string) {
 		newInput = ""
 	}
 	return
+}
+
+func handleMissingEntry(slackClient SlackClient, channel string) {
+	postMarkdownMessageToSlack("Hey, you forgot to start new entry. Start with one of `wb [face interesting help event]` first!", slackClient, channel)
+}
+
+func missingEntry(entryType EntryType) bool {
+	return entryType == nil
 }

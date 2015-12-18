@@ -6,6 +6,7 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/xtreme-andleung/whiteboardbot/app"
 	"github.com/xtreme-andleung/whiteboardbot/spec"
+	"github.com/xtreme-andleung/whiteboardbot/model"
 )
 
 var _ = Describe("Entry Integration", func() {
@@ -24,7 +25,7 @@ var _ = Describe("Entry Integration", func() {
 		slackClient = spec.MockSlackClient{}
 		clock = spec.MockClock{}
 		restClient = spec.MockRestClient{}
-		whiteboard = WhiteboardApp{SlackClient: &slackClient, Clock: clock, RestClient: &restClient, Store: &spec.MockStore{}}
+		whiteboard = WhiteboardApp{SlackClient: &slackClient, Clock: clock, RestClient: &restClient, Store: &spec.MockStore{}, EntryMap: make(map[string]model.EntryType)}
 		usageEvent = createMessageEvent("wb ?")
 		newInterestingEvent = createMessageEvent("wb Intere")
 		newEventEvent = createMessageEvent("wb Ev")
@@ -145,6 +146,12 @@ var _ = Describe("Entry Integration", func() {
 				})
 			})
 		})
+		Describe("with no entry started", func() {
+			It("should give a hint on how to start entry", func() {
+				whiteboard.ParseMessageEvent(&setTitleEvent)
+				Expect(slackClient.Message).To(Equal("Hey, you forgot to start new entry. Start with one of `wb [face interesting help event]` first!"))
+			})
+		})
 	})
 	Context("setting a date detail", func() {
 		Describe("with an interesting entry started", func() {
@@ -172,6 +179,12 @@ var _ = Describe("Entry Integration", func() {
 				})
 			})
 		})
+		Describe("with no entry started", func() {
+			It("should give a hint on how to start entry", func() {
+				whiteboard.ParseMessageEvent(&setDateEvent)
+				Expect(slackClient.Message).To(Equal("Hey, you forgot to start new entry. Start with one of `wb [face interesting help event]` first!"))
+			})
+		})
 	})
 	Context("setting a body detail", func() {
 		Describe("with an interesting entry started", func() {
@@ -184,6 +197,12 @@ var _ = Describe("Entry Integration", func() {
 					whiteboard.ParseMessageEvent(&setBodyEvent)
 					Expect(slackClient.Message).To(Equal("interestings\n  *title: \n  body: more info\n  date: 2015-01-02"))
 				})
+			})
+		})
+		Describe("with no entry started", func() {
+			It("should give a hint on how to start entry", func() {
+				whiteboard.ParseMessageEvent(&setBodyEvent)
+				Expect(slackClient.Message).To(Equal("Hey, you forgot to start new entry. Start with one of `wb [face interesting help event]` first!"))
 			})
 		})
 	})

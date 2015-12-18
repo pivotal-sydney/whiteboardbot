@@ -6,6 +6,7 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/xtreme-andleung/whiteboardbot/app"
 	"github.com/xtreme-andleung/whiteboardbot/spec"
+	"github.com/xtreme-andleung/whiteboardbot/model"
 )
 
 var _ = Describe("Upload Integration", func() {
@@ -25,7 +26,7 @@ var _ = Describe("Upload Integration", func() {
 		slackClient = spec.MockSlackClient{}
 		clock = spec.MockClock{}
 		restClient = spec.MockRestClient{}
-		whiteboard = WhiteboardApp{SlackClient: &slackClient, Clock: clock, RestClient: &restClient, Store: &spec.MockStore{}}
+		whiteboard = WhiteboardApp{SlackClient: &slackClient, Clock: clock, RestClient: &restClient, Store: &spec.MockStore{}, EntryMap: make(map[string]model.EntryType)}
 
 		file = &File{}
 		file.URL = "http://upload/link"
