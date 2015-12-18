@@ -3,6 +3,7 @@ package persistance
 import (
 	"github.com/garyburd/redigo/redis"
 	"os"
+	"fmt"
 )
 
 type Store interface {
@@ -30,6 +31,9 @@ func (store *RealStore) Get(key string) (value int, ok bool) {
 
 	value, err := redis.Int(conn.Do("GET", key))
 	ok = err == nil
+	if !ok {
+		fmt.Printf("Error occurred GETing from Redis: %v", err)
+	}
 	return
 }
 

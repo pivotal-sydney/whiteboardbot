@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"regexp"
 )
 
 const (
@@ -72,10 +73,10 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 	command, input = readNextCommand(input)
 
 	if matches(command, "register") {
-		channelId, err := strconv.ParseInt(input, 10, 64)
+		standupId, err := strconv.ParseInt(input, 10, 64)
 		if err == nil {
-			whiteboard.Store.Set(ev.Channel, int(channelId))
-			postMessageToSlack(fmt.Sprintf("Standup Id: %v has been registered! You can now start creating Whiteboard entries!", channelId), whiteboard.SlackClient, ev.Channel)
+			whiteboard.Store.Set(ev.Channel, int(standupId))
+			postMessageToSlack(fmt.Sprintf("Standup Id: %v has been registered! You can now start creating Whiteboard entries!", standupId), whiteboard.SlackClient, ev.Channel)
 		} else {
 			handleRegisterationFailure(whiteboard.SlackClient, ev.Channel)
 		}
@@ -136,9 +137,9 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 	default:
 		var userInput string
 		if fileUpload {
-			userInput = ev.File.Title[3:]
+			_, userInput = readNextCommand(ev.File.Title[2:])
 		} else {
-			userInput = ev.Text[3:]
+			_, userInput = readNextCommand(ev.Text[2:])
 		}
 		postMessageToSlack(fmt.Sprintf("%v no you %v", username, userInput), whiteboard.SlackClient, ev.Channel)
 		return
@@ -162,7 +163,7 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 }
 
 func matches(keyword string, command string) bool {
-	return len(keyword) <= len(command) && command[:len(keyword)] == keyword
+	return len(keyword) > 0 && len(keyword) <= len(command) && command[:len(keyword)] == keyword
 }
 
 func isExistingEntry(entry *Entry) bool {
@@ -236,11 +237,14 @@ func handleRegisterationFailure(slackClient SlackClient, channel string) {
 }
 
 func readNextCommand(input string) (keyword string, newInput string) {
-	index := strings.Index(input, " ")
-	if index == -1 {
-		index = len(input)
+	re := regexp.MustCompile("\\s+")
+	loc := re.FindStringIndex(input)
+	if loc != nil {
+		keyword = strings.ToLower(input[:loc[0]])
+		newInput = input[loc[1]:]
+	} else {
+		keyword = strings.ToLower(input)
+		newInput = ""
 	}
-	keyword = strings.ToLower(input[:index])
-	newInput = strings.TrimPrefix(input[index:], " ")
 	return
 }
