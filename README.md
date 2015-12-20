@@ -78,6 +78,13 @@ wb b Some body
 ```
 will be recognized as setting the body (description) of the current entry.
 
+## Presentation
+You can now use the bot in presentation mode!  The bot will show you the list of all the items for today so you can run standup directly in Slack!
+```
+wb present
+wb p
+```
+
 ## Creating and setting title together
 Whiteboard recognizes new entry creation commands with titles!  In order to reduce the amount of messages, you can actually set the title/name
 of the new entry by including the title along with the [creating a new entry](#create) command.
