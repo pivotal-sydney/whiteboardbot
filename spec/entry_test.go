@@ -19,11 +19,11 @@ var _ = Describe("Entry", func() {
 
 	BeforeEach(func() {
 		clock = spec.MockClock{}
-		entry = NewEntry(clock, "aleung", "title", 1)
+		entry = NewEntry(clock, "aleung", "title", Standup{Id: 1, TimeZone: "Australia/Sydney"})
 		os.Setenv("WB_AUTH_TOKEN", "token")
 	})
 
-	Describe("creating a new Entry", func() {
+	Context("creating a new Entry", func() {
 		It("should have proper defaults", func() {
 			Expect(entry.Date).To(Equal("2015-01-02"))
 			Expect(entry.Title).To(Equal("title"))
@@ -32,7 +32,14 @@ var _ = Describe("Entry", func() {
 			Expect(entry.Id).To(BeEmpty())
 			Expect(entry.StandupId).To(Equal(1))
 		})
+		Describe("with different time zone", func() {
+			It("should use the correct time zone for date", func() {
+				entry = NewEntry(clock, "aleung", "title", Standup{Id: 1, TimeZone: "America/New_York"})
+				Expect(entry.Date).To(Equal("2015-01-01"))
+			})
+		})
 	})
+
 
 	Describe("validating when not all mandatory fields are set", func() {
 		It("should return false", func() {

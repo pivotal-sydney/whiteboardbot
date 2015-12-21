@@ -17,7 +17,7 @@ var _ = Describe("Interesting", func() {
 
 	BeforeEach(func() {
 		clock = spec.MockClock{}
-		interesting = NewInteresting(clock, "aleung", "title", 1)
+		interesting = NewInteresting(clock, "aleung", "title", Standup{Id: 1, TimeZone: "Australia/Sydney"})
 		os.Setenv("WB_AUTH_TOKEN", "token")
 	})
 

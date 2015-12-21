@@ -3,6 +3,7 @@ import (
 	"os"
 	"fmt"
 	"bytes"
+	"time"
 )
 
 type EntryType interface {
@@ -29,8 +30,12 @@ type StandupItems struct {
 	Events       []Entry        	`json:"Event"`
 }
 
-func NewEntry(clock Clock, author, title string, standupId int) (entry *Entry) {
-	entry = &Entry{Date: clock.Now().Format("2006-01-02"), Author: author, Title: title, StandupId: standupId}
+func NewEntry(clock Clock, author, title string, standup Standup) (entry *Entry) {
+	location, err := time.LoadLocation(standup.TimeZone)
+	if err != nil {
+		location = time.Local
+	}
+	entry = &Entry{Date: clock.Now().In(location).Format("2006-01-02"), Author: author, Title: title, StandupId: standup.Id}
 	return
 }
 

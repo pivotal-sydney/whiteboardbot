@@ -14,6 +14,7 @@ import (
 type RestClient interface {
 	Post(request model.WhiteboardRequest, standupId int) (itemId string, ok bool)
 	GetStandupItems(standupId int) (items model.StandupItems, ok bool)
+	GetStandup(standupId int) (standup model.Standup, ok bool)
 }
 
 type RealRestClient struct{}
@@ -31,7 +32,8 @@ func (RealRestClient) Post(request model.WhiteboardRequest, standupId int) (item
 	httpRequest, err := http.NewRequest(toHttpVerb(request.Method), url, bytes.NewReader(json))
 	httpRequest.Header.Add("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(httpRequest)
-	fmt.Printf("Whitebord Response: %v, Err: %v\n, Url: %v\n", resp, err, url)
+	fmt.Printf("Whiteboard Request: %v\n\n", httpRequest)
+	fmt.Printf("Whiteboard Response: %v, Err: %v\n, Url: %v\n\n", resp, err, url)
 
 	ok = resp !=nil && resp.StatusCode == http.StatusFound
 	defer resp.Body.Close()
@@ -62,6 +64,26 @@ func (RealRestClient) GetStandupItems(standupId int) (items model.StandupItems, 
 	}
 	return
 }
+
+func (RealRestClient) GetStandup(standupId int) (standup model.Standup, ok bool) {
+	url := fmt.Sprintf("%v/standups/%v", os.Getenv("WB_HOST_URL"), standupId)
+	httpRequest, _ := http.NewRequest("GET", url, nil)
+	httpRequest.Header.Add("Accept", "application/json")
+	resp, err := http.DefaultClient.Do(httpRequest)
+	defer resp.Body.Close()
+	ok = err == nil && resp != nil && resp.StatusCode == http.StatusOK
+
+	if ok {
+		jsonBlob, err := ioutil.ReadAll(resp.Body)
+		ok = err == nil
+		if ok {
+			err = json.Unmarshal(jsonBlob, &standup)
+			ok = err == nil
+		}
+	}
+	return
+}
+
 
 func noRedirect(req *http.Request, via []*http.Request) error {
 	return errors.New("Don't redirect!")

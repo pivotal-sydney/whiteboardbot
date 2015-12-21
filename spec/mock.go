@@ -54,21 +54,28 @@ func (client *MockRestClient) Post(request model.WhiteboardRequest, standupId in
 	return
 }
 
-type MockStore struct {
-	StoreMap map[string]int
+func (*MockRestClient) GetStandup(standupId int) (standup model.Standup, ok bool) {
+	standup.Id = standupId
+	standup.TimeZone = "Australia/Sydney"
+	ok = true
+	return
 }
 
-func (store *MockStore) Get(key string) (value int, ok bool) {
+type MockStore struct {
+	StoreMap map[string]string
+}
+
+func (store *MockStore) Get(key string) (value string, ok bool) {
 	if store.StoreMap == nil {
-		store.StoreMap = make(map[string]int)
+		store.StoreMap = make(map[string]string)
 	}
 	value, ok = store.StoreMap[key]
 	return
 }
 
-func (store *MockStore) Set(key string, value int) {
+func (store *MockStore) Set(key string, value string) {
 	if store.StoreMap == nil {
-		store.StoreMap = make(map[string]int)
+		store.StoreMap = make(map[string]string)
 	}
 	store.StoreMap[key] = value
 }

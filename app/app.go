@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 	"regexp"
+	"encoding/json"
 )
 
 const (
@@ -74,19 +75,20 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 	if matches(command, "register") {
 		standupId, err := strconv.ParseInt(input, 10, 64)
 		if err == nil {
-			whiteboard.Store.Set(ev.Channel, int(standupId))
-			postMessageToSlack(fmt.Sprintf("Standup Id: %v has been registered! You can now start creating Whiteboard entries!", standupId), whiteboard.SlackClient, ev.Channel)
+			whiteboard.registerStandup(int(standupId), ev.Channel)
 		} else {
 			handleRegisterationFailure(whiteboard.SlackClient, ev.Channel)
 		}
 		return
 	}
 
-	standupId, ok := whiteboard.Store.Get(ev.Channel)
+	standupJson, ok := whiteboard.Store.Get(ev.Channel)
 	if !ok {
 		handleRegisterationFailure(whiteboard.SlackClient, ev.Channel)
 		return
 	}
+	var standup Standup
+	json.Unmarshal([]byte(standupJson), &standup)
 
 	username, author, ok := getSlackUser(whiteboard.SlackClient, ev.User)
 	if !ok {
@@ -99,13 +101,13 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 		postMarkdownMessageToSlack(usage, whiteboard.SlackClient, ev.Channel)
 		return
 	case matches(command, "faces"):
-		whiteboard.EntryMap[username] = NewFace(whiteboard.Clock, author, input, standupId)
+		whiteboard.EntryMap[username] = NewFace(whiteboard.Clock, author, input, standup)
 	case matches(command, "interestings"):
-		whiteboard.EntryMap[username] = NewInteresting(whiteboard.Clock, author, input, standupId)
+		whiteboard.EntryMap[username] = NewInteresting(whiteboard.Clock, author, input, standup)
 	case matches(command, "helps"):
-		whiteboard.EntryMap[username] = NewHelp(whiteboard.Clock, author, input, standupId)
+		whiteboard.EntryMap[username] = NewHelp(whiteboard.Clock, author, input, standup)
 	case matches(command, "events"):
-		whiteboard.EntryMap[username] = NewEvent(whiteboard.Clock, author, input, standupId)
+		whiteboard.EntryMap[username] = NewEvent(whiteboard.Clock, author, input, standup)
 	case matches(command, "name") || matches(command, "title"):
 		if missingEntry(entryType) {
 			handleMissingEntry(whiteboard.SlackClient, ev.Channel)
@@ -137,7 +139,7 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 			return
 		}
 	case matches(command, "present"):
-		items, ok := whiteboard.RestClient.GetStandupItems(standupId)
+		items, ok := whiteboard.RestClient.GetStandupItems(standup.Id)
 		if ok {
 			if items.Empty() {
 				postMessageToSlack("Hey, there's no entries in today's standup yet, why not add some?", whiteboard.SlackClient, ev.Channel)
@@ -165,7 +167,7 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 
 	output := entryType.String()
 	if entryType.Validate() {
-		if itemId, ok := postEntryToWhiteboard(whiteboard.RestClient, entryType, standupId); ok {
+		if itemId, ok := postEntryToWhiteboard(whiteboard.RestClient, entryType, standup.Id); ok {
 			output = appendStatus(entryType, output)
 			entryType.GetEntry().Id = itemId
 		}
@@ -267,4 +269,15 @@ func handleMissingEntry(slackClient SlackClient, channel string) {
 
 func missingEntry(entryType EntryType) bool {
 	return entryType == nil
+}
+
+func (whiteboard WhiteboardApp) registerStandup(standupId int, channel string) {
+	standup, ok := whiteboard.RestClient.GetStandup(standupId)
+	if !ok {
+		handleRegisterationFailure(whiteboard.SlackClient, channel)
+		return
+	}
+	standupJson, _ := json.Marshal(standup)
+	whiteboard.Store.Set(channel, string(standupJson))
+	postMessageToSlack(fmt.Sprintf("Standup Id: %v has been registered! You can now start creating Whiteboard entries!", standupId), whiteboard.SlackClient, channel)
 }

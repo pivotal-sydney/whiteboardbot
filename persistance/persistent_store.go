@@ -7,8 +7,8 @@ import (
 )
 
 type Store interface {
-	Get(key string) (value int, ok bool)
-	Set(key string, value int)
+	Get(key string) (value string, ok bool)
+	Set(key string, value string)
 }
 
 type RealStore struct{
@@ -25,11 +25,11 @@ func NewPool() *redis.Pool {
 	}
 }
 
-func (store *RealStore) Get(key string) (value int, ok bool) {
+func (store *RealStore) Get(key string) (value string, ok bool) {
 	conn := store.Pool.Get()
 	defer conn.Close()
 
-	value, err := redis.Int(conn.Do("GET", key))
+	value, err := redis.String(conn.Do("GET", key))
 	ok = err == nil
 	if !ok {
 		fmt.Printf("Error occurred GETing from Redis: %v", err)
@@ -37,7 +37,7 @@ func (store *RealStore) Get(key string) (value int, ok bool) {
 	return
 }
 
-func (store *RealStore) Set(key string, value int) {
+func (store *RealStore) Set(key string, value string) {
 	conn := store.Pool.Get()
 	defer conn.Close()
 
