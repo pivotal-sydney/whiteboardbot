@@ -1,7 +1,6 @@
 package spec
 
 import (
-	"github.com/nlopes/slack"
 	"github.com/xtreme-andleung/whiteboardbot/model"
 	"time"
 )
@@ -9,23 +8,32 @@ import (
 type MockSlackClient struct {
 	PostMessageCalled bool
 	Message           string
+	EntryType 		  model.EntryType
 }
 
-func (client *MockSlackClient) PostMessage(channel, text string, params slack.PostMessageParameters) (string, string, error) {
-	client.PostMessageCalled = true
-	client.Message = text
-	return "channel", "timestamp", nil
+func (slackClient *MockSlackClient) PostMessage(message string, channel string) {
+	slackClient.PostMessageCalled = true
+	slackClient.Message = message
 }
 
-func (client *MockSlackClient) GetUserInfo(user string) (*slack.User, error) {
-	slackUser := slack.User{}
-	slackUser.Profile = slack.UserProfile{RealName: "Andrew Leung"}
-	if user == "" {
-		slackUser.Name = "aleung"
-	} else {
-		slackUser.Name = user
+func (slackClient *MockSlackClient) PostMessageWithMarkdown(message string, channel string) {
+	slackClient.PostMessageCalled = true
+	slackClient.Message = message
+}
+
+func (slackClient *MockSlackClient) PostEntry(entryType model.EntryType, channel string, status string) {
+	slackClient.EntryType = entryType
+	slackClient.Message = entryType.String() + status
+}
+
+func (slackClient *MockSlackClient) GetUserDetails(user string) (username, author string, ok bool) {
+	username = user
+	if username == "" {
+		username = "aleung"
 	}
-	return &slackUser, nil
+	author = "Andrew Leung"
+	ok = true
+	return
 }
 
 type MockClock struct{}

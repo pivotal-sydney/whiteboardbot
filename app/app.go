@@ -16,7 +16,6 @@ import (
 )
 
 const (
-	botName        = "whiteboardbot"
 	usage   string = "*Usage*:\n" +
 		"    `wb [command] [text...]`\n" +
 		"where commands include:\n" +
@@ -90,7 +89,7 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 	var standup Standup
 	json.Unmarshal([]byte(standupJson), &standup)
 
-	username, author, ok := getSlackUser(whiteboard.SlackClient, ev.User)
+	username, author, ok := whiteboard.SlackClient.GetUserDetails(ev.User)
 	if !ok {
 		return
 	}
@@ -98,7 +97,7 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 	entryType := whiteboard.EntryMap[username]
 	switch {
 	case matches(command, "?"):
-		postMarkdownMessageToSlack(usage, whiteboard.SlackClient, ev.Channel)
+		whiteboard.SlackClient.PostMessageWithMarkdown(usage, ev.Channel)
 		return
 	case matches(command, "faces"):
 		whiteboard.EntryMap[username] = NewFace(whiteboard.Clock, author, input, standup)
@@ -123,7 +122,7 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 		default:
 			entryType.GetEntry().Body = input
 		case Face:
-			postMessageToSlack("Face does not have a body! "+randomInsult(), whiteboard.SlackClient, ev.Channel)
+			whiteboard.SlackClient.PostMessage("Face does not have a body! "+randomInsult(), ev.Channel)
 			return
 		}
 	case matches(command, "date"):
@@ -135,17 +134,17 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 		if parsedDate, err := time.Parse("2006-01-02", input); err == nil {
 			entryType.GetEntry().Date = parsedDate.Format("2006-01-02")
 		} else {
-			postMessageToSlack(entryType.String()+"\nDate not set, use YYYY-MM-DD as date format", whiteboard.SlackClient, ev.Channel)
+			whiteboard.SlackClient.PostMessage(entryType.String()+"\nDate not set, use YYYY-MM-DD as date format", ev.Channel)
 			return
 		}
 	case matches(command, "present"):
 		items, ok := whiteboard.RestClient.GetStandupItems(standup.Id)
 		if ok {
 			if items.Empty() {
-				postMessageToSlack("Hey, there's no entries in today's standup yet, why not add some?", whiteboard.SlackClient, ev.Channel)
+				whiteboard.SlackClient.PostMessage("Hey, there's no entries in today's standup yet, why not add some?", ev.Channel)
 				return
 			}
-			postMessageToSlack(items.String(), whiteboard.SlackClient, ev.Channel)
+			whiteboard.SlackClient.PostMessage(items.String(), ev.Channel)
 			return
 		}
 	default:
@@ -155,7 +154,7 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 		} else {
 			_, userInput = readNextCommand(ev.Text[2:])
 		}
-		postMessageToSlack(fmt.Sprintf("%v no you %v", username, userInput), whiteboard.SlackClient, ev.Channel)
+		whiteboard.SlackClient.PostMessage(fmt.Sprintf("%v no you %v", username, userInput), ev.Channel)
 		return
 	}
 
@@ -165,14 +164,14 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 		entryType.GetEntry().Body = fmt.Sprintf("%v\n<img src=\"%v\" style=\"max-width: 500px\">", ev.File.InitialComment.Comment, ev.File.URL)
 	}
 
-	output := entryType.String()
+	status := ""
 	if entryType.Validate() {
 		if itemId, ok := postEntryToWhiteboard(whiteboard.RestClient, entryType, standup.Id); ok {
-			output = appendStatus(entryType, output)
+			status = entryStatus(entryType)
 			entryType.GetEntry().Id = itemId
 		}
 	}
-	postMessageToSlack(output, whiteboard.SlackClient, ev.Channel)
+	whiteboard.SlackClient.PostEntry(entryType, ev.Channel, status)
 	return
 }
 
@@ -193,21 +192,6 @@ func createRequest(entryType EntryType, existingEntry bool) (request WhiteboardR
 	return
 }
 
-func postMessageToSlack(message string, slackClient SlackClient, channel string) {
-	postToSlack(message, slackClient, channel, slack.PostMessageParameters{})
-}
-
-func postMarkdownMessageToSlack(message string, slackClient SlackClient, channel string) {
-	params := slack.PostMessageParameters{Markdown: true}
-	postToSlack(message, slackClient, channel, params)
-}
-
-func postToSlack(message string, slackClient SlackClient, channel string, params slack.PostMessageParameters) {
-	fmt.Printf("Posting message to slack:\n%v\n", message)
-	params.Username = botName
-	slackClient.PostMessage(channel, message, params)
-}
-
 func postEntryToWhiteboard(restClient RestClient, entryType EntryType, standupId int) (itemId string, ok bool) {
 	var request = createRequest(entryType, isExistingEntry(entryType.GetEntry()))
 	itemId, ok = restClient.Post(request, standupId)
@@ -218,36 +202,12 @@ func randomInsult() string {
 	return insults[rand.Intn(len(insults))]
 }
 
-func getSlackUser(slackClient SlackClient, eventUser string) (username, author string, ok bool) {
-	if slackUser, err := slackClient.GetUserInfo(eventUser); err == nil {
-		username = slackUser.Name
-		author = GetAuthor(slackUser)
-		ok = true
-	} else {
-		fmt.Printf("%v, %v\n", username, err)
-	}
-	return
-}
-
-func GetAuthor(user *slack.User) (realName string) {
-	realName = user.Profile.RealName
-	if len(realName) == 0 {
-		realName = user.Name
-	}
-	return
-}
-
-func appendStatus(entryType EntryType, output string) string {
+func entryStatus(entryType EntryType) string {
 	if isExistingEntry(entryType.GetEntry()) {
-		return output + "\nitem updated"
+		return "\nitem updated"
 	} else {
-		return output + "\nitem created"
+		return "\nitem created"
 	}
-}
-
-func handleRegisterationFailure(slackClient SlackClient, channel string) {
-	postMessageToSlack("You haven't registered your standup yet. wb register <id> first!  (or short wb r <id>)", slackClient, channel)
-	return
 }
 
 func readNextCommand(input string) (keyword string, newInput string) {
@@ -264,13 +224,17 @@ func readNextCommand(input string) (keyword string, newInput string) {
 }
 
 func handleMissingEntry(slackClient SlackClient, channel string) {
-	postMarkdownMessageToSlack("Hey, you forgot to start new entry. Start with one of `wb [face interesting help event]` first!", slackClient, channel)
+	slackClient.PostMessageWithMarkdown("Hey, you forgot to start new entry. Start with one of `wb [face interesting help event]` first!", channel)
+}
+
+func handleRegisterationFailure(slackClient SlackClient, channel string) {
+	slackClient.PostMessage("You haven't registered your standup yet. wb register <id> first!  (or short wb r <id>)", channel)
+	return
 }
 
 func missingEntry(entryType EntryType) bool {
 	return entryType == nil
 }
-
 func (whiteboard WhiteboardApp) registerStandup(standupId int, channel string) {
 	standup, ok := whiteboard.RestClient.GetStandup(standupId)
 	if !ok {
@@ -279,5 +243,5 @@ func (whiteboard WhiteboardApp) registerStandup(standupId int, channel string) {
 	}
 	standupJson, _ := json.Marshal(standup)
 	whiteboard.Store.Set(channel, string(standupJson))
-	postMessageToSlack(fmt.Sprintf("Standup Id: %v has been registered! You can now start creating Whiteboard entries!", standupId), whiteboard.SlackClient, channel)
+	whiteboard.SlackClient.PostMessage(fmt.Sprintf("Standup Id: %v has been registered! You can now start creating Whiteboard entries!", standupId), channel)
 }

@@ -11,14 +11,13 @@ import (
 
 var _ = Describe("Entry Integration", func() {
 	var (
-		slackClient spec.MockSlackClient
+		slackClient	spec.MockSlackClient
 		clock       spec.MockClock
 		restClient  spec.MockRestClient
 		whiteboard  WhiteboardApp
-		usageEvent, newInterestingEvent, newEventEvent, newHelpEvent,
+		registrationEvent, usageEvent, newInterestingEvent, newEventEvent, newHelpEvent,
 		newFaceEventTitleEvent, newInterestingWithTitleEvent, newHelpEventTitleEvent, newEventEventWithTitleEvent,
 		setTitleEvent, setDateEvent, setBodyEvent MessageEvent
-		registrationEvent MessageEvent
 	)
 
 	BeforeEach(func() {
@@ -26,6 +25,7 @@ var _ = Describe("Entry Integration", func() {
 		clock = spec.MockClock{}
 		restClient = spec.MockRestClient{}
 		whiteboard = WhiteboardApp{SlackClient: &slackClient, Clock: clock, RestClient: &restClient, Store: &spec.MockStore{}, EntryMap: make(map[string]model.EntryType)}
+
 		usageEvent = createMessageEvent("wb ?")
 		newInterestingEvent = createMessageEvent("wb Intere")
 		newEventEvent = createMessageEvent("wb Ev")
@@ -37,6 +37,7 @@ var _ = Describe("Entry Integration", func() {
 		setTitleEvent = createMessageEvent("Wb tI something interesting")
 		setDateEvent = createMessageEvent("Wb dA 2015-12-01")
 		setBodyEvent = createMessageEvent("wB Bod more info")
+
 		registrationEvent = MessageEvent{Msg: Msg{Text: "wb r 1", Channel: "whiteboard-sydney"}}
 		whiteboard.ParseMessageEvent(&registrationEvent)
 	})
