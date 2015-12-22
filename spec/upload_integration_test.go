@@ -33,7 +33,7 @@ var _ = Describe("Upload Integration", func() {
 		file.InitialComment = Comment{Comment: "Body of the event"}
 		file.Title = "wb i My Title"
 		uploadEvent = MessageEvent{Msg: Msg{Upload: true, File: file, Channel: "whiteboard-sydney"}}
-		registrationEvent = MessageEvent{Msg: Msg{Text: "wb r 1", Channel: "whiteboard-sydney"}}
+		registrationEvent = CreateMessageEvent("wb r 1")
 
 		whiteboard.ParseMessageEvent(&registrationEvent)
 	})

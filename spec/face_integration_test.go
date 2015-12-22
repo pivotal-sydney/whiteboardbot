@@ -28,10 +28,10 @@ var _ = Describe("Faces Integration", func() {
 		restClient = spec.MockRestClient{}
 		whiteboard = WhiteboardApp{SlackClient: &slackClient, Clock: clock, RestClient: &restClient, Store: &spec.MockStore{}, EntryMap: make(map[string]model.EntryType)}
 
-		registrationEvent = MessageEvent{Msg: Msg{Text: "wb r 1", Channel: "whiteboard-sydney"}}
-		newFaceEvent = MessageEvent{Msg: Msg{Text: "wb faces", Channel: "whiteboard-sydney"}}
-		setNameEvent = MessageEvent{Msg: Msg{Text: "wb name Dariusz Lorenc", Channel: "whiteboard-sydney"}}
-		setDateEvent = MessageEvent{Msg: Msg{Text: "wb date 2015-12-01", Channel: "whiteboard-sydney"}}
+		registrationEvent = CreateMessageEvent("wb r 1")
+		newFaceEvent = CreateMessageEvent("wb faces")
+		setNameEvent = CreateMessageEvent("wb name Dariusz Lorenc")
+		setDateEvent = CreateMessageEvent("wb date 2015-12-01")
 
 		whiteboard.ParseMessageEvent(&registrationEvent)
 	})

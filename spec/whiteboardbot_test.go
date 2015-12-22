@@ -24,17 +24,9 @@ var _ = Describe("Whiteboardbot", func() {
 		restClient = spec.MockRestClient{}
 		whiteboard = WhiteboardApp{SlackClient: &slackClient, Clock: clock, RestClient: &restClient, Store: &spec.MockStore{}}
 
-		helloWorldEvent = slack.MessageEvent{}
-		helloWorldEvent.Text = "wb hello world"
-		helloWorldEvent.Channel = "whiteboard-sydney"
-
-		randomEvent = slack.MessageEvent{}
-		randomEvent.Text = "wbsome other text"
-		randomEvent.Channel = "whiteboard-sydney"
-
-		registrationEvent = slack.MessageEvent{}
-		registrationEvent.Text = "wb r 1"
-		registrationEvent.Channel = "whiteboard-sydney"
+		helloWorldEvent = CreateMessageEvent("wb hello world")
+		randomEvent = CreateMessageEvent("wbsome other text")
+		registrationEvent = CreateMessageEvent("wb r 1")
 	})
 
 	Context("when receiving a MessageEvent", func() {

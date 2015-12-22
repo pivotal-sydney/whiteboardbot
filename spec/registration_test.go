@@ -25,8 +25,8 @@ var _ = Describe("Standup Registration", func() {
 		restClient = spec.MockRestClient{}
 		whiteboard = WhiteboardApp{SlackClient: &slackClient, Clock: clock, RestClient: &restClient, Store: &spec.MockStore{}}
 
-		event = MessageEvent{Msg: Msg{Text: "wb anything", Channel: "whiteboard-channel"}}
-		registrationEvent = MessageEvent{Msg: Msg{Text: "wb r 1", Channel: "whiteboard-sydney"}}
+		event = CreateMessageEvent("wb anything")
+		registrationEvent = CreateMessageEvent("wb r 1")
 	})
 
 	Context("registering standup", func() {
