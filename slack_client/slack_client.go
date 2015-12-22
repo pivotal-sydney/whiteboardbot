@@ -27,7 +27,7 @@ func (slackClient *Slack) PostMessageWithMarkdown(message string, channel string
 }
 
 func (slackClient *Slack) PostEntry(entryType model.EntryType, channel string, status string) {
-	message := entryType.String() + status
+	message := status + entryType.String()
 	slackClient.PostMessage(message, channel)
 }
 

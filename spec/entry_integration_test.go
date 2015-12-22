@@ -56,7 +56,7 @@ var _ = Describe("Entry Integration", func() {
 			whiteboard.ParseMessageEvent(&newInterestingWithTitleEvent)
 			Expect(slackClient.EntryType).To(BeAssignableToTypeOf(model.Interesting{}))
 			Expect(slackClient.EntryType.GetEntry().Title).To(Equal("something interesting"))
-			Expect(slackClient.Status).To(Equal("\nitem created"))
+			Expect(slackClient.Status).To(Equal(THUMBS_UP))
 		})
 	})
 
@@ -65,7 +65,7 @@ var _ = Describe("Entry Integration", func() {
 			whiteboard.ParseMessageEvent(&newHelpEventTitleEvent)
 			Expect(slackClient.EntryType).To(BeAssignableToTypeOf(model.Help{}))
 			Expect(slackClient.EntryType.GetEntry().Title).To(Equal("some help"))
-			Expect(slackClient.Status).To(Equal("\nitem created"))
+			Expect(slackClient.Status).To(Equal(THUMBS_UP))
 		})
 	})
 
@@ -74,7 +74,7 @@ var _ = Describe("Entry Integration", func() {
 			whiteboard.ParseMessageEvent(&newEventEventWithTitleEvent)
 			Expect(slackClient.EntryType).To(BeAssignableToTypeOf(model.Event{}))
 			Expect(slackClient.EntryType.GetEntry().Title).To(Equal("some event"))
-			Expect(slackClient.Status).To(Equal("\nitem created"))
+			Expect(slackClient.Status).To(Equal(THUMBS_UP))
 		})
 	})
 
@@ -83,7 +83,7 @@ var _ = Describe("Entry Integration", func() {
 			whiteboard.ParseMessageEvent(&newFaceEventTitleEvent)
 			Expect(slackClient.EntryType).To(BeAssignableToTypeOf(model.Face{}))
 			Expect(slackClient.EntryType.GetEntry().Title).To(Equal("some face"))
-			Expect(slackClient.Status).To(Equal("\nitem created"))
+			Expect(slackClient.Status).To(Equal(THUMBS_UP))
 		})
 	})
 
@@ -114,7 +114,7 @@ var _ = Describe("Entry Integration", func() {
 				It("should set the title of the entry", func() {
 					whiteboard.ParseMessageEvent(&setTitleEvent)
 					Expect(slackClient.EntryType.GetEntry().Title).To(Equal("something interesting"))
-					Expect(slackClient.Status).To(Equal("\nitem created"))
+					Expect(slackClient.Status).To(Equal(THUMBS_UP))
 				})
 				It("should post interesting entry to whiteboard since all mandatory fields are set", func() {
 					whiteboard.ParseMessageEvent(&setTitleEvent)
@@ -136,7 +136,7 @@ var _ = Describe("Entry Integration", func() {
 					Expect(restClient.Request.Item.Author).To(Equal("Andrew Leung"))
 					Expect(restClient.Request.Item.StandupId).To(Equal(1))
 					Expect(restClient.Request.Id).To(Equal("1"))
-					Expect(slackClient.Status).To(Equal("\nitem updated"))
+					Expect(slackClient.Status).To(Equal(THUMBS_UP))
 				})
 				It("should not update existing interesting entry in the whiteboard when incorrect keyword", func() {
 					whiteboard.ParseMessageEvent(&setTitleEvent)
@@ -144,7 +144,6 @@ var _ = Describe("Entry Integration", func() {
 					setTitleEvent.Text = "wb invalid"
 					whiteboard.ParseMessageEvent(&setTitleEvent)
 					Expect(restClient.PostCalledCount).To(Equal(1))
-					Expect(slackClient.Status).ShouldNot(Equal("\nitem updated"))
 				})
 			})
 			Describe("with non-keyword", func() {

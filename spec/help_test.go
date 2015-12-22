@@ -36,7 +36,7 @@ var _ = Describe("Help", func() {
 		It("should print the help", func() {
 			help.Title = "some title"
 			help.Body = "some body"
-			Expect(help.String()).To(Equal("helps\n  *title: some title\n  body: some body\n  date: 2015-01-02"))
+			Expect(help.String()).To(Equal("HELP\n\n>*some title*\n>some body\n>02 Jan 2015"))
 		})
 	})
 

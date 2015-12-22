@@ -8,7 +8,7 @@ func NewHelp(clock Clock, author, title string, standup Standup) (help Help) {
 }
 
 func (help Help) String() string {
-	return "helps" + help.Entry.String()
+	return "HELP" + help.Entry.String()
 }
 
 func (help Help) MakeCreateRequest() (request WhiteboardRequest) {

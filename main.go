@@ -48,6 +48,7 @@ Loop:
 		case msg := <-rtm.IncomingEvents:
 			switch ev := msg.Data.(type) {
 			case *slack.MessageEvent:
+				fmt.Printf("Incoming message: %v, %v, %v", ev.Text, ev.Attachments, ev)
 				go whiteboard.ParseMessageEvent(ev)
 			case *slack.InvalidAuthEvent:
 				fmt.Println("Invalid credentials")

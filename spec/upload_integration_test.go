@@ -44,7 +44,7 @@ var _ = Describe("Upload Integration", func() {
 			Expect(slackClient.EntryType).To(BeAssignableToTypeOf(model.Interesting{}))
 			Expect(slackClient.EntryType.GetEntry().Title).To(Equal("My Title"))
 			Expect(slackClient.EntryType.GetEntry().Body).To(Equal("Body of the event\n<img src=\"http://upload/link\" style=\"max-width: 500px\">"))
-			Expect(slackClient.Status).To(Equal("\nitem created"))
+			Expect(slackClient.Status).To(Equal(THUMBS_UP))
 		})
 		Context("with invalid keyword", func() {
 			BeforeEach(func() {

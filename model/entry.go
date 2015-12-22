@@ -4,6 +4,12 @@ import (
 	"fmt"
 	"bytes"
 	"time"
+	"strings"
+)
+
+const (
+	DATE_FORMAT = "2006-01-02"
+	DATE_STRING_FORMAT = "02 Jan 2006"
 )
 
 type EntryType interface {
@@ -12,6 +18,7 @@ type EntryType interface {
 	MakeUpdateRequest() (request WhiteboardRequest)
 	String() string
 	GetEntry() *Entry
+	GetDateString() string
 }
 
 type Entry struct {
@@ -58,7 +65,15 @@ func (entry Entry) GetEntry() *Entry {
 }
 
 func (entry Entry) String() string {
-	return fmt.Sprintf("\n  *title: %v\n  body: %v\n  date: %v", entry.Title, entry.Body, entry.Date)
+	return fmt.Sprintf("\n\n>*%v*\n>%v\n>%v", entry.Title, entry.Body, entry.GetDateString())
+}
+
+func (entry Entry) GetDateString() string {
+	date, err := time.Parse(DATE_FORMAT, entry.Date)
+	if err != nil {
+		return entry.Date
+	}
+	return date.Format(DATE_STRING_FORMAT)
 }
 
 func createItem(entry Entry) (item Item) {
@@ -68,39 +83,35 @@ func createItem(entry Entry) (item Item) {
 
 func (items StandupItems) FacesString() string {
 	var buffer bytes.Buffer
-	buffer.WriteString("New Faces:")
 	for _, face := range items.Faces {
-		buffer.WriteString("\n" + Face{&face}.String())
+		buffer.WriteString(Face{&face}.String() + "\n")
 	}
-	return buffer.String()
+	return strings.TrimSuffix(buffer.String(), "\n")
 }
 
 func (items StandupItems) InterestingsString() string {
 	var buffer bytes.Buffer
-	buffer.WriteString("Interestings:")
 	for _, interesting := range items.Interestings {
-		buffer.WriteString("\n" + Interesting{&interesting}.String())
+		buffer.WriteString(Interesting{&interesting}.String() + "\n")
 	}
-	return buffer.String()
+	return strings.TrimSuffix(buffer.String(), "\n")
 }
 
 
 func (items StandupItems) HelpsString() string {
 	var buffer bytes.Buffer
-	buffer.WriteString("Helps:")
 	for _, help := range items.Helps {
-		buffer.WriteString("\n" + Help{&help}.String())
+		buffer.WriteString(Help{&help}.String() + "\n")
 	}
-	return buffer.String()
+	return strings.TrimSuffix(buffer.String(), "\n")
 }
 
 func (items StandupItems) EventsString() string {
 	var buffer bytes.Buffer
-	buffer.WriteString("Events:")
 	for _, event := range items.Events {
-		buffer.WriteString("\n" + Event{&event}.String())
+		buffer.WriteString(Event{&event}.String() + "\n")
 	}
-	return buffer.String()
+	return strings.TrimSuffix(buffer.String(), "\n")
 }
 
 func (items StandupItems) String() string {

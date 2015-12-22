@@ -11,7 +11,7 @@ func NewFace(clock Clock, author, title string, standup Standup) (face Face) {
 }
 
 func (face Face) String() string {
-	return fmt.Sprintf("faces\n  *name: %v\n  date: %v", face.Title, face.Date)
+	return fmt.Sprintf("FACE\n\n>*%v*\n>%v", face.Title, face.GetDateString())
 }
 
 func (face Face) MakeCreateRequest() (request WhiteboardRequest) {

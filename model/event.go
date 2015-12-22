@@ -8,7 +8,7 @@ func NewEvent(clock Clock, author, title string, standup Standup) (event Event) 
 }
 
 func (event Event) String() string {
-	return "events" + event.Entry.String()
+	return "EVENT" + event.Entry.String()
 }
 
 func (event Event) MakeCreateRequest() (request WhiteboardRequest) {

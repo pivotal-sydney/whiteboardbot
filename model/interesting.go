@@ -8,7 +8,7 @@ func NewInteresting(clock Clock, author, title string, standup Standup) (interes
 }
 
 func (interesting Interesting) String() string {
-	return "interestings" + interesting.Entry.String()
+	return "INTERESTING" + interesting.Entry.String()
 }
 
 func (interesting Interesting) MakeCreateRequest() (request WhiteboardRequest) {

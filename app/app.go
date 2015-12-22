@@ -167,7 +167,7 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 	status := ""
 	if entryType.Validate() {
 		if itemId, ok := postEntryToWhiteboard(whiteboard.RestClient, entryType, standup.Id); ok {
-			status = entryStatus(entryType)
+			status = THUMBS_UP
 			entryType.GetEntry().Id = itemId
 		}
 	}
@@ -200,14 +200,6 @@ func postEntryToWhiteboard(restClient RestClient, entryType EntryType, standupId
 
 func randomInsult() string {
 	return insults[rand.Intn(len(insults))]
-}
-
-func entryStatus(entryType EntryType) string {
-	if isExistingEntry(entryType.GetEntry()) {
-		return "\nitem updated"
-	} else {
-		return "\nitem created"
-	}
 }
 
 func readNextCommand(input string) (keyword string, newInput string) {

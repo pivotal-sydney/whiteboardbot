@@ -78,28 +78,28 @@ var _ = Describe("Entry", func() {
 		Describe("convert standup faces items to string", func() {
 			It("should print faces in presentation mode", func() {
 				itemsString := items.FacesString()
-				Expect(itemsString).To(Equal("New Faces:\n" + Face{&items.Faces[0]}.String() + "\n" + Face{&items.Faces[1]}.String()))
+				Expect(itemsString).To(Equal(Face{&items.Faces[0]}.String() + "\n" + Face{&items.Faces[1]}.String()))
 			})
 		})
 
 		Describe("convert standup interestings items to string", func() {
 			It("should print interestings in presentation mode", func() {
 				itemsString := items.InterestingsString()
-				Expect(itemsString).To(Equal("Interestings:\n" + Interesting{&items.Interestings[0]}.String()))
+				Expect(itemsString).To(Equal(Interesting{&items.Interestings[0]}.String()))
 			})
 		})
 
 		Describe("convert standup helps items to string", func() {
 			It("should print helps in presentation mode", func() {
 				itemsString := items.HelpsString()
-				Expect(itemsString).To(Equal("Helps:\n" + Help{&items.Helps[0]}.String()))
+				Expect(itemsString).To(Equal(Help{&items.Helps[0]}.String()))
 			})
 		})
 
 		Describe("convert standup events items to string", func() {
 			It("should print events in presentation mode", func() {
 				itemsString := items.EventsString()
-				Expect(itemsString).To(Equal("Events:\n" + Event{&items.Events[0]}.String()))
+				Expect(itemsString).To(Equal(Event{&items.Events[0]}.String()))
 			})
 		})
 	})
