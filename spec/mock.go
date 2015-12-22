@@ -9,6 +9,7 @@ type MockSlackClient struct {
 	PostMessageCalled bool
 	Message           string
 	EntryType 		  model.EntryType
+	Status 			  string
 }
 
 func (slackClient *MockSlackClient) PostMessage(message string, channel string) {
@@ -23,7 +24,7 @@ func (slackClient *MockSlackClient) PostMessageWithMarkdown(message string, chan
 
 func (slackClient *MockSlackClient) PostEntry(entryType model.EntryType, channel string, status string) {
 	slackClient.EntryType = entryType
-	slackClient.Message = entryType.String() + status
+	slackClient.Status = status
 }
 
 func (slackClient *MockSlackClient) GetUserDetails(user string) (username, author string, ok bool) {
