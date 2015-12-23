@@ -22,7 +22,7 @@ var _ = Describe("Whiteboardbot", func() {
 		slackClient = spec.MockSlackClient{}
 		clock = spec.MockClock{}
 		restClient = spec.MockRestClient{}
-		whiteboard = WhiteboardApp{SlackClient: &slackClient, Clock: clock, RestClient: &restClient, Store: &spec.MockStore{}}
+		whiteboard = NewWhiteboard(&slackClient, &restClient, clock, &spec.MockStore{})
 
 		helloWorldEvent = CreateMessageEvent("wb hello world")
 		randomEvent = CreateMessageEvent("wbsome other text")

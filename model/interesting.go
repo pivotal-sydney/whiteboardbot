@@ -2,7 +2,7 @@ package model
 
 type Interesting struct{ *Entry }
 
-func NewInteresting(clock Clock, author, title string, standup Standup) (interesting Interesting) {
+func NewInteresting(clock Clock, author, title string, standup Standup) (interesting interface{}) {
 	interesting = Interesting{NewEntry(clock, author, title, standup)}
 	return
 }

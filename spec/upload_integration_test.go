@@ -26,7 +26,7 @@ var _ = Describe("Upload Integration", func() {
 		slackClient = spec.MockSlackClient{}
 		clock = spec.MockClock{}
 		restClient = spec.MockRestClient{}
-		whiteboard = WhiteboardApp{SlackClient: &slackClient, Clock: clock, RestClient: &restClient, Store: &spec.MockStore{}, EntryMap: make(map[string]model.EntryType)}
+		whiteboard = NewWhiteboard(&slackClient, &restClient, clock, &spec.MockStore{})
 
 		file = &File{}
 		file.URL = "http://upload/link"

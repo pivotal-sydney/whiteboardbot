@@ -4,11 +4,15 @@ import (
 	"github.com/garyburd/redigo/redis"
 	"os"
 	"fmt"
+	. "github.com/xtreme-andleung/whiteboardbot/model"
+	"encoding/json"
 )
 
 type Store interface {
 	Get(key string) (value string, ok bool)
 	Set(key string, value string)
+	GetStandup(channel string) (standup Standup, ok bool)
+	SetStandup(channel string, standup Standup)
 }
 
 type RealStore struct{
@@ -23,6 +27,19 @@ func NewPool() *redis.Pool {
 			return redis.Dial("tcp", os.Getenv("WB_DB_HOST"), redis.DialPassword(os.Getenv("WB_DB_PASSWORD")))
 		},
 	}
+}
+
+func (store *RealStore) GetStandup(channel string) (standup Standup, ok bool) {
+	var standupJson string
+	standupJson, _ = store.Get(channel)
+	err := json.Unmarshal([]byte(standupJson), &standup)
+	ok = err == nil
+	return
+}
+
+func (store *RealStore) SetStandup(channel string, standup Standup) {
+	standupJson, _ := json.Marshal(standup)
+	store.Set(channel, string(standupJson))
 }
 
 func (store *RealStore) Get(key string) (value string, ok bool) {

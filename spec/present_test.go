@@ -24,7 +24,7 @@ var _ = Describe("Present Integration", func() {
 		slackClient = spec.MockSlackClient{}
 		clock = spec.MockClock{}
 		restClient = spec.MockRestClient{}
-		whiteboard = WhiteboardApp{SlackClient: &slackClient, Clock: clock, RestClient: &restClient, Store: &spec.MockStore{}}
+		whiteboard = NewWhiteboard(&slackClient, &restClient, clock, &spec.MockStore{})
 		registrationEvent = CreateMessageEvent("wb r 1")
 		presentEvent = CreateMessageEvent("wb present")
 		whiteboard.ParseMessageEvent(&registrationEvent)

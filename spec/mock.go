@@ -4,6 +4,7 @@ import (
 	"github.com/xtreme-andleung/whiteboardbot/model"
 	"time"
 	"strconv"
+	"encoding/json"
 )
 
 type MockSlackClient struct {
@@ -30,13 +31,12 @@ func (slackClient *MockSlackClient) PostEntry(entryType model.EntryType, channel
 	slackClient.Status = status
 }
 
-func (slackClient *MockSlackClient) GetUserDetails(user string) (username, author string, ok bool) {
+func (slackClient *MockSlackClient) GetUserDetails(user string) (username, author string) {
 	username = user
 	if username == "" {
 		username = "aleung"
 	}
 	author = "Andrew Leung"
-	ok = true
 	return
 }
 
@@ -92,4 +92,17 @@ func (store *MockStore) Set(key string, value string) {
 		store.StoreMap = make(map[string]string)
 	}
 	store.StoreMap[key] = value
+}
+
+func (store *MockStore) GetStandup(channel string) (standup model.Standup, ok bool) {
+	var standupJson string
+	standupJson, _ = store.Get(channel)
+	err := json.Unmarshal([]byte(standupJson), &standup)
+	ok = err == nil
+	return
+}
+
+func (store *MockStore) SetStandup(channel string, standup model.Standup) {
+	standupJson, _ := json.Marshal(standup)
+	store.Set(channel, string(standupJson))
 }

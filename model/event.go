@@ -2,7 +2,7 @@ package model
 
 type Event struct{ *Entry }
 
-func NewEvent(clock Clock, author, title string, standup Standup) (event Event) {
+func NewEvent(clock Clock, author, title string, standup Standup) (event interface{}) {
 	event = Event{NewEntry(clock, author, title, standup)}
 	return
 }

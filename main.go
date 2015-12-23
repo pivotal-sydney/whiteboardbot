@@ -35,7 +35,7 @@ func main() {
 
 	store := RealStore{redisConnectionPool}
 	slackClient := Slack{SlackWrapper: rtm}
-	whiteboard := WhiteboardApp{SlackClient: &slackClient, Clock: model.RealClock{}, RestClient: RealRestClient{}, Store: &store, EntryMap: make(map[string]model.EntryType)}
+	whiteboard := NewWhiteboard(&slackClient, &RealRestClient{}, model.RealClock{}, &store)
 
 	go startHttpServer()
 

@@ -5,8 +5,6 @@ import (
 	"github.com/xtreme-andleung/whiteboardbot/model"
 )
 
-const botName = "whiteboardbot"
-
 type Slack struct {
 	SlackWrapper SlackWrapper
 }
@@ -15,8 +13,7 @@ type SlackClient interface {
 	PostMessage(message string, channel string, status string)
 	PostMessageWithMarkdown(message string, channel string, status string)
 	PostEntry(entryType model.EntryType, channel string, status string)
-	GetUserDetails(user string) (username, author string, ok bool)
-
+	GetUserDetails(user string) (username, author string)
 }
 
 func (slackClient *Slack) PostMessage(message string, channel string, status string) {
@@ -35,18 +32,19 @@ func (slackClient *Slack) PostEntry(entryType model.EntryType, channel string, s
 func (slackClient *Slack) postMessage(message string, channel string, status string, params slack.PostMessageParameters) {
 	message = status + message
 	fmt.Printf("Posting message to slack:\n%v\n", message)
-	params.Username = botName
+	params.Username = BOT_NAME
 	slackClient.SlackWrapper.PostMessage(channel, message, params)
 }
 
 
-func (slackClient *Slack) GetUserDetails(user string) (username, author string, ok bool) {
+func (slackClient *Slack) GetUserDetails(user string) (username, author string) {
 	if slackUser, err := slackClient.SlackWrapper.GetUserInfo(user); err == nil {
 		username = slackUser.Name
 		author = GetAuthor(slackUser)
-		ok = true
 	} else {
-		fmt.Printf("%v, %v\n", username, err)
+		username = user
+		author = user
+		fmt.Printf("SlackClient.GetUserDetails returned error: %v, %v\n", username, err)
 	}
 	return
 }

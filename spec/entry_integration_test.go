@@ -24,7 +24,7 @@ var _ = Describe("Entry Integration", func() {
 		slackClient = spec.MockSlackClient{}
 		clock = spec.MockClock{}
 		restClient = spec.MockRestClient{}
-		whiteboard = WhiteboardApp{SlackClient: &slackClient, Clock: clock, RestClient: &restClient, Store: &spec.MockStore{}, EntryMap: make(map[string]model.EntryType)}
+		whiteboard = NewWhiteboard(&slackClient, &restClient, clock, &spec.MockStore{})
 
 		usageEvent = CreateMessageEvent("wb ?")
 		newInterestingEvent = CreateMessageEvent("wb Intere")
@@ -157,7 +157,7 @@ var _ = Describe("Entry Integration", func() {
 			Describe("with question mark", func() {
 				It("should respond with usage screen", func() {
 					whiteboard.ParseMessageEvent(&usageEvent)
-					Expect(slackClient.Message).Should(Equal(Usage))
+					Expect(slackClient.Message).Should(Equal(USAGE))
 				})
 			})
 		})

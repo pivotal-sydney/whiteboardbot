@@ -6,28 +6,27 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/xtreme-andleung/whiteboardbot/app"
 	"github.com/xtreme-andleung/whiteboardbot/spec"
-	"github.com/xtreme-andleung/whiteboardbot/model"
 )
 
 var _ = Describe("Faces Integration", func() {
 	var (
 		slackClient spec.MockSlackClient
-		clock       spec.MockClock
-		restClient  spec.MockRestClient
-		whiteboard  WhiteboardApp
+		clock spec.MockClock
+		restClient spec.MockRestClient
+		whiteboard WhiteboardApp
 
 		registrationEvent MessageEvent
-		newFaceEvent      MessageEvent
-		newFaceWithTitleEvent      MessageEvent
-		setNameEvent      MessageEvent
-		setDateEvent      MessageEvent
+		newFaceEvent MessageEvent
+		newFaceWithTitleEvent MessageEvent
+		setNameEvent MessageEvent
+		setDateEvent MessageEvent
 	)
 
 	BeforeEach(func() {
 		slackClient = spec.MockSlackClient{}
 		clock = spec.MockClock{}
 		restClient = spec.MockRestClient{}
-		whiteboard = WhiteboardApp{SlackClient: &slackClient, Clock: clock, RestClient: &restClient, Store: &spec.MockStore{}, EntryMap: make(map[string]model.EntryType)}
+		whiteboard = NewWhiteboard(&slackClient, &restClient, clock, &spec.MockStore{})
 
 		registrationEvent = CreateMessageEvent("wb r 1")
 		newFaceEvent = CreateMessageEvent("wb faces")

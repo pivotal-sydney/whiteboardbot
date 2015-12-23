@@ -5,7 +5,7 @@ import (
 
 type Face struct{ *Entry }
 
-func NewFace(clock Clock, author, title string, standup Standup) (face Face) {
+func NewFace(clock Clock, author, title string, standup Standup) (face interface{}) {
 	face = Face{NewEntry(clock, author, title, standup)}
 	return
 }

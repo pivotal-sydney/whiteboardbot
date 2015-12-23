@@ -23,7 +23,7 @@ var _ = Describe("Standup Registration", func() {
 		slackClient = spec.MockSlackClient{}
 		clock = spec.MockClock{}
 		restClient = spec.MockRestClient{}
-		whiteboard = WhiteboardApp{SlackClient: &slackClient, Clock: clock, RestClient: &restClient, Store: &spec.MockStore{}}
+		whiteboard = NewWhiteboard(&slackClient, &restClient, clock, &spec.MockStore{})
 
 		event = CreateMessageEvent("wb anything")
 		registrationEvent = CreateMessageEvent("wb r 1")
