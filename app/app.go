@@ -46,11 +46,9 @@ func init() {
 
 func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 	input := ev.Text
-
-	var fileUpload bool
-	if ev.Upload {
+	fileUpload := ev.Upload
+	if fileUpload {
 		input = ev.File.Title
-		fileUpload = true
 	}
 
 	command, input := readNextCommand(input)
@@ -131,10 +129,10 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 			return
 		}
 
-		if parsedDate, err := time.Parse("2006-01-02", input); err == nil {
-			entryType.GetEntry().Date = parsedDate.Format("2006-01-02")
+		if parsedDate, err := time.Parse(DATE_FORMAT, input); err == nil {
+			entryType.GetEntry().Date = parsedDate.Format(DATE_FORMAT)
 		} else {
-			whiteboard.SlackClient.PostEntry(entryType, ev.Channel, "\nDate not set, use YYYY-MM-DD as date format")
+			whiteboard.SlackClient.PostEntry(entryType, ev.Channel, "Date not set, use YYYY-MM-DD as date format\n")
 			return
 		}
 	case matches(command, "present"):

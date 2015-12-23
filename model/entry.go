@@ -42,7 +42,7 @@ func NewEntry(clock Clock, author, title string, standup Standup) (entry *Entry)
 	if err != nil {
 		location = time.Local
 	}
-	entry = &Entry{Date: clock.Now().In(location).Format("2006-01-02"), Author: author, Title: title, StandupId: standup.Id}
+	entry = &Entry{Date: clock.Now().In(location).Format(DATE_FORMAT), Author: author, Title: title, StandupId: standup.Id}
 	return
 }
 

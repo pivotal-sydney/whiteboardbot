@@ -186,7 +186,7 @@ var _ = Describe("Entry Integration", func() {
 					setDateEvent.Text = "wb date 12/01/2015"
 					whiteboard.ParseMessageEvent(&setDateEvent)
 					Expect(slackClient.EntryType.GetEntry().Date).To(Equal("2015-01-02"))
-					Expect(slackClient.Status).To(Equal("\nDate not set, use YYYY-MM-DD as date format"))
+					Expect(slackClient.Status).To(Equal("Date not set, use YYYY-MM-DD as date format\n"))
 				})
 			})
 		})
