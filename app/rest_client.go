@@ -9,6 +9,7 @@ import (
 	"strings"
 	. "github.com/xtreme-andleung/whiteboardbot/model"
 	"io/ioutil"
+	"strconv"
 )
 
 type RestClient interface {
@@ -80,6 +81,13 @@ func (RealRestClient) GetStandup(standupId string) (standup Standup, ok bool) {
 			err = json.Unmarshal(jsonBlob, &standup)
 			ok = err == nil
 		}
+	}
+
+	if !ok {
+		standup.Id, _ = strconv.Atoi(standupId)
+		standup.Title = "<UNKNOWN>"
+		standup.TimeZone = "America/Los_Angeles"
+		ok = true
 	}
 	return
 }
