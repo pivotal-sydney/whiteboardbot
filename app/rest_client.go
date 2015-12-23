@@ -1,4 +1,4 @@
-package rest
+package app
 import (
 	"net/http"
 	"encoding/json"
@@ -7,19 +7,19 @@ import (
 	"os"
 	"errors"
 	"strings"
-	"github.com/xtreme-andleung/whiteboardbot/model"
+	. "github.com/xtreme-andleung/whiteboardbot/model"
 	"io/ioutil"
 )
 
 type RestClient interface {
-	Post(request model.WhiteboardRequest, standupId int) (itemId string, ok bool)
-	GetStandupItems(standupId int) (items model.StandupItems, ok bool)
-	GetStandup(standupId int) (standup model.Standup, ok bool)
+	Post(request WhiteboardRequest, standupId int) (itemId string, ok bool)
+	GetStandupItems(standupId int) (items StandupItems, ok bool)
+	GetStandup(standupId string) (standup Standup, ok bool)
 }
 
 type RealRestClient struct{}
 
-func (RealRestClient) Post(request model.WhiteboardRequest, standupId int) (itemId string, ok bool) {
+func (RealRestClient) Post(request WhiteboardRequest, standupId int) (itemId string, ok bool) {
 	json, _ := json.Marshal(request)
 	fmt.Printf("Posting entry to whiteboard:\n%v\n", string(json))
 	http.DefaultClient.CheckRedirect = noRedirect
@@ -46,7 +46,7 @@ func (RealRestClient) Post(request model.WhiteboardRequest, standupId int) (item
 	return
 }
 
-func (RealRestClient) GetStandupItems(standupId int) (items model.StandupItems, ok bool) {
+func (RealRestClient) GetStandupItems(standupId int) (items StandupItems, ok bool) {
 	url := fmt.Sprintf("%v/standups/%v/items", os.Getenv("WB_HOST_URL"), standupId)
 	httpRequest, _ := http.NewRequest("GET", url, nil)
 	httpRequest.Header.Add("Accept", "application/json")
@@ -65,7 +65,7 @@ func (RealRestClient) GetStandupItems(standupId int) (items model.StandupItems, 
 	return
 }
 
-func (RealRestClient) GetStandup(standupId int) (standup model.Standup, ok bool) {
+func (RealRestClient) GetStandup(standupId string) (standup Standup, ok bool) {
 	url := fmt.Sprintf("%v/standups/%v", os.Getenv("WB_HOST_URL"), standupId)
 	httpRequest, _ := http.NewRequest("GET", url, nil)
 	httpRequest.Header.Add("Accept", "application/json")
@@ -84,6 +84,20 @@ func (RealRestClient) GetStandup(standupId int) (standup model.Standup, ok bool)
 	return
 }
 
+func PostEntryToWhiteboard(restClient RestClient, entryType EntryType, standupId int) (itemId string, ok bool) {
+	var request = createRequest(entryType, entryType.GetEntry() != nil && len(entryType.GetEntry().Id) > 0)
+	itemId, ok = restClient.Post(request, standupId)
+	return
+}
+
+func createRequest(entryType EntryType, existingEntry bool) (request WhiteboardRequest) {
+	if existingEntry {
+		request = entryType.MakeUpdateRequest()
+	} else {
+		request = entryType.MakeCreateRequest()
+	}
+	return
+}
 
 func noRedirect(req *http.Request, via []*http.Request) error {
 	return errors.New("Don't redirect!")

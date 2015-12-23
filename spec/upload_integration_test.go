@@ -13,11 +13,11 @@ var _ = Describe("Upload Integration", func() {
 
 	var (
 		slackClient spec.MockSlackClient
-		clock       spec.MockClock
-		restClient  spec.MockRestClient
-		whiteboard  WhiteboardApp
+		clock spec.MockClock
+		restClient spec.MockRestClient
+		whiteboard WhiteboardApp
 
-		uploadEvent       MessageEvent
+		uploadEvent MessageEvent
 		registrationEvent MessageEvent
 		file              *File
 	)

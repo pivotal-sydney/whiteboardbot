@@ -3,6 +3,7 @@ package spec
 import (
 	"github.com/xtreme-andleung/whiteboardbot/model"
 	"time"
+	"strconv"
 )
 
 type MockSlackClient struct {
@@ -12,14 +13,16 @@ type MockSlackClient struct {
 	Status 			  string
 }
 
-func (slackClient *MockSlackClient) PostMessage(message string, channel string) {
+func (slackClient *MockSlackClient) PostMessage(message string, channel string, status string) {
 	slackClient.PostMessageCalled = true
 	slackClient.Message = message
+	slackClient.Status = status
 }
 
-func (slackClient *MockSlackClient) PostMessageWithMarkdown(message string, channel string) {
+func (slackClient *MockSlackClient) PostMessageWithMarkdown(message string, channel string, status string) {
 	slackClient.PostMessageCalled = true
 	slackClient.Message = message
+	slackClient.Status = status
 }
 
 func (slackClient *MockSlackClient) PostEntry(entryType model.EntryType, channel string, status string) {
@@ -63,9 +66,11 @@ func (client *MockRestClient) Post(request model.WhiteboardRequest, standupId in
 	return
 }
 
-func (*MockRestClient) GetStandup(standupId int) (standup model.Standup, ok bool) {
-	standup.Id = standupId
+func (*MockRestClient) GetStandup(standupId string) (standup model.Standup, ok bool) {
+	id, _ := strconv.Atoi(standupId)
+	standup.Id = id
 	standup.TimeZone = "Australia/Sydney"
+	standup.Title = "Sydney"
 	ok = true
 	return
 }

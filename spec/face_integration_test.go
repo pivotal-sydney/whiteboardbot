@@ -18,6 +18,7 @@ var _ = Describe("Faces Integration", func() {
 
 		registrationEvent MessageEvent
 		newFaceEvent      MessageEvent
+		newFaceWithTitleEvent      MessageEvent
 		setNameEvent      MessageEvent
 		setDateEvent      MessageEvent
 	)
@@ -30,54 +31,49 @@ var _ = Describe("Faces Integration", func() {
 
 		registrationEvent = CreateMessageEvent("wb r 1")
 		newFaceEvent = CreateMessageEvent("wb faces")
+		newFaceWithTitleEvent = CreateMessageEvent("wb faces Andrew Leung")
 		setNameEvent = CreateMessageEvent("wb name Dariusz Lorenc")
 		setDateEvent = CreateMessageEvent("wb date 2015-12-01")
 
 		whiteboard.ParseMessageEvent(&registrationEvent)
 	})
 
-	Describe("with faces keyword", func() {
-		It("should begin creating a new face entry and respond with face string", func() {
+	Describe("with faces keyword without title", func() {
+		It("should respond missing title", func() {
 			whiteboard.ParseMessageEvent(&newFaceEvent)
-			Expect(slackClient.EntryType).To(BeAssignableToTypeOf(model.Face{}))
-			Expect(slackClient.Status).To(BeEmpty())
+			Expect(slackClient.Message).To(Equal("Hey, next time add a title along with your entry!\nLike this: `wb i My title`"))
+			Expect(slackClient.Status).To(Equal(THUMBS_DOWN))
 		})
 	})
 
 	Context("setting a name detail", func() {
 		Describe("with a new face entry started", func() {
 			BeforeEach(func() {
-				whiteboard.ParseMessageEvent(&newFaceEvent)
+				whiteboard.ParseMessageEvent(&newFaceWithTitleEvent)
 			})
 			Describe("with correct keyword", func() {
 				It("should set the name of the entry and respond with face string", func() {
-					whiteboard.ParseMessageEvent(&setNameEvent)
-					Expect(slackClient.EntryType.GetEntry().Title).To(Equal("Dariusz Lorenc"))
+					Expect(slackClient.EntryType.GetEntry().Title).To(Equal("Andrew Leung"))
 					Expect(slackClient.Status).To(Equal(THUMBS_UP))
-				})
-				It("should post new face entry to whiteboard since all mandatory fields are set", func() {
-					whiteboard.ParseMessageEvent(&setNameEvent)
 					Expect(restClient.PostCalledCount).To(Equal(1))
 					Expect(restClient.Request.Commit).To(Equal("Create New Face"))
 				})
 				It("should update existing face entry in the whiteboard ", func() {
 					whiteboard.ParseMessageEvent(&setNameEvent)
-					Expect(restClient.PostCalledCount).To(Equal(1))
-					setNameEvent.Text = "wb name updated name"
-					whiteboard.ParseMessageEvent(&setNameEvent)
 					Expect(restClient.PostCalledCount).To(Equal(2))
+					Expect(slackClient.EntryType.GetEntry().Title).To(Equal("Dariusz Lorenc"))
 					Expect(restClient.Request.Method).To(Equal("patch"))
 					Expect(restClient.Request.Commit).To(Equal("Update New Face"))
-					Expect(restClient.Request.Item.Title).To(Equal("updated name"))
+					Expect(restClient.Request.Item.Title).To(Equal("Dariusz Lorenc"))
 					Expect(restClient.Request.Id).To(Equal("1"))
 					Expect(slackClient.Status).To(Equal(THUMBS_UP))
 				})
 				It("should not update existing face entry in the whiteboard when incorrect keyword", func() {
 					whiteboard.ParseMessageEvent(&setNameEvent)
-					Expect(restClient.PostCalledCount).To(Equal(1))
+					Expect(restClient.PostCalledCount).To(Equal(2))
 					setNameEvent.Text = "wb invalid"
 					whiteboard.ParseMessageEvent(&setNameEvent)
-					Expect(restClient.PostCalledCount).To(Equal(1))
+					Expect(restClient.PostCalledCount).To(Equal(2))
 				})
 			})
 			Describe("with incorrect keyword", func() {
@@ -92,8 +88,10 @@ var _ = Describe("Faces Integration", func() {
 					setNameEvent.Text = "wb body no body"
 					whiteboard.ParseMessageEvent(&setNameEvent)
 					Expect(slackClient.Message).To(Equal("Face does not have a body! Stupid."))
+					Expect(slackClient.Status).To(Equal(THUMBS_DOWN))
 					whiteboard.ParseMessageEvent(&setNameEvent)
 					Expect(slackClient.Message).To(Equal("Face does not have a body! You idiot."))
+					Expect(slackClient.Status).To(Equal(THUMBS_DOWN))
 				})
 			})
 		})

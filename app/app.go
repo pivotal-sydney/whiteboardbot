@@ -4,11 +4,7 @@ import (
 	"fmt"
 	"github.com/nlopes/slack"
 	. "github.com/xtreme-andleung/whiteboardbot/model"
-	. "github.com/xtreme-andleung/whiteboardbot/persistance"
-	. "github.com/xtreme-andleung/whiteboardbot/rest"
-	. "github.com/xtreme-andleung/whiteboardbot/slack_client"
 	"math/rand"
-	"strconv"
 	"strings"
 	"time"
 	"regexp"
@@ -16,38 +12,31 @@ import (
 )
 
 const (
-	usage   string = "*Usage*:\n" +
-		"    `wb [command] [text...]`\n" +
-		"where commands include:\n" +
-		"    *Registration Command*\n" +
-		"        `register`, `r` - followed by <standup id> - registers current channel to whiteboard's standup ID\n" +
-		"\n" +
-	    "    *Presentation Command*\n" +
-		"		 `present`, `p` - presents today's standup\n" +
-		"\n" +
-		"    *Create Commands*\n" +
-		"        `faces`, `f` - creates a new faces entry\n" +
-		"        `interestings`, `i` - creates a new interestings entry\n" +
-		"        `helps`, `h` - creates a new helps entry\n" +
-		"        `events`, `e` - creates a new events entry\n" +
-		"\n" +
-		"    *Detail Commands* (after creating an entry)\n" +
-		"        `title`, `t`, `name`, `n` - adds a name/title detail to a started entry\n" +
-		"        `body`, `b` - adds a body detail to a started entry\n" +
-		"        `date`, `d` - adds a date detail to a started entry (YYYY-MM-DD)\n" +
-		"\n" +
-		"When adding text along with a Create Command, the title of the entry will be set to the text\n" +
-		"Ex:\n" +
-		"    `wb f New Face!` - will create a new face with the name 'New Face!'"
+	Usage   string =
+	"*Usage*:\n" +
+	"        `wb [command] [text...]`\n" +
+	"    where commands include:\n" +
+	"*Registration Command*\n" +
+	"        `register`, `r` - followed by <standup_id>, registers current channel to Whiteboard's standup id\n" +
+	"\n" +
+	"*Presentation Command*\n" +
+	"		 `present`, `p` - presents today's standup\n" +
+	"\n" +
+	"*Create Commands*\n" +
+	"        `faces`, `f` - followed by a title, creates a new faces entry\n" +
+	"        `interestings`, `i` - followed by a title, creates a new interestings entry\n" +
+	"        `helps`, `h` - followed by a title, creates a new helps entry\n" +
+	"        `events`, `e` - followed by a title, creates a new events entry\n" +
+	"\n" +
+	"*Detail Commands* (updates details of a started entry)\n" +
+	"        `title`, `t`, `name`, `n` - updates a name/title detail to a started entry\n" +
+	"        `body`, `b` - updates a body detail to a started entry\n" +
+	"        `date`, `d` - updates a date detail to a started entry (YYYY-MM-DD)\n" +
+	"\n" +
+	"Example:\n" +
+	"        `wb f New Face!` - will create a new face with the name 'New Face!'\n" +
+	"        `wb d 2015-01-02` - will update the new face date to 02 Jan 2015"
 )
-
-type WhiteboardApp struct {
-	SlackClient SlackClient
-	RestClient  RestClient
-	Clock       Clock
-	Store       Store
-	EntryMap    map[string]EntryType
-}
 
 var insults = [...]string{"Stupid.", "You idiot.", "You fool."}
 
@@ -72,18 +61,13 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 	command, input = readNextCommand(input)
 
 	if matches(command, "register") {
-		standupId, err := strconv.ParseInt(input, 10, 64)
-		if err == nil {
-			whiteboard.registerStandup(int(standupId), ev.Channel)
-		} else {
-			handleRegisterationFailure(whiteboard.SlackClient, ev.Channel)
-		}
+		whiteboard.registerStandup(input, ev.Channel)
 		return
 	}
 
 	standupJson, ok := whiteboard.Store.Get(ev.Channel)
 	if !ok {
-		handleRegisterationFailure(whiteboard.SlackClient, ev.Channel)
+		handleNotRegistered(whiteboard.SlackClient, ev.Channel)
 		return
 	}
 	var standup Standup
@@ -97,15 +81,31 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 	entryType := whiteboard.EntryMap[username]
 	switch {
 	case matches(command, "?"):
-		whiteboard.SlackClient.PostMessageWithMarkdown(usage, ev.Channel)
+		whiteboard.SlackClient.PostMessageWithMarkdown(Usage, ev.Channel, "")
 		return
 	case matches(command, "faces"):
+		if len(input) == 0 {
+			handleMissingTitle(whiteboard, ev.Channel)
+			return
+		}
 		whiteboard.EntryMap[username] = NewFace(whiteboard.Clock, author, input, standup)
 	case matches(command, "interestings"):
+		if len(input) == 0 {
+			handleMissingTitle(whiteboard, ev.Channel)
+			return
+		}
 		whiteboard.EntryMap[username] = NewInteresting(whiteboard.Clock, author, input, standup)
 	case matches(command, "helps"):
+		if len(input) == 0 {
+			handleMissingTitle(whiteboard, ev.Channel)
+			return
+		}
 		whiteboard.EntryMap[username] = NewHelp(whiteboard.Clock, author, input, standup)
 	case matches(command, "events"):
+		if len(input) == 0 {
+			handleMissingTitle(whiteboard, ev.Channel)
+			return
+		}
 		whiteboard.EntryMap[username] = NewEvent(whiteboard.Clock, author, input, standup)
 	case matches(command, "name") || matches(command, "title"):
 		if missingEntry(entryType) {
@@ -122,7 +122,7 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 		default:
 			entryType.GetEntry().Body = input
 		case Face:
-			whiteboard.SlackClient.PostMessage("Face does not have a body! "+randomInsult(), ev.Channel)
+			whiteboard.SlackClient.PostMessage("Face does not have a body! " + randomInsult(), ev.Channel, THUMBS_DOWN)
 			return
 		}
 	case matches(command, "date"):
@@ -141,10 +141,10 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 		items, ok := whiteboard.RestClient.GetStandupItems(standup.Id)
 		if ok {
 			if items.Empty() {
-				whiteboard.SlackClient.PostMessage("Hey, there's no entries in today's standup yet, why not add some?", ev.Channel)
+				whiteboard.SlackClient.PostMessage("Hey, there's no entries in today's standup yet, why not add some?", ev.Channel, THUMBS_DOWN)
 				return
 			}
-			whiteboard.SlackClient.PostMessage(items.String(), ev.Channel)
+			whiteboard.SlackClient.PostMessage(items.String(), ev.Channel, "")
 			return
 		}
 	default:
@@ -154,7 +154,7 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 		} else {
 			_, userInput = readNextCommand(ev.Text[2:])
 		}
-		whiteboard.SlackClient.PostMessage(fmt.Sprintf("%v no you %v", username, userInput), ev.Channel)
+		whiteboard.SlackClient.PostMessage(fmt.Sprintf("%v no you %v", username, userInput), ev.Channel, "")
 		return
 	}
 
@@ -166,7 +166,7 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 
 	status := ""
 	if entryType.Validate() {
-		if itemId, ok := postEntryToWhiteboard(whiteboard.RestClient, entryType, standup.Id); ok {
+		if itemId, ok := PostEntryToWhiteboard(whiteboard.RestClient, entryType, standup.Id); ok {
 			status = THUMBS_UP
 			entryType.GetEntry().Id = itemId
 		}
@@ -177,25 +177,6 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 
 func matches(keyword string, command string) bool {
 	return len(keyword) > 0 && len(keyword) <= len(command) && command[:len(keyword)] == keyword
-}
-
-func isExistingEntry(entry *Entry) bool {
-	return entry != nil && len(entry.Id) > 0
-}
-
-func createRequest(entryType EntryType, existingEntry bool) (request WhiteboardRequest) {
-	if existingEntry {
-		request = entryType.MakeUpdateRequest()
-	} else {
-		request = entryType.MakeCreateRequest()
-	}
-	return
-}
-
-func postEntryToWhiteboard(restClient RestClient, entryType EntryType, standupId int) (itemId string, ok bool) {
-	var request = createRequest(entryType, isExistingEntry(entryType.GetEntry()))
-	itemId, ok = restClient.Post(request, standupId)
-	return
 }
 
 func randomInsult() string {
@@ -215,25 +196,6 @@ func readNextCommand(input string) (keyword string, newInput string) {
 	return
 }
 
-func handleMissingEntry(slackClient SlackClient, channel string) {
-	slackClient.PostMessageWithMarkdown("Hey, you forgot to start new entry. Start with one of `wb [face interesting help event]` first!", channel)
-}
-
-func handleRegisterationFailure(slackClient SlackClient, channel string) {
-	slackClient.PostMessage("You haven't registered your standup yet. wb register <id> first!  (or short wb r <id>)", channel)
-	return
-}
-
 func missingEntry(entryType EntryType) bool {
 	return entryType == nil
-}
-func (whiteboard WhiteboardApp) registerStandup(standupId int, channel string) {
-	standup, ok := whiteboard.RestClient.GetStandup(standupId)
-	if !ok {
-		handleRegisterationFailure(whiteboard.SlackClient, channel)
-		return
-	}
-	standupJson, _ := json.Marshal(standup)
-	whiteboard.Store.Set(channel, string(standupJson))
-	whiteboard.SlackClient.PostMessage(fmt.Sprintf("Standup Id: %v has been registered! You can now start creating Whiteboard entries!", standupId), channel)
 }

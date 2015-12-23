@@ -1,4 +1,4 @@
-package persistance
+package app
 
 import (
 	"github.com/garyburd/redigo/redis"

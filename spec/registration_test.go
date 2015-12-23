@@ -11,11 +11,11 @@ import (
 var _ = Describe("Standup Registration", func() {
 	var (
 		slackClient spec.MockSlackClient
-		clock       spec.MockClock
-		restClient  spec.MockRestClient
-		whiteboard  WhiteboardApp
+		clock spec.MockClock
+		restClient spec.MockRestClient
+		whiteboard WhiteboardApp
 
-		event             MessageEvent
+		event MessageEvent
 		registrationEvent MessageEvent
 	)
 
@@ -33,22 +33,16 @@ var _ = Describe("Standup Registration", func() {
 		Describe("when standup has not been registered", func() {
 			It("should ask for standup ID", func() {
 				whiteboard.ParseMessageEvent(&event)
-				Expect(slackClient.Message).To(Equal("You haven't registered your standup yet. wb register <id> first!  (or short wb r <id>)"))
+				Expect(slackClient.Message).To(Equal("You haven't registered your standup yet. wb r <id> first!"))
+				Expect(slackClient.Status).To(Equal(THUMBS_DOWN))
 			})
 		})
 
 		Describe("with an integer as standup id", func() {
 			It("should respond registration successful", func() {
 				whiteboard.ParseMessageEvent(&registrationEvent)
-				Expect(slackClient.Message).To(Equal("Standup Id: 1 has been registered! You can now start creating Whiteboard entries!"))
-			})
-		})
-
-		Describe("with a non-integer as standup id", func() {
-			It("should respond registration failure", func() {
-				registrationEvent.Text = "wb r somejunk"
-				whiteboard.ParseMessageEvent(&registrationEvent)
-				Expect(slackClient.Message).To(Equal("You haven't registered your standup yet. wb register <id> first!  (or short wb r <id>)"))
+				Expect(slackClient.Message).To(Equal("Standup Sydney has been registered! You can now start creating Whiteboard entries!"))
+				Expect(slackClient.Status).To(Equal(THUMBS_UP))
 			})
 		})
 	})

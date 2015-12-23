@@ -35,6 +35,7 @@ var _ = Describe("Present Integration", func() {
 			It("should show empty whiteboard", func() {
 				whiteboard.ParseMessageEvent(&presentEvent)
 				Expect(slackClient.Message).To(Equal("Hey, there's no entries in today's standup yet, why not add some?"))
+				Expect(slackClient.Status).To(Equal(THUMBS_DOWN))
 			})
 		})
 

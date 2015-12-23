@@ -3,22 +3,19 @@ package main
 import (
 	"fmt"
 	"github.com/nlopes/slack"
-	"github.com/xtreme-andleung/whiteboardbot/app"
+	. "github.com/xtreme-andleung/whiteboardbot/app"
 	"github.com/xtreme-andleung/whiteboardbot/model"
-	"github.com/xtreme-andleung/whiteboardbot/persistance"
-	"github.com/xtreme-andleung/whiteboardbot/rest"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
-	"github.com/xtreme-andleung/whiteboardbot/slack_client"
 )
 
 const (
 	DEFAULT_PORT = "9000"
 )
 
-var redisConnectionPool = persistance.NewPool()
+var redisConnectionPool = NewPool()
 
 func init() {
 	shutdownChannel := make(chan os.Signal, 1)
@@ -36,19 +33,18 @@ func main() {
 	rtm := api.NewRTM()
 	go rtm.ManageConnection()
 
-	store := persistance.RealStore{redisConnectionPool}
-	slackClient := slack_client.Slack{SlackWrapper: rtm}
-	whiteboard := app.WhiteboardApp{SlackClient: &slackClient, Clock: model.RealClock{}, RestClient: rest.RealRestClient{}, Store: &store, EntryMap: make(map[string]model.EntryType)}
+	store := RealStore{redisConnectionPool}
+	slackClient := Slack{SlackWrapper: rtm}
+	whiteboard := WhiteboardApp{SlackClient: &slackClient, Clock: model.RealClock{}, RestClient: RealRestClient{}, Store: &store, EntryMap: make(map[string]model.EntryType)}
 
 	go startHttpServer()
 
-Loop:
+	Loop:
 	for {
 		select {
 		case msg := <-rtm.IncomingEvents:
 			switch ev := msg.Data.(type) {
 			case *slack.MessageEvent:
-				fmt.Printf("Incoming message: %v, %v, %v", ev.Text, ev.Attachments, ev)
 				go whiteboard.ParseMessageEvent(ev)
 			case *slack.InvalidAuthEvent:
 				fmt.Println("Invalid credentials")
@@ -68,7 +64,7 @@ func cleanup() {
 
 func startHttpServer() {
 	http.HandleFunc("/", HealthCheckServer)
-	if err := http.ListenAndServe(":"+getHealthCheckPort(), nil); err != nil {
+	if err := http.ListenAndServe(":" + getHealthCheckPort(), nil); err != nil {
 		fmt.Printf("ListenAndServe: %v\n", err)
 	}
 }
