@@ -5,6 +5,7 @@ import
 	"fmt"
 	"github.com/nlopes/slack"
 	"time"
+	"strconv"
 )
 
 type WhiteboardApp struct {
@@ -82,7 +83,7 @@ func (whiteboard WhiteboardApp) handleEventsCommand(title string, ev *slack.Mess
 }
 
 func (whiteboard WhiteboardApp) handleCreateCommand(title string, ev *slack.MessageEvent, createEntryCallback func(clock Clock, author string, title string, standup Standup) (entryType interface{})) {
-	standup, username, author, _, ok := whiteboard.getEntryDetails(ev)
+	standup, slackUser, _, ok := whiteboard.getEntryDetails(ev)
 	if !ok {
 		return
 	}
@@ -91,9 +92,9 @@ func (whiteboard WhiteboardApp) handleCreateCommand(title string, ev *slack.Mess
 		return
 	}
 
-	entryType := createEntryCallback(whiteboard.Clock, author, title, standup).(EntryType)
+	entryType := createEntryCallback(whiteboard.Clock, slackUser.Author, title, standup).(EntryType)
 
-	whiteboard.EntryMap[username] = entryType
+	whiteboard.EntryMap[slackUser.Username] = entryType
 
 	if ev.Upload {
 		entryType.GetEntry().Body = fmt.Sprintf("%v\n<img src=\"%v\" style=\"max-width: 500px\">", ev.File.InitialComment.Comment, ev.File.URL)
@@ -135,7 +136,7 @@ func (whiteboard WhiteboardApp) handleUpdateDateCommand(date string, ev *slack.M
 }
 
 func (whiteboard WhiteboardApp) handleUpdateCommand(detail string, ev *slack.MessageEvent, updateCallback func(entryType EntryType, detail string) (finished bool)) {
-	standup, _, _, entryType, ok := whiteboard.getEntryDetails(ev)
+	standup, _, entryType, ok := whiteboard.getEntryDetails(ev)
 	if !ok {
 		return
 	}
@@ -154,8 +155,13 @@ func (whiteboard WhiteboardApp) handleUpdateCommand(detail string, ev *slack.Mes
 func (whiteboard WhiteboardApp) handleRegistrationCommand(standupId string, ev *slack.MessageEvent) {
 	standup, ok := whiteboard.RestClient.GetStandup(standupId)
 	if !ok {
-		handleStandupNotFound(whiteboard.SlackClient, standupId, ev.Channel)
-		return
+		slackUser := whiteboard.SlackClient.GetUserDetails(ev.User)
+		standup.Id, _ = strconv.Atoi(standupId)
+		standup.Title = "<UNKNOWN>"
+		standup.TimeZone = slackUser.TimeZone
+		// TODO: Put this back when Whiteboard merges PR#82 pushed to prod
+		//handleStandupNotFound(whiteboard.SlackClient, standupId, ev.Channel)
+		//		return
 	}
 	whiteboard.Store.SetStandup(ev.Channel, standup)
 	whiteboard.SlackClient.PostMessage(fmt.Sprintf("Standup %v has been registered! You can now start creating Whiteboard entries!", standup.Title), ev.Channel, THUMBS_UP)
@@ -166,7 +172,7 @@ func (whiteboard WhiteboardApp) handleUsageCommand(_ string, ev *slack.MessageEv
 }
 
 func (whiteboard WhiteboardApp) handlePresentCommand(_ string, ev *slack.MessageEvent) {
-	standup, _, _, _, ok := whiteboard.getEntryDetails(ev)
+	standup, _, _, ok := whiteboard.getEntryDetails(ev)
 	if !ok {
 		return
 	}
@@ -179,26 +185,26 @@ func (whiteboard WhiteboardApp) handlePresentCommand(_ string, ev *slack.Message
 	whiteboard.SlackClient.PostMessage(items.String(), ev.Channel, "")
 }
 
-func (whiteboard WhiteboardApp) getEntryDetails(ev *slack.MessageEvent) (standup Standup, username string, author string, entryType EntryType, ok bool) {
+func (whiteboard WhiteboardApp) getEntryDetails(ev *slack.MessageEvent) (standup Standup, slackUser SlackUser, entryType EntryType, ok bool) {
 	standup, ok = whiteboard.Store.GetStandup(ev.Channel)
 	if !ok {
 		handleNotRegistered(whiteboard.SlackClient, ev.Channel)
 		return
 	}
 
-	username, author = whiteboard.SlackClient.GetUserDetails(ev.User)
-	entryType = whiteboard.EntryMap[username]
+	slackUser = whiteboard.SlackClient.GetUserDetails(ev.User)
+	entryType = whiteboard.EntryMap[slackUser.Username]
 	return
 }
 
 func (whiteboard WhiteboardApp) handleDefault(_ string, ev *slack.MessageEvent) {
-	_, username, _, _, ok := whiteboard.getEntryDetails(ev)
+	_, slackUser, _, ok := whiteboard.getEntryDetails(ev)
 	if !ok {
 		return
 	}
 	_, userInput := readNextCommand(getInputString(ev))
 
-	whiteboard.SlackClient.PostMessage(fmt.Sprintf("%v no you %v", username, userInput), ev.Channel, "")
+	whiteboard.SlackClient.PostMessage(fmt.Sprintf("%v no you %v", slackUser.Username, userInput), ev.Channel, "")
 }
 
 func (whiteboard WhiteboardApp) validateAndPost(entryType EntryType, ev *slack.MessageEvent, standup Standup) {

@@ -9,11 +9,17 @@ type Slack struct {
 	SlackWrapper SlackWrapper
 }
 
+type SlackUser struct {
+	Username string
+	Author string
+	TimeZone string
+}
+
 type SlackClient interface {
 	PostMessage(message string, channel string, status string)
 	PostMessageWithMarkdown(message string, channel string, status string)
 	PostEntry(entryType model.EntryType, channel string, status string)
-	GetUserDetails(user string) (username, author string)
+	GetUserDetails(user string) (slackUser SlackUser)
 }
 
 func (slackClient *Slack) PostMessage(message string, channel string, status string) {
@@ -37,14 +43,16 @@ func (slackClient *Slack) postMessage(message string, channel string, status str
 }
 
 
-func (slackClient *Slack) GetUserDetails(user string) (username, author string) {
-	if slackUser, err := slackClient.SlackWrapper.GetUserInfo(user); err == nil {
-		username = slackUser.Name
-		author = GetAuthor(slackUser)
+func (slackClient *Slack) GetUserDetails(user string) (slackUser SlackUser) {
+	if userInfo, err := slackClient.SlackWrapper.GetUserInfo(user); err == nil {
+		slackUser.Username = userInfo.Name
+		slackUser.Author = GetAuthor(userInfo)
+		slackUser.TimeZone = userInfo.TZ
 	} else {
-		username = user
-		author = user
-		fmt.Printf("SlackClient.GetUserDetails returned error: %v, %v\n", username, err)
+		slackUser.Username = user
+		slackUser.Author = user
+		slackUser.TimeZone = "America/Los_Angeles"
+		fmt.Printf("SlackClient.GetUserDetails returned error: %v, %v\n", user, err)
 	}
 	return
 }

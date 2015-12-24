@@ -9,7 +9,6 @@ import (
 	"strings"
 	. "github.com/xtreme-andleung/whiteboardbot/model"
 	"io/ioutil"
-	"strconv"
 )
 
 type RestClient interface {
@@ -36,7 +35,7 @@ func (RealRestClient) Post(request WhiteboardRequest, standupId int) (itemId str
 	fmt.Printf("Whiteboard Request: %v\n\n", httpRequest)
 	fmt.Printf("Whiteboard Response: %v, Err: %v\n, Url: %v\n\n", resp, err, url)
 
-	ok = resp !=nil && resp.StatusCode == http.StatusFound
+	ok = resp != nil && resp.StatusCode == http.StatusFound
 	defer resp.Body.Close()
 	if ok {
 		itemId = resp.Header.Get("Item-Id")
@@ -81,13 +80,6 @@ func (RealRestClient) GetStandup(standupId string) (standup Standup, ok bool) {
 			err = json.Unmarshal(jsonBlob, &standup)
 			ok = err == nil
 		}
-	}
-
-	if !ok {
-		standup.Id, _ = strconv.Atoi(standupId)
-		standup.Title = "<UNKNOWN>"
-		standup.TimeZone = "America/Los_Angeles"
-		ok = true
 	}
 	return
 }

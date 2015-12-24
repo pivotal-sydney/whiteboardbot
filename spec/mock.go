@@ -5,6 +5,7 @@ import (
 	"time"
 	"strconv"
 	"encoding/json"
+	. "github.com/xtreme-andleung/whiteboardbot/app"
 )
 
 type MockSlackClient struct {
@@ -31,12 +32,13 @@ func (slackClient *MockSlackClient) PostEntry(entryType model.EntryType, channel
 	slackClient.Status = status
 }
 
-func (slackClient *MockSlackClient) GetUserDetails(user string) (username, author string) {
-	username = user
-	if username == "" {
-		username = "aleung"
+func (slackClient *MockSlackClient) GetUserDetails(user string) (slackUser SlackUser) {
+	slackUser.Username = user
+	if slackUser.Username == "" {
+		slackUser.Username = "aleung"
 	}
-	author = "Andrew Leung"
+	slackUser.Author = "Andrew Leung"
+	slackUser.TimeZone = "Australia/Sydney"
 	return
 }
 
