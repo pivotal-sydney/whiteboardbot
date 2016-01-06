@@ -53,7 +53,7 @@ var _ = Describe("Faces Integration", func() {
 			Describe("with correct keyword", func() {
 				It("should set the name of the entry and respond with face string", func() {
 					Expect(slackClient.EntryType.GetEntry().Title).To(Equal("Andrew Leung"))
-					Expect(slackClient.Status).To(Equal(THUMBS_UP))
+					Expect(slackClient.Status).To(Equal(THUMBS_UP + "FACE\n"))
 					Expect(restClient.PostCalledCount).To(Equal(1))
 					Expect(restClient.Request.Commit).To(Equal("Create New Face"))
 				})
@@ -65,7 +65,7 @@ var _ = Describe("Faces Integration", func() {
 					Expect(restClient.Request.Commit).To(Equal("Update New Face"))
 					Expect(restClient.Request.Item.Title).To(Equal("Dariusz Lorenc"))
 					Expect(restClient.Request.Id).To(Equal("1"))
-					Expect(slackClient.Status).To(Equal(THUMBS_UP))
+					Expect(slackClient.Status).To(Equal(THUMBS_UP + "FACE\n"))
 				})
 				It("should not update existing face entry in the whiteboard when incorrect keyword", func() {
 					whiteboard.ParseMessageEvent(&setNameEvent)

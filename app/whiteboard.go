@@ -211,6 +211,13 @@ func (whiteboard WhiteboardApp) validateAndPost(entryType EntryType, ev *slack.M
 	if entryType.Validate() {
 		if itemId, ok := PostEntryToWhiteboard(whiteboard.RestClient, entryType, standup.Id); ok {
 			status = THUMBS_UP
+			switch entryType.(type) {
+			case Event: status += "EVENT"
+			case Face: status += "FACE"
+			case Interesting: status += "INTERESTING"
+			case Help: status += "HELP"
+			}
+			status +="\n"
 			entryType.GetEntry().Id = itemId
 		}
 	}

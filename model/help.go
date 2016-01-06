@@ -7,10 +7,6 @@ func NewHelp(clock Clock, author, title string, standup Standup) (help interface
 	return
 }
 
-func (help Help) String() string {
-	return "HELP" + help.Entry.String()
-}
-
 func (help Help) MakeCreateRequest() (request WhiteboardRequest) {
 	request = help.Entry.MakeCreateRequest()
 	request.Item.Kind = "Help"

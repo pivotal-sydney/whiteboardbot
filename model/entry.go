@@ -65,7 +65,7 @@ func (entry Entry) GetEntry() *Entry {
 }
 
 func (entry Entry) String() string {
-	return fmt.Sprintf("\n\n>*%v*\n>%v\n>%v", entry.Title, entry.Body, entry.GetDateString())
+	return fmt.Sprintf(">*%v*\n>%v\n>%v", entry.Title, entry.Body, entry.GetDateString())
 }
 
 func (entry Entry) GetDateString() string {
@@ -83,34 +83,38 @@ func createItem(entry Entry) (item Item) {
 
 func (items StandupItems) FacesString() string {
 	var buffer bytes.Buffer
+	buffer.WriteString("NEW FACES\n\n")
 	for _, face := range items.Faces {
-		buffer.WriteString(Face{&face}.String() + "\n")
+		buffer.WriteString(Face{&face}.String() + "\n\n")
 	}
-	return strings.TrimSuffix(buffer.String(), "\n")
+	return strings.TrimSuffix(buffer.String(), "\n\n")
 }
 
 func (items StandupItems) InterestingsString() string {
 	var buffer bytes.Buffer
+	buffer.WriteString("INTERESTINGS\n\n")
 	for _, interesting := range items.Interestings {
-		buffer.WriteString(Interesting{&interesting}.String() + "\n")
+		buffer.WriteString(Interesting{&interesting}.String() + "\n\n")
 	}
-	return strings.TrimSuffix(buffer.String(), "\n")
+	return strings.TrimSuffix(buffer.String(), "\n\n")
 }
 
 func (items StandupItems) HelpsString() string {
 	var buffer bytes.Buffer
+	buffer.WriteString("HELPS\n\n")
 	for _, help := range items.Helps {
-		buffer.WriteString(Help{&help}.String() + "\n")
+		buffer.WriteString(Help{&help}.String() + "\n\n")
 	}
-	return strings.TrimSuffix(buffer.String(), "\n")
+	return strings.TrimSuffix(buffer.String(), "\n\n")
 }
 
 func (items StandupItems) EventsString() string {
 	var buffer bytes.Buffer
+	buffer.WriteString("EVENTS\n\n")
 	for _, event := range items.Events {
-		buffer.WriteString(Event{&event}.String() + "\n")
+		buffer.WriteString(Event{&event}.String() + "\n\n")
 	}
-	return strings.TrimSuffix(buffer.String(), "\n")
+	return strings.TrimSuffix(buffer.String(), "\n\n")
 }
 
 func (items StandupItems) String() string {

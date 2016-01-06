@@ -71,7 +71,7 @@ var _ = Describe("Entry Integration", func() {
 			whiteboard.ParseMessageEvent(&newInterestingWithTitleEvent)
 			Expect(slackClient.EntryType).To(BeAssignableToTypeOf(model.Interesting{}))
 			Expect(slackClient.EntryType.GetEntry().Title).To(Equal("something interesting"))
-			Expect(slackClient.Status).To(Equal(THUMBS_UP))
+			Expect(slackClient.Status).To(Equal(THUMBS_UP + "INTERESTING\n"))
 			Expect(restClient.PostCalledCount).To(Equal(1))
 			Expect(restClient.Request.Commit).To(Equal("Create Item"))
 			Expect(restClient.Request.Item.Author).To(Equal("Andrew Leung"))
@@ -84,7 +84,7 @@ var _ = Describe("Entry Integration", func() {
 			whiteboard.ParseMessageEvent(&newHelpEventTitleEvent)
 			Expect(slackClient.EntryType).To(BeAssignableToTypeOf(model.Help{}))
 			Expect(slackClient.EntryType.GetEntry().Title).To(Equal("some help"))
-			Expect(slackClient.Status).To(Equal(THUMBS_UP))
+			Expect(slackClient.Status).To(Equal(THUMBS_UP + "HELP\n"))
 			Expect(restClient.PostCalledCount).To(Equal(1))
 			Expect(restClient.Request.Commit).To(Equal("Create Item"))
 			Expect(restClient.Request.Item.Author).To(Equal("Andrew Leung"))
@@ -97,7 +97,7 @@ var _ = Describe("Entry Integration", func() {
 			whiteboard.ParseMessageEvent(&newEventEventWithTitleEvent)
 			Expect(slackClient.EntryType).To(BeAssignableToTypeOf(model.Event{}))
 			Expect(slackClient.EntryType.GetEntry().Title).To(Equal("some event"))
-			Expect(slackClient.Status).To(Equal(THUMBS_UP))
+			Expect(slackClient.Status).To(Equal(THUMBS_UP + "EVENT\n"))
 			Expect(restClient.PostCalledCount).To(Equal(1))
 			Expect(restClient.Request.Commit).To(Equal("Create Item"))
 			Expect(restClient.Request.Item.Author).To(Equal("Andrew Leung"))
@@ -110,7 +110,7 @@ var _ = Describe("Entry Integration", func() {
 			whiteboard.ParseMessageEvent(&newFaceEventTitleEvent)
 			Expect(slackClient.EntryType).To(BeAssignableToTypeOf(model.Face{}))
 			Expect(slackClient.EntryType.GetEntry().Title).To(Equal("some face"))
-			Expect(slackClient.Status).To(Equal(THUMBS_UP))
+			Expect(slackClient.Status).To(Equal(THUMBS_UP + "FACE\n"))
 			Expect(restClient.PostCalledCount).To(Equal(1))
 			Expect(restClient.Request.Commit).To(Equal("Create New Face"))
 			Expect(restClient.Request.Item.Author).To(Equal("Andrew Leung"))
@@ -146,7 +146,7 @@ var _ = Describe("Entry Integration", func() {
 					Expect(restClient.Request.Item.Author).To(Equal("Andrew Leung"))
 					Expect(restClient.Request.Item.StandupId).To(Equal(1))
 					Expect(restClient.Request.Id).To(Equal("1"))
-					Expect(slackClient.Status).To(Equal(THUMBS_UP))
+					Expect(slackClient.Status).To(Equal(THUMBS_UP + "INTERESTING\n"))
 				})
 				It("should update interesting entry with unescaped title", func() {
 					setTitleEvent.Text = "wb t useful &amp; &lt;interesting&gt;"
@@ -195,7 +195,7 @@ var _ = Describe("Entry Integration", func() {
 				It("should set the date of the entry and respond with interesting string", func() {
 					whiteboard.ParseMessageEvent(&setDateEvent)
 					Expect(slackClient.EntryType.GetEntry().Date).To(Equal("2015-12-01"))
-					Expect(slackClient.Status).To(Equal(THUMBS_UP))
+					Expect(slackClient.Status).To(Equal(THUMBS_UP + "INTERESTING\n"))
 				})
 				It("should not set invalid date and respond with help message", func() {
 					setDateEvent.Text = "wb date 12/01/2015"
@@ -224,7 +224,7 @@ var _ = Describe("Entry Integration", func() {
 				It("should set the body of the entry and respond with interesting string", func() {
 					whiteboard.ParseMessageEvent(&setBodyEvent)
 					Expect(slackClient.EntryType.GetEntry().Body).To(Equal("more info"))
-					Expect(slackClient.Status).To(Equal(THUMBS_UP))
+					Expect(slackClient.Status).To(Equal(THUMBS_UP + "INTERESTING\n"))
 				})
 				It("should set the of the entry with unescaped title", func() {
 					setBodyEvent.Text = "wb b useful &amp; &lt;interesting&gt;"
