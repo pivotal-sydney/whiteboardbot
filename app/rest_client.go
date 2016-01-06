@@ -90,24 +90,22 @@ func PostEntryToWhiteboard(restClient RestClient, entryType EntryType, standupId
 	return
 }
 
-func createRequest(entryType EntryType, existingEntry bool) (request WhiteboardRequest) {
+func createRequest(entryType EntryType, existingEntry bool) WhiteboardRequest {
 	if existingEntry {
-		request = entryType.MakeUpdateRequest()
+		return entryType.MakeUpdateRequest()
 	} else {
-		request = entryType.MakeCreateRequest()
+		return entryType.MakeCreateRequest()
 	}
-	return
 }
 
 func noRedirect(req *http.Request, via []*http.Request) error {
 	return errors.New("Don't redirect!")
 }
 
-func toHttpVerb(method string) (httpVerb string) {
+func toHttpVerb(method string) string {
 	if len(method) > 0 {
-		httpVerb = strings.ToUpper(method)
+		return strings.ToUpper(method)
 	} else {
-		httpVerb = "POST"
+		return "POST"
 	}
-	return
 }

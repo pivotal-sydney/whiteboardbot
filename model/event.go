@@ -2,9 +2,8 @@ package model
 
 type Event struct{ *Entry }
 
-func NewEvent(clock Clock, author, title string, standup Standup) (event interface{}) {
-	event = Event{NewEntry(clock, author, title, standup)}
-	return
+func NewEvent(clock Clock, author, title string, standup Standup) interface{} {
+	return Event{NewEntry(clock, author, title, standup)}
 }
 
 func (event Event) MakeCreateRequest() (request WhiteboardRequest) {

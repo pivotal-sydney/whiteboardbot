@@ -37,27 +37,24 @@ type StandupItems struct {
 	Events       []Entry        	`json:"Event"`
 }
 
-func NewEntry(clock Clock, author, title string, standup Standup) (entry *Entry) {
+func NewEntry(clock Clock, author, title string, standup Standup) *Entry {
 	location, err := time.LoadLocation(standup.TimeZone)
 	if err != nil {
 		location = time.Local
 	}
-	entry = &Entry{Date: clock.Now().In(location).Format(DATE_FORMAT), Author: author, Title: title, StandupId: standup.Id}
-	return
+	return &Entry{Date: clock.Now().In(location).Format(DATE_FORMAT), Author: author, Title: title, StandupId: standup.Id}
 }
 
 func (entry Entry) Validate() bool {
 	return entry.Title != ""
 }
 
-func (entry Entry) MakeCreateRequest() (request WhiteboardRequest) {
-	request = WhiteboardRequest{Token: os.Getenv("WB_AUTH_TOKEN"), Item: createItem(entry), Commit: "Create Item"}
-	return
+func (entry Entry) MakeCreateRequest() WhiteboardRequest {
+	return WhiteboardRequest{Token: os.Getenv("WB_AUTH_TOKEN"), Item: createItem(entry), Commit: "Create Item"}
 }
 
-func (entry Entry) MakeUpdateRequest() (request WhiteboardRequest) {
-	request = WhiteboardRequest{Method: "patch", Token: os.Getenv("WB_AUTH_TOKEN"), Item: createItem(entry), Commit: "Update Item", Id: entry.Id}
-	return
+func (entry Entry) MakeUpdateRequest() WhiteboardRequest {
+	return WhiteboardRequest{Method: "patch", Token: os.Getenv("WB_AUTH_TOKEN"), Item: createItem(entry), Commit: "Update Item", Id: entry.Id}
 }
 
 func (entry Entry) GetEntry() *Entry {
@@ -80,43 +77,31 @@ func (entry Entry) GetDateString() string {
 	return date.Format(DATE_STRING_FORMAT)
 }
 
-func createItem(entry Entry) (item Item) {
-	item = Item{StandupId: entry.StandupId, Title: slackUnescape(entry.Title), Date: entry.Date, Public: "false", Description: slackUnescape(entry.Body), Author: entry.Author}
-	return
+func createItem(entry Entry) Item {
+	return Item{StandupId: entry.StandupId, Title: slackUnescape(entry.Title), Date: entry.Date, Public: "false", Description: slackUnescape(entry.Body), Author: entry.Author}
 }
 
 func (items StandupItems) FacesString() string {
-	var buffer bytes.Buffer
-	buffer.WriteString("NEW FACES\n\n")
-	for _, face := range items.Faces {
-		buffer.WriteString(Face{&face}.String() + "\n \n")
-	}
-	return strings.TrimSuffix(buffer.String(), "\n \n")
+	return toString("NEW FACES", items.Faces)
 }
 
 func (items StandupItems) InterestingsString() string {
-	var buffer bytes.Buffer
-	buffer.WriteString("INTERESTINGS\n\n")
-	for _, interesting := range items.Interestings {
-		buffer.WriteString(Interesting{&interesting}.String() + "\n \n")
-	}
-	return strings.TrimSuffix(buffer.String(), "\n \n")
+	return toString("INTERESTINGS", items.Interestings)
 }
 
 func (items StandupItems) HelpsString() string {
-	var buffer bytes.Buffer
-	buffer.WriteString("HELPS\n\n")
-	for _, help := range items.Helps {
-		buffer.WriteString(Help{&help}.String() + "\n \n")
-	}
-	return strings.TrimSuffix(buffer.String(), "\n \n")
+	return toString("HELPS", items.Helps)
 }
 
 func (items StandupItems) EventsString() string {
+	return toString("EVENTS", items.Events)
+}
+
+func toString(typeName string, entries []Entry) string {
 	var buffer bytes.Buffer
-	buffer.WriteString("EVENTS\n\n")
-	for _, event := range items.Events {
-		buffer.WriteString(Event{&event}.String() + "\n \n")
+	buffer.WriteString(typeName + "\n\n")
+	for _, entry := range entries {
+		buffer.WriteString(entry.String() + "\n \n")
 	}
 	return strings.TrimSuffix(buffer.String(), "\n \n")
 }
@@ -130,6 +115,5 @@ func (items StandupItems) Empty() bool {
 }
 
 func slackUnescape(escaped string) string {
-	unescaper := strings.NewReplacer("&amp;", "&", "&lt;", "<", "&gt;", ">")
-	return unescaper.Replace(escaped)
+	return strings.NewReplacer("&amp;", "&", "&lt;", "<", "&gt;", ">").Replace(escaped)
 }

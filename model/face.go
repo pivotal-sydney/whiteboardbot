@@ -2,9 +2,8 @@ package model
 
 type Face struct{ *Entry }
 
-func NewFace(clock Clock, author, title string, standup Standup) (face interface{}) {
-	face = Face{NewEntry(clock, author, title, standup)}
-	return
+func NewFace(clock Clock, author, title string, standup Standup) interface{} {
+	return Face{NewEntry(clock, author, title, standup)}
 }
 
 func (face Face) MakeCreateRequest() (request WhiteboardRequest) {

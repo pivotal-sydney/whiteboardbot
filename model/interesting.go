@@ -2,9 +2,8 @@ package model
 
 type Interesting struct{ *Entry }
 
-func NewInteresting(clock Clock, author, title string, standup Standup) (interesting interface{}) {
-	interesting = Interesting{NewEntry(clock, author, title, standup)}
-	return
+func NewInteresting(clock Clock, author, title string, standup Standup) interface{} {
+	return Interesting{NewEntry(clock, author, title, standup)}
 }
 
 func (interesting Interesting) MakeCreateRequest() (request WhiteboardRequest) {
