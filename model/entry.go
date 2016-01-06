@@ -14,8 +14,8 @@ const (
 
 type EntryType interface {
 	Validate() bool
-	MakeCreateRequest() (request WhiteboardRequest)
-	MakeUpdateRequest() (request WhiteboardRequest)
+	MakeCreateRequest() WhiteboardRequest
+	MakeUpdateRequest() WhiteboardRequest
 	String() string
 	GetEntry() *Entry
 	GetDateString() string
@@ -28,6 +28,7 @@ type Entry struct {
 	Author    string        `json:"author"`
 	Id        string        `json:"-"`
 	StandupId int           `json:"-"`
+	ItemKind  string        `json:"-"`
 }
 
 type StandupItems struct {
@@ -37,12 +38,12 @@ type StandupItems struct {
 	Events       []Entry        	`json:"Event"`
 }
 
-func NewEntry(clock Clock, author, title string, standup Standup) *Entry {
+func NewEntry(clock Clock, author, title string, standup Standup, itemKind string) *Entry {
 	location, err := time.LoadLocation(standup.TimeZone)
 	if err != nil {
 		location = time.Local
 	}
-	return &Entry{Date: clock.Now().In(location).Format(DATE_FORMAT), Author: author, Title: title, StandupId: standup.Id}
+	return &Entry{Date: clock.Now().In(location).Format(DATE_FORMAT), Author: author, Title: title, StandupId: standup.Id, ItemKind: itemKind}
 }
 
 func (entry Entry) Validate() bool {
@@ -50,11 +51,11 @@ func (entry Entry) Validate() bool {
 }
 
 func (entry Entry) MakeCreateRequest() WhiteboardRequest {
-	return WhiteboardRequest{Token: os.Getenv("WB_AUTH_TOKEN"), Item: createItem(entry), Commit: "Create Item"}
+	return WhiteboardRequest{Token: os.Getenv("WB_AUTH_TOKEN"), Item: entry.toItem(), Commit: "Create Item"}
 }
 
 func (entry Entry) MakeUpdateRequest() WhiteboardRequest {
-	return WhiteboardRequest{Method: "patch", Token: os.Getenv("WB_AUTH_TOKEN"), Item: createItem(entry), Commit: "Update Item", Id: entry.Id}
+	return WhiteboardRequest{Method: "patch", Token: os.Getenv("WB_AUTH_TOKEN"), Item: entry.toItem(), Commit: "Update Item", Id: entry.Id}
 }
 
 func (entry Entry) GetEntry() *Entry {
@@ -77,8 +78,8 @@ func (entry Entry) GetDateString() string {
 	return date.Format(DATE_STRING_FORMAT)
 }
 
-func createItem(entry Entry) Item {
-	return Item{StandupId: entry.StandupId, Title: slackUnescape(entry.Title), Date: entry.Date, Public: "false", Description: slackUnescape(entry.Body), Author: entry.Author}
+func (entry Entry) toItem() Item {
+	return Item{StandupId: entry.StandupId, Title: slackUnescape(entry.Title), Date: entry.Date, Public: "false", Description: slackUnescape(entry.Body), Author: entry.Author, Kind: entry.ItemKind}
 }
 
 func (items StandupItems) FacesString() string {

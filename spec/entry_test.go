@@ -19,7 +19,7 @@ var _ = Describe("Entry", func() {
 
 	BeforeEach(func() {
 		clock = spec.MockClock{}
-		entry = NewEntry(clock, "aleung", "title", Standup{Id: 1, TimeZone: "Australia/Sydney"})
+		entry = NewEntry(clock, "aleung", "title", Standup{Id: 1, TimeZone: "Australia/Sydney"}, "Event")
 		os.Setenv("WB_AUTH_TOKEN", "token")
 	})
 
@@ -34,7 +34,7 @@ var _ = Describe("Entry", func() {
 		})
 		Describe("with different time zone", func() {
 			It("should use the correct time zone for date", func() {
-				entry = NewEntry(clock, "aleung", "title", Standup{Id: 1, TimeZone: "America/New_York"})
+				entry = NewEntry(clock, "aleung", "title", Standup{Id: 1, TimeZone: "America/New_York"}, "Event")
 				Expect(entry.Date).To(Equal("2015-01-01"))
 			})
 		})
