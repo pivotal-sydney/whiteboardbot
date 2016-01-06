@@ -11,7 +11,7 @@ import (
 type MockSlackClient struct {
 	PostMessageCalled bool
 	Message           string
-	EntryType 		  model.EntryType
+	Entry 		      *model.Entry
 	Status 			  string
 }
 
@@ -27,8 +27,8 @@ func (slackClient *MockSlackClient) PostMessageWithMarkdown(message string, chan
 	slackClient.Status = status
 }
 
-func (slackClient *MockSlackClient) PostEntry(entryType model.EntryType, channel string, status string) {
-	slackClient.EntryType = entryType
+func (slackClient *MockSlackClient) PostEntry(entry *model.Entry, channel string, status string) {
+	slackClient.Entry = entry
 	slackClient.Status = status
 }
 

@@ -18,7 +18,7 @@ type SlackUser struct {
 type SlackClient interface {
 	PostMessage(message string, channel string, status string)
 	PostMessageWithMarkdown(message string, channel string, status string)
-	PostEntry(entryType model.EntryType, channel string, status string)
+	PostEntry(entry *model.Entry, channel string, status string)
 	GetUserDetails(user string) (slackUser SlackUser)
 }
 
@@ -30,8 +30,8 @@ func (slackClient *Slack) PostMessageWithMarkdown(message string, channel string
 	slackClient.postMessage(message, channel, status, slack.PostMessageParameters{Markdown: true})
 }
 
-func (slackClient *Slack) PostEntry(entryType model.EntryType, channel string, status string) {
-	message := entryType.String()
+func (slackClient *Slack) PostEntry(entry *model.Entry, channel string, status string) {
+	message := entry.String()
 	slackClient.PostMessage(message, channel, status)
 }
 

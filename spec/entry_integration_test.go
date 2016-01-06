@@ -6,7 +6,6 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/xtreme-andleung/whiteboardbot/app"
 	"github.com/xtreme-andleung/whiteboardbot/spec"
-	"github.com/xtreme-andleung/whiteboardbot/model"
 )
 
 var _ = Describe("Entry Integration", func() {
@@ -69,8 +68,8 @@ var _ = Describe("Entry Integration", func() {
 	Describe("with interesting keyword and title", func() {
 		It("should create a new interesting entry with title", func() {
 			whiteboard.ParseMessageEvent(&newInterestingWithTitleEvent)
-			Expect(slackClient.EntryType).To(BeAssignableToTypeOf(model.Interesting{}))
-			Expect(slackClient.EntryType.GetEntry().Title).To(Equal("something interesting"))
+			Expect(slackClient.Entry.ItemKind).To(Equal("Interesting"))
+			Expect(slackClient.Entry.Title).To(Equal("something interesting"))
 			Expect(slackClient.Status).To(Equal(THUMBS_UP + "INTERESTING\n"))
 			Expect(restClient.PostCalledCount).To(Equal(1))
 			Expect(restClient.Request.Commit).To(Equal("Create Item"))
@@ -82,8 +81,8 @@ var _ = Describe("Entry Integration", func() {
 	Describe("with help keyword and title", func() {
 		It("should create a new help entry with title", func() {
 			whiteboard.ParseMessageEvent(&newHelpEventTitleEvent)
-			Expect(slackClient.EntryType).To(BeAssignableToTypeOf(model.Help{}))
-			Expect(slackClient.EntryType.GetEntry().Title).To(Equal("some help"))
+			Expect(slackClient.Entry.ItemKind).To(Equal("Help"))
+			Expect(slackClient.Entry.Title).To(Equal("some help"))
 			Expect(slackClient.Status).To(Equal(THUMBS_UP + "HELP\n"))
 			Expect(restClient.PostCalledCount).To(Equal(1))
 			Expect(restClient.Request.Commit).To(Equal("Create Item"))
@@ -95,8 +94,8 @@ var _ = Describe("Entry Integration", func() {
 	Describe("with event keyword and title", func() {
 		It("should create a new event entry with title", func() {
 			whiteboard.ParseMessageEvent(&newEventEventWithTitleEvent)
-			Expect(slackClient.EntryType).To(BeAssignableToTypeOf(model.Event{}))
-			Expect(slackClient.EntryType.GetEntry().Title).To(Equal("some event"))
+			Expect(slackClient.Entry.ItemKind).To(Equal("Event"))
+			Expect(slackClient.Entry.Title).To(Equal("some event"))
 			Expect(slackClient.Status).To(Equal(THUMBS_UP + "EVENT\n"))
 			Expect(restClient.PostCalledCount).To(Equal(1))
 			Expect(restClient.Request.Commit).To(Equal("Create Item"))
@@ -108,8 +107,8 @@ var _ = Describe("Entry Integration", func() {
 	Describe("with face keyword and title", func() {
 		It("should create a new face entry with title", func() {
 			whiteboard.ParseMessageEvent(&newFaceEventTitleEvent)
-			Expect(slackClient.EntryType).To(BeAssignableToTypeOf(model.Face{}))
-			Expect(slackClient.EntryType.GetEntry().Title).To(Equal("some face"))
+			Expect(slackClient.Entry.ItemKind).To(Equal("New face"))
+			Expect(slackClient.Entry.Title).To(Equal("some face"))
 			Expect(slackClient.Status).To(Equal(THUMBS_UP + "FACE\n"))
 			Expect(restClient.PostCalledCount).To(Equal(1))
 			Expect(restClient.Request.Commit).To(Equal("Create New Face"))
@@ -122,7 +121,7 @@ var _ = Describe("Entry Integration", func() {
 		It("should create a new interesting entry with correct title", func() {
 			newInterestingWithTitleEvent.Text = "wb i useful &amp; &lt;interesting&gt;"
 			whiteboard.ParseMessageEvent(&newInterestingWithTitleEvent)
-			Expect(slackClient.EntryType.GetEntry().Title).To(Equal("useful &amp; &lt;interesting&gt;"))
+			Expect(slackClient.Entry.Title).To(Equal("useful &amp; &lt;interesting&gt;"))
 			Expect(restClient.Request.Item.Title).To(Equal("useful & <interesting>"))
 		})
 	})
@@ -151,7 +150,7 @@ var _ = Describe("Entry Integration", func() {
 				It("should update interesting entry with unescaped title", func() {
 					setTitleEvent.Text = "wb t useful &amp; &lt;interesting&gt;"
 					whiteboard.ParseMessageEvent(&setTitleEvent)
-					Expect(slackClient.EntryType.GetEntry().Title).To(Equal("useful &amp; &lt;interesting&gt;"))
+					Expect(slackClient.Entry.Title).To(Equal("useful &amp; &lt;interesting&gt;"))
 					Expect(restClient.Request.Item.Title).To(Equal("useful & <interesting>"))
 				})
 				It("should not update existing interesting entry in the whiteboard when incorrect keyword", func() {
@@ -194,13 +193,13 @@ var _ = Describe("Entry Integration", func() {
 			Describe("with correct keyword", func() {
 				It("should set the date of the entry and respond with interesting string", func() {
 					whiteboard.ParseMessageEvent(&setDateEvent)
-					Expect(slackClient.EntryType.GetEntry().Date).To(Equal("2015-12-01"))
+					Expect(slackClient.Entry.Date).To(Equal("2015-12-01"))
 					Expect(slackClient.Status).To(Equal(THUMBS_UP + "INTERESTING\n"))
 				})
 				It("should not set invalid date and respond with help message", func() {
 					setDateEvent.Text = "wb date 12/01/2015"
 					whiteboard.ParseMessageEvent(&setDateEvent)
-					Expect(slackClient.EntryType.GetEntry().Date).To(Equal("2015-01-02"))
+					Expect(slackClient.Entry.Date).To(Equal("2015-01-02"))
 					Expect(slackClient.Status).To(Equal("Date not set, use YYYY-MM-DD as date format\n"))
 				})
 			})
@@ -223,13 +222,13 @@ var _ = Describe("Entry Integration", func() {
 			Describe("with correct keyword", func() {
 				It("should set the body of the entry and respond with interesting string", func() {
 					whiteboard.ParseMessageEvent(&setBodyEvent)
-					Expect(slackClient.EntryType.GetEntry().Body).To(Equal("more info"))
+					Expect(slackClient.Entry.Body).To(Equal("more info"))
 					Expect(slackClient.Status).To(Equal(THUMBS_UP + "INTERESTING\n"))
 				})
 				It("should set the of the entry with unescaped title", func() {
 					setBodyEvent.Text = "wb b useful &amp; &lt;interesting&gt;"
 					whiteboard.ParseMessageEvent(&setBodyEvent)
-					Expect(slackClient.EntryType.GetEntry().Body).To(Equal("useful &amp; &lt;interesting&gt;"))
+					Expect(slackClient.Entry.Body).To(Equal("useful &amp; &lt;interesting&gt;"))
 					Expect(restClient.Request.Item.Description).To(Equal("useful & <interesting>"))
 				})
 			})
@@ -259,9 +258,9 @@ var _ = Describe("Entry Integration", func() {
 				whiteboard.ParseMessageEvent(&newEventAndrew)
 				whiteboard.ParseMessageEvent(&newEventDariusz)
 				whiteboard.ParseMessageEvent(&setNameAndrew)
-				Expect(slackClient.EntryType).To(BeAssignableToTypeOf(model.Face{}))
+				Expect(slackClient.Entry.ItemKind).To(Equal("New face"))
 				whiteboard.ParseMessageEvent(&setNameDariusz)
-				Expect(slackClient.EntryType).To(BeAssignableToTypeOf(model.Interesting{}))
+				Expect(slackClient.Entry.ItemKind).To(Equal("Interesting"))
 			})
 		})
 	})

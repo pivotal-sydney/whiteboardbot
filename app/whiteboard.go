@@ -127,7 +127,7 @@ func (whiteboard WhiteboardApp) handleUpdateDateCommand(date string, ev *slack.M
 		if parsedDate, err := time.Parse(DATE_FORMAT, input); err == nil {
 			entryType.GetEntry().Date = parsedDate.Format(DATE_FORMAT)
 		} else {
-			whiteboard.SlackClient.PostEntry(entryType, ev.Channel, "Date not set, use YYYY-MM-DD as date format\n")
+			whiteboard.SlackClient.PostEntry(entryType.GetEntry(), ev.Channel, "Date not set, use YYYY-MM-DD as date format\n")
 			finished = true
 		}
 		return
@@ -221,7 +221,7 @@ func (whiteboard WhiteboardApp) validateAndPost(entryType EntryType, ev *slack.M
 			entryType.GetEntry().Id = itemId
 		}
 	}
-	whiteboard.SlackClient.PostEntry(entryType, ev.Channel, status)
+	whiteboard.SlackClient.PostEntry(entryType.GetEntry(), ev.Channel, status)
 }
 
 func (whiteboard WhiteboardApp) handleMissingTitle(channel string) {
