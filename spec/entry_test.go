@@ -71,35 +71,35 @@ var _ = Describe("Entry", func() {
 			It("should return string representation of standup items", func() {
 
 				itemsString := items.String()
-				Expect(itemsString).To(Equal(fmt.Sprintf("%v\n%v\n%v\n%v", items.FacesString(), items.InterestingsString(), items.HelpsString(), items.EventsString())))
+				Expect(itemsString).To(Equal(fmt.Sprintf(">>>— — —\n \n \n \n%v\n \n \n \n%v\n \n \n \n%v\n \n \n \n%v\n \n \n \n— — —\n:clap:", items.FacesString(), items.HelpsString(), items.InterestingsString(), items.EventsString())))
 			})
 		})
 
 		Describe("convert standup faces items to string", func() {
 			It("should print faces in presentation mode", func() {
 				itemsString := items.FacesString()
-				Expect(itemsString).To(Equal("NEW FACES\n\n" + Face{&items.Faces[0]}.String() + "\n\n" + Face{&items.Faces[1]}.String()))
+				Expect(itemsString).To(Equal("NEW FACES\n\n" + Face{&items.Faces[0]}.String() + "\n \n" + Face{&items.Faces[1]}.String()))
 			})
 		})
 
 		Describe("convert standup interestings items to string", func() {
 			It("should print interestings in presentation mode", func() {
 				itemsString := items.InterestingsString()
-				Expect(itemsString).To(Equal("INTERESTINGS\n\n" + Interesting{&items.Interestings[0]}.String() + "\n\n" + Interesting{&items.Interestings[1]}.String()))
+				Expect(itemsString).To(Equal("INTERESTINGS\n\n" + Interesting{&items.Interestings[0]}.String() + "\n \n" + Interesting{&items.Interestings[1]}.String()))
 			})
 		})
 
 		Describe("convert standup helps items to string", func() {
 			It("should print helps in presentation mode", func() {
 				itemsString := items.HelpsString()
-				Expect(itemsString).To(Equal("HELPS\n\n" + Help{&items.Helps[0]}.String() + "\n\n" + Help{&items.Helps[1]}.String()))
+				Expect(itemsString).To(Equal("HELPS\n\n" + Help{&items.Helps[0]}.String() + "\n \n" + Help{&items.Helps[1]}.String()))
 			})
 		})
 
 		Describe("convert standup events items to string", func() {
 			It("should print events in presentation mode", func() {
 				itemsString := items.EventsString()
-				Expect(itemsString).To(Equal("EVENTS\n\n" + Event{&items.Events[0]}.String() + "\n\n" + Event{&items.Events[1]}.String()))
+				Expect(itemsString).To(Equal("EVENTS\n\n" + Event{&items.Events[0]}.String() + "\n \n" + Event{&items.Events[1]}.String()))
 			})
 		})
 	})

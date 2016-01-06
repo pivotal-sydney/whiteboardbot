@@ -65,7 +65,11 @@ func (entry Entry) GetEntry() *Entry {
 }
 
 func (entry Entry) String() string {
-	return fmt.Sprintf(">*%v*\n>%v\n>%v", entry.Title, entry.Body, entry.GetDateString())
+	if len(entry.Body) == 0 {
+		return fmt.Sprintf("*%v*\n%v", entry.Title, entry.GetDateString())
+	} else {
+		return fmt.Sprintf("*%v*\n%v\n%v", entry.Title, entry.Body, entry.GetDateString())
+	}
 }
 
 func (entry Entry) GetDateString() string {
@@ -85,40 +89,40 @@ func (items StandupItems) FacesString() string {
 	var buffer bytes.Buffer
 	buffer.WriteString("NEW FACES\n\n")
 	for _, face := range items.Faces {
-		buffer.WriteString(Face{&face}.String() + "\n\n")
+		buffer.WriteString(Face{&face}.String() + "\n \n")
 	}
-	return strings.TrimSuffix(buffer.String(), "\n\n")
+	return strings.TrimSuffix(buffer.String(), "\n \n")
 }
 
 func (items StandupItems) InterestingsString() string {
 	var buffer bytes.Buffer
 	buffer.WriteString("INTERESTINGS\n\n")
 	for _, interesting := range items.Interestings {
-		buffer.WriteString(Interesting{&interesting}.String() + "\n\n")
+		buffer.WriteString(Interesting{&interesting}.String() + "\n \n")
 	}
-	return strings.TrimSuffix(buffer.String(), "\n\n")
+	return strings.TrimSuffix(buffer.String(), "\n \n")
 }
 
 func (items StandupItems) HelpsString() string {
 	var buffer bytes.Buffer
 	buffer.WriteString("HELPS\n\n")
 	for _, help := range items.Helps {
-		buffer.WriteString(Help{&help}.String() + "\n\n")
+		buffer.WriteString(Help{&help}.String() + "\n \n")
 	}
-	return strings.TrimSuffix(buffer.String(), "\n\n")
+	return strings.TrimSuffix(buffer.String(), "\n \n")
 }
 
 func (items StandupItems) EventsString() string {
 	var buffer bytes.Buffer
 	buffer.WriteString("EVENTS\n\n")
 	for _, event := range items.Events {
-		buffer.WriteString(Event{&event}.String() + "\n\n")
+		buffer.WriteString(Event{&event}.String() + "\n \n")
 	}
-	return strings.TrimSuffix(buffer.String(), "\n\n")
+	return strings.TrimSuffix(buffer.String(), "\n \n")
 }
 
 func (items StandupItems) String() string {
-	return fmt.Sprintf("%v\n%v\n%v\n%v", items.FacesString(), items.InterestingsString(), items.HelpsString(), items.EventsString())
+	return fmt.Sprintf(">>>— — —\n \n \n \n%v\n \n \n \n%v\n \n \n \n%v\n \n \n \n%v\n \n \n \n— — —\n:clap:", items.FacesString(), items.HelpsString(), items.InterestingsString(), items.EventsString())
 }
 
 func (items StandupItems) Empty() bool {

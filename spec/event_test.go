@@ -36,7 +36,7 @@ var _ = Describe("Event", func() {
 		It("should print the event", func() {
 			event.Title = "some title"
 			event.Body = "some body"
-			Expect(event.String()).To(Equal(">*some title*\n>some body\n>02 Jan 2015"))
+			Expect(event.String()).To(Equal("*some title*\nsome body\n02 Jan 2015"))
 		})
 	})
 

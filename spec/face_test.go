@@ -35,7 +35,7 @@ var _ = Describe("Face", func() {
 	Describe("when printing out a face", func() {
 		It("should print the face", func() {
 			face.Title = "some name"
-			Expect(face.String()).To(Equal(">*some name*\n>02 Jan 2015"))
+			Expect(face.String()).To(Equal("*some name*\n02 Jan 2015"))
 		})
 	})
 

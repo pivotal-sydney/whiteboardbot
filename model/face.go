@@ -1,17 +1,10 @@
 package model
-import (
-	"fmt"
-)
 
 type Face struct{ *Entry }
 
 func NewFace(clock Clock, author, title string, standup Standup) (face interface{}) {
 	face = Face{NewEntry(clock, author, title, standup)}
 	return
-}
-
-func (face Face) String() string {
-	return fmt.Sprintf(">*%v*\n>%v", face.Title, face.GetDateString())
 }
 
 func (face Face) MakeCreateRequest() (request WhiteboardRequest) {
