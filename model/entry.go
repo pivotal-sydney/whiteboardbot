@@ -27,7 +27,7 @@ type Entry struct {
 	Body      string        `json:"description"`
 	Author    string        `json:"author"`
 	Id        string        `json:"-"`
-	StandupId int            `json:"-"`
+	StandupId int           `json:"-"`
 }
 
 type StandupItems struct {
@@ -77,7 +77,7 @@ func (entry Entry) GetDateString() string {
 }
 
 func createItem(entry Entry) (item Item) {
-	item = Item{StandupId: entry.StandupId, Title: entry.Title, Date: entry.Date, Public: "false", Description: entry.Body, Author: entry.Author}
+	item = Item{StandupId: entry.StandupId, Title: slackUnescape(entry.Title), Date: entry.Date, Public: "false", Description: slackUnescape(entry.Body), Author: entry.Author}
 	return
 }
 
@@ -96,7 +96,6 @@ func (items StandupItems) InterestingsString() string {
 	}
 	return strings.TrimSuffix(buffer.String(), "\n")
 }
-
 
 func (items StandupItems) HelpsString() string {
 	var buffer bytes.Buffer
@@ -120,4 +119,9 @@ func (items StandupItems) String() string {
 
 func (items StandupItems) Empty() bool {
 	return len(items.Faces) == 0 && len(items.Events) == 0 && len(items.Helps) == 0 && len(items.Interestings) == 0
+}
+
+func slackUnescape(escaped string) string {
+	unescaper := strings.NewReplacer("&amp;", "&", "&lt;", "<", "&gt;", ">")
+	return unescaper.Replace(escaped)
 }

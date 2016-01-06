@@ -1,6 +1,5 @@
 package app
-import
-(
+import (
 	. "github.com/xtreme-andleung/whiteboardbot/model"
 	"fmt"
 	"github.com/nlopes/slack"
@@ -161,7 +160,7 @@ func (whiteboard WhiteboardApp) handleRegistrationCommand(standupId string, ev *
 		standup.TimeZone = slackUser.TimeZone
 		// TODO: Put this back when Whiteboard merges PR#82 pushed to prod
 		//handleStandupNotFound(whiteboard.SlackClient, standupId, ev.Channel)
-		//		return
+		//return
 	}
 	whiteboard.Store.SetStandup(ev.Channel, standup)
 	whiteboard.SlackClient.PostMessage(fmt.Sprintf("Standup %v has been registered! You can now start creating Whiteboard entries!", standup.Title), ev.Channel, THUMBS_UP)
