@@ -109,7 +109,7 @@ var _ = Describe("Entry Integration", func() {
 			whiteboard.ParseMessageEvent(&newFaceEventTitleEvent)
 			Expect(slackClient.Entry.ItemKind).To(Equal("New face"))
 			Expect(slackClient.Entry.Title).To(Equal("some face"))
-			Expect(slackClient.Status).To(Equal(THUMBS_UP + "FACE\n"))
+			Expect(slackClient.Status).To(Equal(THUMBS_UP + "NEW FACE\n"))
 			Expect(restClient.PostCalledCount).To(Equal(1))
 			Expect(restClient.Request.Commit).To(Equal("Create New Face"))
 			Expect(restClient.Request.Item.Author).To(Equal("Andrew Leung"))

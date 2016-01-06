@@ -5,6 +5,7 @@ import (
 	"github.com/nlopes/slack"
 	"time"
 	"strconv"
+	"strings"
 )
 
 type WhiteboardApp struct {
@@ -210,14 +211,7 @@ func (whiteboard WhiteboardApp) validateAndPost(entryType EntryType, ev *slack.M
 	status := ""
 	if entryType.Validate() {
 		if itemId, ok := PostEntryToWhiteboard(whiteboard.RestClient, entryType, standup.Id); ok {
-			status = THUMBS_UP
-			switch entryType.(type) {
-			case Event: status += "EVENT"
-			case Face: status += "FACE"
-			case Interesting: status += "INTERESTING"
-			case Help: status += "HELP"
-			}
-			status +="\n"
+			status = THUMBS_UP + strings.ToUpper(entryType.GetEntry().ItemKind) + "\n"
 			entryType.GetEntry().Id = itemId
 		}
 	}
