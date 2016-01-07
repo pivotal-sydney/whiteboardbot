@@ -12,13 +12,14 @@ var _ = Describe("Entry Integration", func() {
 		whiteboard WhiteboardApp
 		slackClient *MockSlackClient
 		restClient *MockRestClient
-		registrationEvent, usageEvent, newInterestingEvent, newEventEvent, newHelpEvent,
+
+		usageEvent, newInterestingEvent, newEventEvent, newHelpEvent,
 		newFaceEventTitleEvent, newInterestingWithTitleEvent, newHelpEventTitleEvent, newEventEventWithTitleEvent,
 		setTitleEvent, setDateEvent, setBodyEvent MessageEvent
 	)
 
 	BeforeEach(func() {
-		whiteboard = createWhiteboard()
+		whiteboard = createWhiteboardAndRegisterStandup(1)
 		slackClient = whiteboard.SlackClient.(*MockSlackClient)
 		restClient = whiteboard.RestClient.(*MockRestClient)
 
@@ -33,9 +34,6 @@ var _ = Describe("Entry Integration", func() {
 		setTitleEvent = createMessageEvent("Wb tI something interesting")
 		setDateEvent = createMessageEvent("Wb dA 2015-12-01")
 		setBodyEvent = createMessageEvent("wB Bod more info")
-
-		registrationEvent = createMessageEvent("wb r 1")
-		whiteboard.ParseMessageEvent(&registrationEvent)
 	})
 
 	Describe("with interesting keyword without title", func() {
@@ -264,8 +262,7 @@ var _ = Describe("Entry Integration", func() {
 
 	Context("posting to another standup ID", func() {
 		BeforeEach(func() {
-			registrationEvent.Text = "wb r 123"
-			whiteboard.ParseMessageEvent(&registrationEvent)
+			registerStandup(whiteboard, 123)
 		})
 
 		Describe("when channel registered with another standup ID", func() {

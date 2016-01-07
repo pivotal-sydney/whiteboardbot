@@ -3,6 +3,7 @@ package spec
 import (
 	. "github.com/nlopes/slack"
 	"github.com/xtreme-andleung/whiteboardbot/app"
+	"strconv"
 )
 
 func createMessageEvent(text string) MessageEvent {
@@ -18,5 +19,17 @@ func createWhiteboard() app.WhiteboardApp {
 	clock := MockClock{}
 	restClient := MockRestClient{}
 	store := MockStore{}
-	return app.NewWhiteboard(&slackClient, &restClient, clock, &store)
+	whiteboard := app.NewWhiteboard(&slackClient, &restClient, clock, &store)
+	return whiteboard
+}
+
+func createWhiteboardAndRegisterStandup(standupId int) app.WhiteboardApp {
+	whiteboard := createWhiteboard()
+	registerStandup(whiteboard, standupId)
+	return whiteboard
+}
+
+func registerStandup(whiteboard app.WhiteboardApp, standupId int) {
+	registrationEvent := createMessageEvent("wb r " + strconv.Itoa(standupId))
+	whiteboard.ParseMessageEvent(&registrationEvent)
 }

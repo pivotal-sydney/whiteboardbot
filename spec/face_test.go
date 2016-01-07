@@ -13,21 +13,18 @@ var _ = Describe("Faces Integration", func() {
 		slackClient *MockSlackClient
 		restClient *MockRestClient
 
-		registrationEvent, newFaceEvent, newFaceWithTitleEvent, setNameEvent, setDateEvent MessageEvent
+		newFaceEvent, newFaceWithTitleEvent, setNameEvent, setDateEvent MessageEvent
 	)
 
 	BeforeEach(func() {
-		whiteboard = createWhiteboard()
+		whiteboard = createWhiteboardAndRegisterStandup(1)
 		slackClient = whiteboard.SlackClient.(*MockSlackClient)
 		restClient = whiteboard.RestClient.(*MockRestClient)
 
-		registrationEvent = createMessageEvent("wb r 1")
 		newFaceEvent = createMessageEvent("wb faces")
 		newFaceWithTitleEvent = createMessageEvent("wb faces Andrew Leung")
 		setNameEvent = createMessageEvent("wb name Dariusz Lorenc")
 		setDateEvent = createMessageEvent("wb date 2015-12-01")
-
-		whiteboard.ParseMessageEvent(&registrationEvent)
 	})
 
 	Describe("with faces keyword without title", func() {

@@ -8,17 +8,15 @@ import (
 )
 
 var _ = Describe("Upload Integration", func() {
-
 	var (
 		whiteboard WhiteboardApp
 		slackClient *MockSlackClient
-
-		uploadEvent, registrationEvent MessageEvent
+		uploadEvent MessageEvent
 		file *File
 	)
 
 	BeforeEach(func() {
-		whiteboard = createWhiteboard()
+		whiteboard = createWhiteboardAndRegisterStandup(1)
 		slackClient = whiteboard.SlackClient.(*MockSlackClient)
 
 		file = &File{}
@@ -26,9 +24,6 @@ var _ = Describe("Upload Integration", func() {
 		file.InitialComment = Comment{Comment: "Body of the event"}
 		file.Title = "wb i My Title"
 		uploadEvent = MessageEvent{Msg: Msg{Upload: true, File: file, Channel: "whiteboard-sydney"}}
-		registrationEvent = createMessageEvent("wb r 1")
-
-		whiteboard.ParseMessageEvent(&registrationEvent)
 	})
 
 	Describe("when uploading an image", func() {

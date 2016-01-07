@@ -11,7 +11,6 @@ var _ = Describe("Standup Registration", func() {
 	var (
 		whiteboard WhiteboardApp
 		slackClient *MockSlackClient
-
 		anythingEvent, registrationEvent MessageEvent
 	)
 

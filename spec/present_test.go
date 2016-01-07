@@ -13,18 +13,15 @@ var _ = Describe("Present Integration", func() {
 		whiteboard  WhiteboardApp
 		slackClient *MockSlackClient
 		restClient  *MockRestClient
-		presentEvent,registrationEvent MessageEvent
+		presentEvent MessageEvent
 	)
 
 	BeforeEach(func() {
-		whiteboard = createWhiteboard()
+		whiteboard = createWhiteboardAndRegisterStandup(1)
 		slackClient = whiteboard.SlackClient.(*MockSlackClient)
 		restClient = whiteboard.RestClient.(*MockRestClient)
 
-		registrationEvent = createMessageEvent("wb r 1")
 		presentEvent = createMessageEvent("wb present")
-
-		whiteboard.ParseMessageEvent(&registrationEvent)
 	})
 
 	Describe("when present command is sent", func() {
