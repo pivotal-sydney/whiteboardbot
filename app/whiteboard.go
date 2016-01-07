@@ -100,7 +100,7 @@ func (whiteboard WhiteboardApp) handleCreateCommand(title string, ev *slack.Mess
 		entryType.GetEntry().Body = fmt.Sprintf("%v\n<img src=\"%v\" style=\"max-width: 500px\">", ev.File.InitialComment.Comment, ev.File.URL)
 	}
 
-	whiteboard.validateAndPost(entryType, ev, standup)
+	whiteboard.validateAndPost(entryType, ev)
 }
 
 func (whiteboard WhiteboardApp) handleUpdateNameTitleCommand(title string, ev *slack.MessageEvent) {
@@ -136,7 +136,7 @@ func (whiteboard WhiteboardApp) handleUpdateDateCommand(date string, ev *slack.M
 }
 
 func (whiteboard WhiteboardApp) handleUpdateCommand(detail string, ev *slack.MessageEvent, updateCallback func(entryType EntryType, detail string) (finished bool)) {
-	standup, _, entryType, ok := whiteboard.getEntryDetails(ev)
+	_, _, entryType, ok := whiteboard.getEntryDetails(ev)
 	if !ok {
 		return
 	}
@@ -149,7 +149,7 @@ func (whiteboard WhiteboardApp) handleUpdateCommand(detail string, ev *slack.Mes
 		return
 	}
 
-	whiteboard.validateAndPost(entryType, ev, standup)
+	whiteboard.validateAndPost(entryType, ev)
 }
 
 func (whiteboard WhiteboardApp) handleRegistrationCommand(standupId string, ev *slack.MessageEvent) {
@@ -207,10 +207,10 @@ func (whiteboard WhiteboardApp) handleDefault(_ string, ev *slack.MessageEvent) 
 	whiteboard.SlackClient.PostMessage(fmt.Sprintf("%v no you %v", slackUser.Username, userInput), ev.Channel, "")
 }
 
-func (whiteboard WhiteboardApp) validateAndPost(entryType EntryType, ev *slack.MessageEvent, standup Standup) {
+func (whiteboard WhiteboardApp) validateAndPost(entryType EntryType, ev *slack.MessageEvent) {
 	status := ""
 	if entryType.Validate() {
-		if itemId, ok := PostEntryToWhiteboard(whiteboard.RestClient, entryType, standup.Id); ok {
+		if itemId, ok := PostEntryToWhiteboard(whiteboard.RestClient, entryType); ok {
 			status = THUMBS_UP + strings.ToUpper(entryType.GetEntry().ItemKind) + "\n"
 			entryType.GetEntry().Id = itemId
 		}

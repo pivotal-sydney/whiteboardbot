@@ -60,7 +60,7 @@ func (client MockRestClient) GetStandupItems(standupId int) (items model.Standup
 	return
 }
 
-func (client *MockRestClient) Post(request model.WhiteboardRequest, standupId int) (itemId string, ok bool) {
+func (client *MockRestClient) Post(request model.WhiteboardRequest) (itemId string, ok bool) {
 	client.PostCalledCount++
 	client.Request = request
 	ok = true

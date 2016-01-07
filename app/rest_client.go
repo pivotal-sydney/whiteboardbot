@@ -12,14 +12,14 @@ import (
 )
 
 type RestClient interface {
-	Post(request WhiteboardRequest, standupId int) (itemId string, ok bool)
+	Post(request WhiteboardRequest) (itemId string, ok bool)
 	GetStandupItems(standupId int) (items StandupItems, ok bool)
 	GetStandup(standupId string) (standup Standup, ok bool)
 }
 
 type RealRestClient struct{}
 
-func (RealRestClient) Post(request WhiteboardRequest, standupId int) (itemId string, ok bool) {
+func (RealRestClient) Post(request WhiteboardRequest) (itemId string, ok bool) {
 	json, _ := json.Marshal(request)
 	fmt.Printf("Posting entry to whiteboard:\n%v\n", string(json))
 	http.DefaultClient.CheckRedirect = noRedirect
@@ -27,7 +27,7 @@ func (RealRestClient) Post(request WhiteboardRequest, standupId int) (itemId str
 	if len(request.Id) > 0 {
 		url += "/items/" + request.Id
 	} else {
-		url += fmt.Sprintf("/standups/%v/items", standupId)
+		url += fmt.Sprintf("/standups/%v/items", request.Item.StandupId)
 	}
 	httpRequest, err := http.NewRequest(toHttpVerb(request.Method), url, bytes.NewReader(json))
 	httpRequest.Header.Add("Content-Type", "application/json")
@@ -84,9 +84,9 @@ func (RealRestClient) GetStandup(standupId string) (standup Standup, ok bool) {
 	return
 }
 
-func PostEntryToWhiteboard(restClient RestClient, entryType EntryType, standupId int) (itemId string, ok bool) {
+func PostEntryToWhiteboard(restClient RestClient, entryType EntryType) (itemId string, ok bool) {
 	var request = createRequest(entryType, entryType.GetEntry() != nil && len(entryType.GetEntry().Id) > 0)
-	itemId, ok = restClient.Post(request, standupId)
+	itemId, ok = restClient.Post(request)
 	return
 }
 
