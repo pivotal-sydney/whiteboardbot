@@ -34,7 +34,7 @@ func main() {
 	go rtm.ManageConnection()
 
 	store := RealStore{redisConnectionPool}
-	slackClient := Slack{SlackWrapper: rtm}
+	slackClient := Slack{SlackRtm: rtm}
 	whiteboard := NewWhiteboard(&slackClient, &RealRestClient{}, model.RealClock{}, &store)
 
 	go startHttpServer()

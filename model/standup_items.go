@@ -44,4 +44,3 @@ func (items StandupItems) String() string {
 func (items StandupItems) Empty() bool {
 	return len(items.Faces) == 0 && len(items.Events) == 0 && len(items.Helps) == 0 && len(items.Interestings) == 0
 }
-

@@ -6,7 +6,7 @@ import (
 )
 
 type Slack struct {
-	SlackWrapper SlackWrapper
+	SlackRtm *slack.RTM
 }
 
 type SlackUser struct {
@@ -39,12 +39,11 @@ func (slackClient *Slack) postMessage(message string, channel string, status str
 	message = status + message
 	fmt.Printf("Posting message to slack:\n%v\n", message)
 	params.Username = BOT_NAME
-	slackClient.SlackWrapper.PostMessage(channel, message, params)
+	slackClient.SlackRtm.PostMessage(channel, message, params)
 }
 
-
 func (slackClient *Slack) GetUserDetails(user string) (slackUser SlackUser) {
-	if userInfo, err := slackClient.SlackWrapper.GetUserInfo(user); err == nil {
+	if userInfo, err := slackClient.SlackRtm.GetUserInfo(user); err == nil {
 		slackUser.Username = userInfo.Name
 		slackUser.Author = GetAuthor(userInfo)
 		slackUser.TimeZone = userInfo.TZ
