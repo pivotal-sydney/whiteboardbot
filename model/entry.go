@@ -2,7 +2,6 @@ package model
 import (
 	"os"
 	"fmt"
-	"bytes"
 	"time"
 	"strings"
 )
@@ -29,13 +28,6 @@ type Entry struct {
 	Id        string        `json:"-"`
 	StandupId int           `json:"-"`
 	ItemKind  string        `json:"-"`
-}
-
-type StandupItems struct {
-	Helps        []Entry            `json:"Help"`
-	Interestings []Entry  			`json:"Interesting"`
-	Faces        []Entry            `json:"New face"`
-	Events       []Entry        	`json:"Event"`
 }
 
 func NewEntry(clock Clock, author, title string, standup Standup, itemKind string) *Entry {
@@ -80,39 +72,6 @@ func (entry Entry) GetDateString() string {
 
 func (entry Entry) toItem() Item {
 	return Item{StandupId: entry.StandupId, Title: slackUnescape(entry.Title), Date: entry.Date, Public: "false", Description: slackUnescape(entry.Body), Author: entry.Author, Kind: entry.ItemKind}
-}
-
-func (items StandupItems) FacesString() string {
-	return toString("NEW FACES", items.Faces)
-}
-
-func (items StandupItems) InterestingsString() string {
-	return toString("INTERESTINGS", items.Interestings)
-}
-
-func (items StandupItems) HelpsString() string {
-	return toString("HELPS", items.Helps)
-}
-
-func (items StandupItems) EventsString() string {
-	return toString("EVENTS", items.Events)
-}
-
-func toString(typeName string, entries []Entry) string {
-	var buffer bytes.Buffer
-	buffer.WriteString(typeName + "\n\n")
-	for _, entry := range entries {
-		buffer.WriteString(entry.String() + "\n \n")
-	}
-	return strings.TrimSuffix(buffer.String(), "\n \n")
-}
-
-func (items StandupItems) String() string {
-	return fmt.Sprintf(">>>— — —\n \n \n \n%v\n \n \n \n%v\n \n \n \n%v\n \n \n \n%v\n \n \n \n— — —\n:clap:", items.FacesString(), items.HelpsString(), items.InterestingsString(), items.EventsString())
-}
-
-func (items StandupItems) Empty() bool {
-	return len(items.Faces) == 0 && len(items.Events) == 0 && len(items.Helps) == 0 && len(items.Interestings) == 0
 }
 
 func slackUnescape(escaped string) string {
