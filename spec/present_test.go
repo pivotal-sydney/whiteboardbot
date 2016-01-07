@@ -1,31 +1,29 @@
-package spec_test
+package spec
 
 import (
 	. "github.com/nlopes/slack"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/xtreme-andleung/whiteboardbot/app"
-	"github.com/xtreme-andleung/whiteboardbot/spec"
 	"github.com/xtreme-andleung/whiteboardbot/model"
 )
 
 var _ = Describe("Present Integration", func() {
 	var (
-		slackClient spec.MockSlackClient
-		clock       spec.MockClock
-		restClient  spec.MockRestClient
 		whiteboard  WhiteboardApp
-		presentEvent MessageEvent
-		registrationEvent MessageEvent
+		slackClient *MockSlackClient
+		restClient  *MockRestClient
+		presentEvent,registrationEvent MessageEvent
 	)
 
 	BeforeEach(func() {
-		slackClient = spec.MockSlackClient{}
-		clock = spec.MockClock{}
-		restClient = spec.MockRestClient{}
-		whiteboard = NewWhiteboard(&slackClient, &restClient, clock, &spec.MockStore{})
-		registrationEvent = CreateMessageEvent("wb r 1")
-		presentEvent = CreateMessageEvent("wb present")
+		whiteboard = createWhiteboard()
+		slackClient = whiteboard.SlackClient.(*MockSlackClient)
+		restClient = whiteboard.RestClient.(*MockRestClient)
+
+		registrationEvent = createMessageEvent("wb r 1")
+		presentEvent = createMessageEvent("wb present")
+
 		whiteboard.ParseMessageEvent(&registrationEvent)
 	})
 
@@ -51,6 +49,5 @@ var _ = Describe("Present Integration", func() {
 				Expect(slackClient.Message).To(Equal(restClient.StandupItems.String()))
 			})
 		})
-
 	})
 })

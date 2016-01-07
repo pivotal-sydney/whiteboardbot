@@ -1,38 +1,31 @@
-package spec_test
+package spec
 
 import (
 	. "github.com/nlopes/slack"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/xtreme-andleung/whiteboardbot/app"
-	"github.com/xtreme-andleung/whiteboardbot/spec"
 )
 
 var _ = Describe("Faces Integration", func() {
 	var (
-		slackClient spec.MockSlackClient
-		clock spec.MockClock
-		restClient spec.MockRestClient
 		whiteboard WhiteboardApp
+		slackClient *MockSlackClient
+		restClient *MockRestClient
 
-		registrationEvent MessageEvent
-		newFaceEvent MessageEvent
-		newFaceWithTitleEvent MessageEvent
-		setNameEvent MessageEvent
-		setDateEvent MessageEvent
+		registrationEvent, newFaceEvent, newFaceWithTitleEvent, setNameEvent, setDateEvent MessageEvent
 	)
 
 	BeforeEach(func() {
-		slackClient = spec.MockSlackClient{}
-		clock = spec.MockClock{}
-		restClient = spec.MockRestClient{}
-		whiteboard = NewWhiteboard(&slackClient, &restClient, clock, &spec.MockStore{})
+		whiteboard = createWhiteboard()
+		slackClient = whiteboard.SlackClient.(*MockSlackClient)
+		restClient = whiteboard.RestClient.(*MockRestClient)
 
-		registrationEvent = CreateMessageEvent("wb r 1")
-		newFaceEvent = CreateMessageEvent("wb faces")
-		newFaceWithTitleEvent = CreateMessageEvent("wb faces Andrew Leung")
-		setNameEvent = CreateMessageEvent("wb name Dariusz Lorenc")
-		setDateEvent = CreateMessageEvent("wb date 2015-12-01")
+		registrationEvent = createMessageEvent("wb r 1")
+		newFaceEvent = createMessageEvent("wb faces")
+		newFaceWithTitleEvent = createMessageEvent("wb faces Andrew Leung")
+		setNameEvent = createMessageEvent("wb name Dariusz Lorenc")
+		setDateEvent = createMessageEvent("wb date 2015-12-01")
 
 		whiteboard.ParseMessageEvent(&registrationEvent)
 	})

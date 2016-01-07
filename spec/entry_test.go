@@ -1,43 +1,40 @@
-package spec_test
+package spec
 
 import (
 	. "github.com/nlopes/slack"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/xtreme-andleung/whiteboardbot/app"
-	"github.com/xtreme-andleung/whiteboardbot/spec"
 )
 
 var _ = Describe("Entry Integration", func() {
 	var (
-		slackClient spec.MockSlackClient
-		clock spec.MockClock
-		restClient spec.MockRestClient
 		whiteboard WhiteboardApp
+		slackClient *MockSlackClient
+		restClient *MockRestClient
 		registrationEvent, usageEvent, newInterestingEvent, newEventEvent, newHelpEvent,
 		newFaceEventTitleEvent, newInterestingWithTitleEvent, newHelpEventTitleEvent, newEventEventWithTitleEvent,
 		setTitleEvent, setDateEvent, setBodyEvent MessageEvent
 	)
 
 	BeforeEach(func() {
-		slackClient = spec.MockSlackClient{}
-		clock = spec.MockClock{}
-		restClient = spec.MockRestClient{}
-		whiteboard = NewWhiteboard(&slackClient, &restClient, clock, &spec.MockStore{})
+		whiteboard = createWhiteboard()
+		slackClient = whiteboard.SlackClient.(*MockSlackClient)
+		restClient = whiteboard.RestClient.(*MockRestClient)
 
-		usageEvent = CreateMessageEvent("wb ?")
-		newInterestingEvent = CreateMessageEvent("wb Intere")
-		newEventEvent = CreateMessageEvent("wb Ev")
-		newHelpEvent = CreateMessageEvent("wb hEl")
-		newInterestingWithTitleEvent = CreateMessageEvent("wb\nint \n \n   something interesting")
-		newEventEventWithTitleEvent = CreateMessageEvent("wb e\t\t\t\t\n          some event")
-		newHelpEventTitleEvent = CreateMessageEvent("wb h some help")
-		newFaceEventTitleEvent = CreateMessageEvent("wb f some face")
-		setTitleEvent = CreateMessageEvent("Wb tI something interesting")
-		setDateEvent = CreateMessageEvent("Wb dA 2015-12-01")
-		setBodyEvent = CreateMessageEvent("wB Bod more info")
+		usageEvent = createMessageEvent("wb ?")
+		newInterestingEvent = createMessageEvent("wb Intere")
+		newEventEvent = createMessageEvent("wb Ev")
+		newHelpEvent = createMessageEvent("wb hEl")
+		newInterestingWithTitleEvent = createMessageEvent("wb\nint \n \n   something interesting")
+		newEventEventWithTitleEvent = createMessageEvent("wb e\t\t\t\t\n          some event")
+		newHelpEventTitleEvent = createMessageEvent("wb h some help")
+		newFaceEventTitleEvent = createMessageEvent("wb f some face")
+		setTitleEvent = createMessageEvent("Wb tI something interesting")
+		setDateEvent = createMessageEvent("Wb dA 2015-12-01")
+		setBodyEvent = createMessageEvent("wB Bod more info")
 
-		registrationEvent = CreateMessageEvent("wb r 1")
+		registrationEvent = createMessageEvent("wb r 1")
 		whiteboard.ParseMessageEvent(&registrationEvent)
 	})
 
@@ -248,10 +245,10 @@ var _ = Describe("Entry Integration", func() {
 			setNameAndrew, setNameDariusz MessageEvent
 		)
 		BeforeEach(func() {
-			newEventAndrew = CreateMessageEventWithUser("wb f face", "aleung")
-			newEventDariusz = CreateMessageEventWithUser("wb i interesting", "dlorenc")
-			setNameAndrew = CreateMessageEventWithUser("wb n Andrew Leung", "aleung")
-			setNameDariusz = CreateMessageEventWithUser("wb t Dariusz Lorenc", "dlorenc")
+			newEventAndrew = createMessageEventWithUser("wb f face", "aleung")
+			newEventDariusz = createMessageEventWithUser("wb i interesting", "dlorenc")
+			setNameAndrew = createMessageEventWithUser("wb n Andrew Leung", "aleung")
+			setNameDariusz = createMessageEventWithUser("wb t Dariusz Lorenc", "dlorenc")
 		})
 		Describe("sending commands", func() {
 			It("should create entries uniquely to each user", func() {
@@ -278,14 +275,4 @@ var _ = Describe("Entry Integration", func() {
 			})
 		})
 	})
-
 })
-
-func CreateMessageEvent(text string) (event MessageEvent) {
-	return CreateMessageEventWithUser(text, "aleung")
-}
-
-func CreateMessageEventWithUser(text string, user string) (event MessageEvent) {
-	event = MessageEvent{Msg: Msg{Text: text, User: user, Channel: "whiteboard-sydney"}}
-	return
-}

@@ -1,38 +1,32 @@
-package spec_test
+package spec
 
 import (
 	. "github.com/nlopes/slack"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/xtreme-andleung/whiteboardbot/app"
-	"github.com/xtreme-andleung/whiteboardbot/spec"
 )
 
 var _ = Describe("Upload Integration", func() {
 
 	var (
-		slackClient spec.MockSlackClient
-		clock spec.MockClock
-		restClient spec.MockRestClient
 		whiteboard WhiteboardApp
+		slackClient *MockSlackClient
 
-		uploadEvent MessageEvent
-		registrationEvent MessageEvent
-		file              *File
+		uploadEvent, registrationEvent MessageEvent
+		file *File
 	)
 
 	BeforeEach(func() {
-		slackClient = spec.MockSlackClient{}
-		clock = spec.MockClock{}
-		restClient = spec.MockRestClient{}
-		whiteboard = NewWhiteboard(&slackClient, &restClient, clock, &spec.MockStore{})
+		whiteboard = createWhiteboard()
+		slackClient = whiteboard.SlackClient.(*MockSlackClient)
 
 		file = &File{}
 		file.URL = "http://upload/link"
 		file.InitialComment = Comment{Comment: "Body of the event"}
 		file.Title = "wb i My Title"
 		uploadEvent = MessageEvent{Msg: Msg{Upload: true, File: file, Channel: "whiteboard-sydney"}}
-		registrationEvent = CreateMessageEvent("wb r 1")
+		registrationEvent = createMessageEvent("wb r 1")
 
 		whiteboard.ParseMessageEvent(&registrationEvent)
 	})

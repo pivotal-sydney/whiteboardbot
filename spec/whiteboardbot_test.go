@@ -1,32 +1,26 @@
-package spec_test
+package spec
 
 import (
 	"github.com/nlopes/slack"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/xtreme-andleung/whiteboardbot/app"
-	"github.com/xtreme-andleung/whiteboardbot/spec"
 )
 
 var _ = Describe("Whiteboardbot", func() {
 	var (
-		slackClient       spec.MockSlackClient
-		clock             spec.MockClock
-		restClient        spec.MockRestClient
 		whiteboard 		  WhiteboardApp
-
+		slackClient       *MockSlackClient
 		helloWorldEvent, randomEvent, registrationEvent slack.MessageEvent
 	)
 
 	BeforeEach(func() {
-		slackClient = spec.MockSlackClient{}
-		clock = spec.MockClock{}
-		restClient = spec.MockRestClient{}
-		whiteboard = NewWhiteboard(&slackClient, &restClient, clock, &spec.MockStore{})
+		whiteboard = createWhiteboard()
+		slackClient = whiteboard.SlackClient.(*MockSlackClient)
 
-		helloWorldEvent = CreateMessageEvent("wb hello world")
-		randomEvent = CreateMessageEvent("wbsome other text")
-		registrationEvent = CreateMessageEvent("wb r 1")
+		helloWorldEvent = createMessageEvent("wb hello world")
+		randomEvent = createMessageEvent("wbsome other text")
+		registrationEvent = createMessageEvent("wb r 1")
 	})
 
 	Context("when receiving a MessageEvent", func() {

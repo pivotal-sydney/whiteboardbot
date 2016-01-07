@@ -1,38 +1,32 @@
-package spec_test
+package spec
 
 import (
 	. "github.com/nlopes/slack"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/xtreme-andleung/whiteboardbot/app"
-	"github.com/xtreme-andleung/whiteboardbot/spec"
 )
 
 var _ = Describe("Standup Registration", func() {
 	var (
-		slackClient spec.MockSlackClient
-		clock spec.MockClock
-		restClient spec.MockRestClient
 		whiteboard WhiteboardApp
+		slackClient *MockSlackClient
 
-		event MessageEvent
-		registrationEvent MessageEvent
+		anythingEvent, registrationEvent MessageEvent
 	)
 
 	BeforeEach(func() {
-		slackClient = spec.MockSlackClient{}
-		clock = spec.MockClock{}
-		restClient = spec.MockRestClient{}
-		whiteboard = NewWhiteboard(&slackClient, &restClient, clock, &spec.MockStore{})
+		whiteboard = createWhiteboard()
+		slackClient = whiteboard.SlackClient.(*MockSlackClient)
 
-		event = CreateMessageEvent("wb anything")
-		registrationEvent = CreateMessageEvent("wb r 1")
+		anythingEvent = createMessageEvent("wb anything")
+		registrationEvent = createMessageEvent("wb r 1")
 	})
 
 	Context("registering standup", func() {
 		Describe("when standup has not been registered", func() {
 			It("should ask for standup ID", func() {
-				whiteboard.ParseMessageEvent(&event)
+				whiteboard.ParseMessageEvent(&anythingEvent)
 				Expect(slackClient.Message).To(Equal("You haven't registered your standup yet. wb r <id> first!"))
 				Expect(slackClient.Status).To(Equal(THUMBS_DOWN))
 			})
