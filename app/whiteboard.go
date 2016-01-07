@@ -209,13 +209,14 @@ func (whiteboard WhiteboardApp) handleDefault(_ string, ev *slack.MessageEvent) 
 
 func (whiteboard WhiteboardApp) validateAndPost(entryType EntryType, ev *slack.MessageEvent) {
 	status := ""
+	entry := entryType.GetEntry()
 	if entryType.Validate() {
 		if itemId, ok := PostEntryToWhiteboard(whiteboard.RestClient, entryType); ok {
-			status = THUMBS_UP + strings.ToUpper(entryType.GetEntry().ItemKind) + "\n"
-			entryType.GetEntry().Id = itemId
+			status = THUMBS_UP + strings.ToUpper(entry.ItemKind) + "\n"
+			entry.Id = itemId
 		}
 	}
-	whiteboard.SlackClient.PostEntry(entryType.GetEntry(), ev.Channel, status)
+	whiteboard.SlackClient.PostEntry(entry, ev.Channel, status)
 }
 
 func (whiteboard WhiteboardApp) handleMissingTitle(channel string) {

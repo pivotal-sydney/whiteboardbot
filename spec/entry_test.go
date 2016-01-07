@@ -13,7 +13,7 @@ var _ = Describe("Entry Integration", func() {
 		slackClient *MockSlackClient
 		restClient *MockRestClient
 
-		usageEvent, newInterestingEvent, newEventEvent, newHelpEvent,
+		newInterestingEvent, newEventEvent, newHelpEvent,
 		newFaceEventTitleEvent, newInterestingWithTitleEvent, newHelpEventTitleEvent, newEventEventWithTitleEvent,
 		setTitleEvent, setDateEvent, setBodyEvent MessageEvent
 	)
@@ -23,7 +23,6 @@ var _ = Describe("Entry Integration", func() {
 		slackClient = whiteboard.SlackClient.(*MockSlackClient)
 		restClient = whiteboard.RestClient.(*MockRestClient)
 
-		usageEvent = createMessageEvent("wb ?")
 		newInterestingEvent = createMessageEvent("wb Intere")
 		newEventEvent = createMessageEvent("wb Ev")
 		newHelpEvent = createMessageEvent("wb hEl")
@@ -142,7 +141,7 @@ var _ = Describe("Entry Integration", func() {
 					Expect(restClient.Request.Id).To(Equal("1"))
 					Expect(slackClient.Status).To(Equal(THUMBS_UP + "INTERESTING\n"))
 				})
-				It("should update interesting entry with unescaped title", func() {
+				It("should update interesting entry with unescaped characters in title", func() {
 					setTitleEvent.Text = "wb t useful &amp; &lt;interesting&gt;"
 					whiteboard.ParseMessageEvent(&setTitleEvent)
 					Expect(slackClient.Entry.Title).To(Equal("useful &amp; &lt;interesting&gt;"))
@@ -161,12 +160,6 @@ var _ = Describe("Entry Integration", func() {
 					setTitleEvent.Text = "wb titleSomethingWrong"
 					whiteboard.ParseMessageEvent(&setTitleEvent)
 					Expect(slackClient.Message).To(Equal("aleung no you titleSomethingWrong"))
-				})
-			})
-			Describe("with question mark", func() {
-				It("should respond with usage screen", func() {
-					whiteboard.ParseMessageEvent(&usageEvent)
-					Expect(slackClient.Message).Should(Equal(USAGE))
 				})
 			})
 		})
@@ -199,7 +192,6 @@ var _ = Describe("Entry Integration", func() {
 				})
 			})
 		})
-
 		Describe("with no entry started", func() {
 			It("should give a hint on how to start entry", func() {
 				whiteboard.ParseMessageEvent(&setDateEvent)
