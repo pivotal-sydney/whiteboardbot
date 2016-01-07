@@ -1,4 +1,4 @@
-package spec_test
+package app_test
 
 import (
 	"github.com/nlopes/slack"

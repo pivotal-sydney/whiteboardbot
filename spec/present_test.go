@@ -17,7 +17,6 @@ var _ = Describe("Present Integration", func() {
 		whiteboard  WhiteboardApp
 		presentEvent MessageEvent
 		registrationEvent MessageEvent
-
 	)
 
 	BeforeEach(func() {
@@ -54,5 +53,4 @@ var _ = Describe("Present Integration", func() {
 		})
 
 	})
-
 })

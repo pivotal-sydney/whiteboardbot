@@ -46,5 +46,4 @@ var _ = Describe("Standup Registration", func() {
 			})
 		})
 	})
-
 })
