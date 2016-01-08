@@ -19,7 +19,6 @@ var _ = Describe("Usage Integration", func() {
 		whiteboard = createWhiteboardAndRegisterStandup(1)
 		slackClient = whiteboard.SlackClient.(*MockSlackClient)
 		restClient = whiteboard.RestClient.(*MockRestClient)
-
 		usageEvent = createMessageEvent("wb ?")
 	})
 

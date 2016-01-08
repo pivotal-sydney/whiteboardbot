@@ -34,6 +34,7 @@ var _ = Describe("Upload Integration", func() {
 			Expect(slackClient.Entry.Body).To(Equal("Body of the event\n<img src=\"http://upload/link\" style=\"max-width: 500px\">"))
 			Expect(slackClient.Status).To(Equal(THUMBS_UP + "INTERESTING\n"))
 		})
+
 		Context("with invalid keyword", func() {
 			BeforeEach(func() {
 				file.Title = "wb nonKeyword"

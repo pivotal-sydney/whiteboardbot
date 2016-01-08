@@ -105,7 +105,12 @@ func (whiteboard WhiteboardApp) handleCreateCommand(title string, ev *slack.Mess
 
 func (whiteboard WhiteboardApp) handleUpdateNameTitleCommand(title string, ev *slack.MessageEvent) {
 	whiteboard.handleUpdateCommand(title, ev, func(entryType EntryType, title string) (finished bool) {
-		entryType.GetEntry().Title = title
+		if len(title) == 0 {
+			whiteboard.SlackClient.PostMessage("Oi! The title/name can't be empty!", ev.Channel, THUMBS_DOWN)
+			finished = true
+		} else {
+			entryType.GetEntry().Title = title
+		}
 		return
 	})
 }

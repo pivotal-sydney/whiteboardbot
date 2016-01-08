@@ -41,6 +41,7 @@ var _ = Describe("Present Integration", func() {
 				restClient.StandupItems.Events = []model.Entry{model.Entry{Title: "Another meetup", Body: "link", Author: "Dariusz", Date: "2015-12-03"}}
 				restClient.StandupItems.Helps = []model.Entry{model.Entry{Title: "Help me!", Author: "Lawrence", Date: "2015-12-03"}}
 			})
+
 			It("should display all standup's items", func() {
 				whiteboard.ParseMessageEvent(&presentEvent)
 				Expect(slackClient.Message).To(Equal(restClient.StandupItems.String()))

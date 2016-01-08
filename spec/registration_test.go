@@ -17,7 +17,6 @@ var _ = Describe("Standup Registration", func() {
 	BeforeEach(func() {
 		whiteboard = createWhiteboard()
 		slackClient = whiteboard.SlackClient.(*MockSlackClient)
-
 		anythingEvent = createMessageEvent("wb anything")
 		registrationEvent = createMessageEvent("wb r 1")
 	})

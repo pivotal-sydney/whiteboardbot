@@ -32,6 +32,7 @@ var _ = Describe("Whiteboardbot", func() {
 				Expect(slackClient.Message).To(Equal("aleung no you hello world"))
 			})
 		})
+
 		Describe("with text not containing keywords", func() {
 			It("should ignore the event", func() {
 				whiteboard.ParseMessageEvent(&randomEvent)

@@ -125,13 +125,12 @@ var _ = Describe("Entry Integration", func() {
 			BeforeEach(func() {
 				whiteboard.ParseMessageEvent(&newInterestingWithTitleEvent)
 			})
+
 			Describe("with correct keyword", func() {
-				It("should update existing interesting entry in the whiteboard ", func() {
-					whiteboard.ParseMessageEvent(&setTitleEvent)
-					Expect(restClient.PostCalledCount).To(Equal(2))
+				It("should update existing interesting entry in the whiteboard", func() {
 					setTitleEvent.Text = "wb title updated title"
 					whiteboard.ParseMessageEvent(&setTitleEvent)
-					Expect(restClient.PostCalledCount).To(Equal(3))
+					Expect(restClient.PostCalledCount).To(Equal(2))
 					Expect(restClient.Request.Method).To(Equal("patch"))
 					Expect(restClient.Request.Commit).To(Equal("Update Item"))
 					Expect(restClient.Request.Item.Title).To(Equal("updated title"))
@@ -141,12 +140,22 @@ var _ = Describe("Entry Integration", func() {
 					Expect(restClient.Request.Id).To(Equal("1"))
 					Expect(slackClient.Status).To(Equal(THUMBS_UP + "INTERESTING\n"))
 				})
+
 				It("should update interesting entry with unescaped characters in title", func() {
 					setTitleEvent.Text = "wb t useful &amp; &lt;interesting&gt;"
 					whiteboard.ParseMessageEvent(&setTitleEvent)
 					Expect(slackClient.Entry.Title).To(Equal("useful &amp; &lt;interesting&gt;"))
 					Expect(restClient.Request.Item.Title).To(Equal("useful & <interesting>"))
 				})
+
+				It("should not allow to change title to empty", func() {
+					setTitleEvent.Text = "wb title "
+					whiteboard.ParseMessageEvent(&setTitleEvent)
+					Expect(restClient.PostCalledCount).To(Equal(1))
+					Expect(slackClient.Message).To(Equal("Oi! The title/name can't be empty!"))
+					Expect(slackClient.Status).To(Equal(THUMBS_DOWN))
+				})
+
 				It("should not update existing interesting entry in the whiteboard when incorrect keyword", func() {
 					whiteboard.ParseMessageEvent(&setTitleEvent)
 					Expect(restClient.PostCalledCount).To(Equal(2))
@@ -155,6 +164,7 @@ var _ = Describe("Entry Integration", func() {
 					Expect(restClient.PostCalledCount).To(Equal(2))
 				})
 			})
+
 			Describe("with non-keyword", func() {
 				It("should respond with default", func() {
 					setTitleEvent.Text = "wb titleSomethingWrong"
@@ -163,6 +173,7 @@ var _ = Describe("Entry Integration", func() {
 				})
 			})
 		})
+
 		Describe("with no entry started", func() {
 			It("should give a hint on how to start entry", func() {
 				whiteboard.ParseMessageEvent(&setTitleEvent)
@@ -171,9 +182,9 @@ var _ = Describe("Entry Integration", func() {
 			})
 		})
 	})
+
 	Context("setting a date detail", func() {
 		Describe("with an interesting entry started", func() {
-
 			BeforeEach(func() {
 				whiteboard.ParseMessageEvent(&newInterestingWithTitleEvent)
 			})
@@ -184,6 +195,7 @@ var _ = Describe("Entry Integration", func() {
 					Expect(slackClient.Entry.Date).To(Equal("2015-12-01"))
 					Expect(slackClient.Status).To(Equal(THUMBS_UP + "INTERESTING\n"))
 				})
+
 				It("should not set invalid date and respond with help message", func() {
 					setDateEvent.Text = "wb date 12/01/2015"
 					whiteboard.ParseMessageEvent(&setDateEvent)
@@ -192,6 +204,7 @@ var _ = Describe("Entry Integration", func() {
 				})
 			})
 		})
+
 		Describe("with no entry started", func() {
 			It("should give a hint on how to start entry", func() {
 				whiteboard.ParseMessageEvent(&setDateEvent)
@@ -200,6 +213,7 @@ var _ = Describe("Entry Integration", func() {
 			})
 		})
 	})
+
 	Context("setting a body detail", func() {
 		Describe("with an interesting entry started", func() {
 			BeforeEach(func() {
@@ -212,6 +226,7 @@ var _ = Describe("Entry Integration", func() {
 					Expect(slackClient.Entry.Body).To(Equal("more info"))
 					Expect(slackClient.Status).To(Equal(THUMBS_UP + "INTERESTING\n"))
 				})
+
 				It("should set the of the entry with unescaped title", func() {
 					setBodyEvent.Text = "wb b useful &amp; &lt;interesting&gt;"
 					whiteboard.ParseMessageEvent(&setBodyEvent)
@@ -234,12 +249,14 @@ var _ = Describe("Entry Integration", func() {
 			newEventAndrew, newEventDariusz,
 			setNameAndrew, setNameDariusz MessageEvent
 		)
+
 		BeforeEach(func() {
 			newEventAndrew = createMessageEventWithUser("wb f face", "aleung")
 			newEventDariusz = createMessageEventWithUser("wb i interesting", "dlorenc")
 			setNameAndrew = createMessageEventWithUser("wb n Andrew Leung", "aleung")
 			setNameDariusz = createMessageEventWithUser("wb t Dariusz Lorenc", "dlorenc")
 		})
+
 		Describe("sending commands", func() {
 			It("should create entries uniquely to each user", func() {
 				whiteboard.ParseMessageEvent(&newEventAndrew)
