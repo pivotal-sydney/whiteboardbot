@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/nlopes/slack"
 	"time"
-	"strconv"
 	"strings"
 )
 
@@ -160,13 +159,8 @@ func (whiteboard WhiteboardApp) handleUpdateCommand(detail string, ev *slack.Mes
 func (whiteboard WhiteboardApp) handleRegistrationCommand(standupId string, ev *slack.MessageEvent) {
 	standup, ok := whiteboard.RestClient.GetStandup(standupId)
 	if !ok {
-		slackUser := whiteboard.SlackClient.GetUserDetails(ev.User)
-		standup.Id, _ = strconv.Atoi(standupId)
-		standup.Title = "<UNKNOWN>"
-		standup.TimeZone = slackUser.TimeZone
-		// TODO: Put this back when Whiteboard merges PR#82 pushed to prod
-		//handleStandupNotFound(whiteboard.SlackClient, standupId, ev.Channel)
-		//return
+		handleStandupNotFound(whiteboard.SlackClient, standupId, ev.Channel)
+		return
 	}
 	whiteboard.Store.SetStandup(ev.Channel, standup)
 	whiteboard.SlackClient.PostMessage(fmt.Sprintf("Standup %v has been registered! You can now start creating Whiteboard entries!", standup.Title), ev.Channel, THUMBS_UP)
