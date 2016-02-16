@@ -1,3 +1,9 @@
 notify:
   webhooks:
     - url: http://pulse.pivotallabs.com/projects/fdd15628-d25a-4590-8cf4-902552825586/status
+deployment:
+  production:
+    branch: master
+    commands:
+      - './cf login -u $CF_USERNAME -p $CF_PASSWORD -a "https://api.run.pivotal.io" -o labs-playground -s aleung'
+      - './cf push'
