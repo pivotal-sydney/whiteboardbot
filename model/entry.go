@@ -58,7 +58,7 @@ func (entry Entry) String() string {
 	if len(entry.Body) == 0 {
 		return fmt.Sprintf("*%v*\n%v", entry.Title, entry.GetDateString())
 	} else {
-		return fmt.Sprintf("*%v*\n%v\n%v", entry.Title, entry.Body, entry.GetDateString())
+		return fmt.Sprintf("*%v*\n%v\n[%v]\n%v", entry.Title, entry.Body, entry.Author, entry.GetDateString())
 	}
 }
 

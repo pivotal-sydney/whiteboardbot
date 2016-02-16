@@ -36,7 +36,8 @@ var _ = Describe("Interesting", func() {
 		It("should print the interesting", func() {
 			interesting.Title = "some title"
 			interesting.Body = "some body"
-			Expect(interesting.String()).To(Equal("*some title*\nsome body\n02 Jan 2015"))
+			interesting.Author = "some author"
+			Expect(interesting.String()).To(Equal("*some title*\nsome body\n[some author]\n02 Jan 2015"))
 		})
 	})
 
