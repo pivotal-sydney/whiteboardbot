@@ -2,7 +2,7 @@ package spec
 
 import (
 	. "github.com/nlopes/slack"
-	"github.com/xtreme-andleung/whiteboardbot/app"
+	"github.com/pivotal-sydney/whiteboardbot/app"
 	"strconv"
 )
 

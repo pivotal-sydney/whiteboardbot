@@ -3,8 +3,8 @@ package model_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/xtreme-andleung/whiteboardbot/model"
-	"github.com/xtreme-andleung/whiteboardbot/model"
+	. "github.com/pivotal-sydney/whiteboardbot/model"
+	"github.com/pivotal-sydney/whiteboardbot/model"
 	"fmt"
 )
 

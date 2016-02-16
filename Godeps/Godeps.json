@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/xtreme-andleung/whiteboardbot",
+	"ImportPath": "github.com/pivotal-sydney/whiteboardbot",
 	"GoVersion": "go1.5.1",
 	"Packages": [
 		"./..."

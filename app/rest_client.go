@@ -7,7 +7,7 @@ import (
 	"os"
 	"errors"
 	"strings"
-	. "github.com/xtreme-andleung/whiteboardbot/model"
+	. "github.com/pivotal-sydney/whiteboardbot/model"
 	"io/ioutil"
 )
 

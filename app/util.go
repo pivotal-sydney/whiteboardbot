@@ -3,7 +3,7 @@ import (
 	"strings"
 	"regexp"
 	"math/rand"
-	. "github.com/xtreme-andleung/whiteboardbot/model"
+	. "github.com/pivotal-sydney/whiteboardbot/model"
 )
 
 var insults = [...]string{"Stupid.", "You idiot.", "You fool."}

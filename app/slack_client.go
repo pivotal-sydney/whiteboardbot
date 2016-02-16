@@ -2,7 +2,7 @@ package app
 import (
 	"fmt"
 	"github.com/nlopes/slack"
-	"github.com/xtreme-andleung/whiteboardbot/model"
+	"github.com/pivotal-sydney/whiteboardbot/model"
 )
 
 type Slack struct {

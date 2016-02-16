@@ -4,7 +4,7 @@ import (
 	. "github.com/nlopes/slack"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/xtreme-andleung/whiteboardbot/app"
+	. "github.com/pivotal-sydney/whiteboardbot/app"
 )
 
 var _ = Describe("Entry Integration", func() {

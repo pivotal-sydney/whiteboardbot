@@ -1,6 +1,6 @@
 package app
 import (
-	. "github.com/xtreme-andleung/whiteboardbot/model"
+	. "github.com/pivotal-sydney/whiteboardbot/model"
 	"fmt"
 	"github.com/nlopes/slack"
 	"time"

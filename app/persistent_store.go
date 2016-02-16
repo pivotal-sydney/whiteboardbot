@@ -4,7 +4,7 @@ import (
 	"github.com/garyburd/redigo/redis"
 	"os"
 	"fmt"
-	. "github.com/xtreme-andleung/whiteboardbot/model"
+	. "github.com/pivotal-sydney/whiteboardbot/model"
 	"encoding/json"
 )
 

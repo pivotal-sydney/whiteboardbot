@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/nlopes/slack"
-	. "github.com/xtreme-andleung/whiteboardbot/app"
-	"github.com/xtreme-andleung/whiteboardbot/model"
+	. "github.com/pivotal-sydney/whiteboardbot/app"
+	"github.com/pivotal-sydney/whiteboardbot/model"
 	"net/http"
 	"os"
 	"os/signal"

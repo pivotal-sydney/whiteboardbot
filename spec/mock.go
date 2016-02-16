@@ -1,11 +1,11 @@
 package spec
 
 import (
-	"github.com/xtreme-andleung/whiteboardbot/model"
+	"github.com/pivotal-sydney/whiteboardbot/model"
 	"time"
 	"strconv"
 	"encoding/json"
-	. "github.com/xtreme-andleung/whiteboardbot/app"
+	. "github.com/pivotal-sydney/whiteboardbot/app"
 )
 
 type MockSlackClient struct {
