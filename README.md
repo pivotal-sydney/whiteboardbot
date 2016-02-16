@@ -55,15 +55,13 @@ WB_DB_HOST=localhost:6379             // The Redis IP address with port
 WB_DB_PASSWORD=password               // The Redis password 
 ```
 ## Building
-```
-Set GOPATH env variable
-go get github.com/pivotal-sydney/whiteboardbot
-cd $GOPATH/src/github.com/pivotal-sydney/whiteboardbot/
-Install godep: go get github.com/tools/godep
-godep restore
-go build
-```
-will create a whiteboardbot binary which can be run from the command line.
+* Set GOPATH env variable
+* Check out whiteboardbot project from github using go get: `go get github.com/pivotal-sydney/whiteboardbot`
+* Go to the project directory: `cd $GOPATH/src/github.com/pivotal-sydney/whiteboardbot/`
+* Install godep (for dependency managment): `go get github.com/tools/godep`
+* Fetch all dependencies using godep: `godep restore`
+* Now you're ready to build the project: `go build` This will create a whiteboardbot binary which can be run from the command line.
+* To run the test execute this command: `go test ./...`
 
 ## Add bot to Slack channel
 Once the bot is running, mention `@whiteboardbot` in a channel, and register a standup ID
