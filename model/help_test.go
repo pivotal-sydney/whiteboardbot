@@ -44,6 +44,7 @@ var _ = Describe("Help", func() {
 	Describe("when printing out an help with empty body", func() {
 		It("should print the help", func() {
 			help.Title = "some title"
+			help.Author = ""
 			Expect(help.String()).To(Equal("*some title*\n02 Jan 2015"))
 		})
 	})

@@ -55,11 +55,15 @@ func (entry Entry) GetEntry() *Entry {
 }
 
 func (entry Entry) String() string {
-	if len(entry.Body) == 0 {
-		return fmt.Sprintf("*%v*\n%v", entry.Title, entry.GetDateString())
-	} else {
-		return fmt.Sprintf("*%v*\n%v\n[%v]\n%v", entry.Title, entry.Body, entry.Author, entry.GetDateString())
+	author_str := ""
+	if len(entry.Author) != 0 {
+		author_str = fmt.Sprintf("\n[%v]", entry.Author)
 	}
+	body_str := ""
+	if len(entry.Body) != 0 {
+		body_str = fmt.Sprintf("\n%v", entry.Body)
+	}
+	return fmt.Sprintf("*%v*%v%v\n%v", entry.Title, body_str, author_str, entry.GetDateString())
 }
 
 func (entry Entry) GetDateString() string {
