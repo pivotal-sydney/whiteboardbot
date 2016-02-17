@@ -30,7 +30,7 @@ var _ = Describe("Faces Integration", func() {
 	Describe("with faces keyword without title", func() {
 		It("should respond missing title", func() {
 			whiteboard.ParseMessageEvent(&newFaceEvent)
-			Expect(slackClient.Message).To(Equal("Hey, next time add a title along with your entry!\nLike this: `wb i My title`\nNeed help? try `wb ?`"))
+			Expect(slackClient.Message).To(Equal("Hey, next time add a title along with your entry!\nLike this: `wb i My title`\nNeed help? Try `wb ?`"))
 			Expect(slackClient.Status).To(Equal(THUMBS_DOWN))
 		})
 	})

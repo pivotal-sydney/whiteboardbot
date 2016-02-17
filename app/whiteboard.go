@@ -233,7 +233,7 @@ func (whiteboard WhiteboardApp) validateAndPost(entryType EntryType, ev *slack.M
 }
 
 func (whiteboard WhiteboardApp) handleMissingTitle(channel string) {
-	whiteboard.SlackClient.PostMessageWithMarkdown("Hey, next time add a title along with your entry!\nLike this: `wb i My title`\nNeed help? try `wb ?`", channel, THUMBS_DOWN)
+	whiteboard.SlackClient.PostMessageWithMarkdown("Hey, next time add a title along with your entry!\nLike this: `wb i My title`\nNeed help? Try `wb ?`", channel, THUMBS_DOWN)
 }
 
 func getInputString(ev *slack.MessageEvent) string {
