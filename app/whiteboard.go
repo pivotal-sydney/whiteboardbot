@@ -5,6 +5,7 @@ import (
 	"github.com/nlopes/slack"
 	"time"
 	"strings"
+	"strconv"
 )
 
 type WhiteboardApp struct {
@@ -170,8 +171,8 @@ func (whiteboard WhiteboardApp) handleUsageCommand(_ string, ev *slack.MessageEv
 	whiteboard.SlackClient.PostMessageWithMarkdown(USAGE, ev.Channel, "")
 }
 
-func (whiteboard WhiteboardApp) handlePresentCommand(_ string, ev *slack.MessageEvent) {
-	standup, _, _, ok := whiteboard.getEntryDetails(ev)
+func (whiteboard WhiteboardApp) handlePresentCommand(numDays string, ev *slack.MessageEvent) {
+	standup, slackUser, _, ok := whiteboard.getEntryDetails(ev)
 	if !ok {
 		return
 	}
@@ -181,6 +182,15 @@ func (whiteboard WhiteboardApp) handlePresentCommand(_ string, ev *slack.Message
 		return
 	}
 
+	if (len(numDays) > 0) {
+		numDaysInt, err := strconv.Atoi(numDays)
+		if err == nil {
+			items.Events = whiteboard.FilterOutOld(items.Events, numDaysInt, slackUser.TimeZone)
+			items.Faces = whiteboard.FilterOutOld(items.Faces, numDaysInt, slackUser.TimeZone)
+			items.Helps = whiteboard.FilterOutOld(items.Helps, numDaysInt, slackUser.TimeZone)
+			items.Interestings = whiteboard.FilterOutOld(items.Interestings, numDaysInt, slackUser.TimeZone)
+		}
+	}
 	whiteboard.SlackClient.PostMessage(items.String(), ev.Channel, "")
 }
 
@@ -228,4 +238,22 @@ func getInputString(ev *slack.MessageEvent) string {
 	} else {
 		return ev.Text
 	}
+}
+
+func (whiteboard WhiteboardApp) FilterOutOld(entries []Entry, numDays int, userTimeZone string) []Entry {
+
+	location, err := time.LoadLocation(userTimeZone)
+	if err != nil {
+		location = time.Local
+	}
+
+	entiriesFiltered := make([]Entry, 0)
+	for _, entry := range entries {
+		entryDate, err := time.Parse("2006-01-02", entry.Date)
+		cutOff := whiteboard.Clock.Now().In(location).AddDate(0, 0, numDays)
+		if err != nil || entryDate.In(location).Before(cutOff) || entryDate.In(location).Equal(cutOff) {
+			entiriesFiltered = append(entiriesFiltered, entry)
+		}
+	}
+	return entiriesFiltered
 }

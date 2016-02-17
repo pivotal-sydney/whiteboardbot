@@ -12,7 +12,7 @@ const(
 	"        `register`, `r` - followed by <standup_id>, registers current channel to Whiteboard's standup id\n" +
 	"\n" +
 	"*Presentation Command*\n" +
-	"		 `present`, `p` - presents today's standup\n" +
+	"		 `present`, `p` - presents today's standup. Follow with number of days to limit the entries shown by date (i.e. `wb p 2` will only return entries for the next 2 days)\n" +
 	"\n" +
 	"*Create Commands*\n" +
 	"        `faces`, `f` - followed by a title, creates a new faces entry\n" +
