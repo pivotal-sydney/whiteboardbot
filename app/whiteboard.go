@@ -133,7 +133,7 @@ func (whiteboard WhiteboardApp) handleUpdateDateCommand(date string, ev *slack.M
 		if parsedDate, err := time.Parse(DATE_FORMAT, input); err == nil {
 			entryType.GetEntry().Date = parsedDate.Format(DATE_FORMAT)
 		} else {
-			whiteboard.SlackClient.PostEntry(entryType.GetEntry(), ev.Channel, "Date not set, use YYYY-MM-DD as date format\n")
+			whiteboard.SlackClient.PostEntry(entryType.GetEntry(), ev.Channel, THUMBS_DOWN + "Date not set, use YYYY-MM-DD as date format\n")
 			finished = true
 		}
 		return
@@ -221,7 +221,11 @@ func (whiteboard WhiteboardApp) validateAndPost(entryType EntryType, ev *slack.M
 	entry := entryType.GetEntry()
 	if entryType.Validate() {
 		if itemId, ok := PostEntryToWhiteboard(whiteboard.RestClient, entryType); ok {
-			status = THUMBS_UP + strings.ToUpper(entry.ItemKind) + "\n"
+			if len(entry.Id) == 0 {
+				status = THUMBS_UP + "_Now go update the details. Need help?_ `wb ?`\n\n" + strings.ToUpper(entry.ItemKind) + "\n"
+			} else {
+				status = THUMBS_UP + strings.ToUpper(entry.ItemKind) + "\n"
+			}
 			entry.Id = itemId
 		}
 	}

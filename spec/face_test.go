@@ -44,7 +44,7 @@ var _ = Describe("Faces Integration", func() {
 			Describe("with correct keyword", func() {
 				It("should set the name of the entry and respond with face string", func() {
 					Expect(slackClient.Entry.Title).To(Equal("Andrew Leung"))
-					Expect(slackClient.Status).To(Equal(THUMBS_UP + "NEW FACE\n"))
+					Expect(slackClient.Status).To(Equal(THUMBS_UP + "_Now go update the details. Need help?_ `wb ?`\n\nNEW FACE\n"))
 					Expect(restClient.PostCalledCount).To(Equal(1))
 					Expect(restClient.Request.Commit).To(Equal("Create New Face"))
 				})
