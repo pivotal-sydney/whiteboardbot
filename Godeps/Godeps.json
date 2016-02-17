@@ -6,7 +6,11 @@
 	],
 	"Deps": [
 		{
-			"ImportPath": "github.com/garyburd/redigo",
+			"ImportPath": "github.com/garyburd/redigo/internal",
+			"Rev": "6ece6e0a09f28cc399b21550cbf37ab39ba63cce"
+		},
+		{
+			"ImportPath": "github.com/garyburd/redigo/redis",
 			"Rev": "6ece6e0a09f28cc399b21550cbf37ab39ba63cce"
 		},
 		{
@@ -23,6 +27,10 @@
 			"ImportPath": "github.com/onsi/gomega",
 			"Comment": "v1.0-71-g2152b45",
 			"Rev": "2152b45fa28a361beba9aab0885972323a444e28"
+		},
+		{
+			"ImportPath": "golang.org/x/net/websocket",
+			"Rev": "cbbbe2bc0f2efdd2afb318d93f1eadb19350e4a3"
 		}
 	]
 }
