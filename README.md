@@ -60,6 +60,7 @@ WB_DB_PASSWORD=password               // The Redis password
 * Go to the project directory: `cd $GOPATH/src/github.com/pivotal-sydney/whiteboardbot/`
 * Install godep (for dependency managment): `go get github.com/tools/godep`
 * Fetch all dependencies using godep: `godep restore`
+* Update all dependencies using godep: `godep update ./...`
 * Now you're ready to build the project: `go build` This will create a whiteboardbot binary which can be run from the command line.
 * To run the test execute this command: `go test ./...`
 
