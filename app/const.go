@@ -3,7 +3,6 @@ package app
 const(
 	THUMBS_UP = ":+1:\n"
 	THUMBS_DOWN = ":-1:\n"
-	BOT_NAME = "whiteboardbot"
 	USAGE =
 	"*Usage*:\n" +
 	"        `wb [command] [text...]`\n" +

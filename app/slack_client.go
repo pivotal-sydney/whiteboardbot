@@ -38,7 +38,7 @@ func (slackClient *Slack) PostEntry(entry *model.Entry, channel string, status s
 func (slackClient *Slack) postMessage(message string, channel string, status string, params slack.PostMessageParameters) {
 	message = status + message
 	fmt.Printf("Posting message to slack:\n%v\n", message)
-	params.Username = BOT_NAME
+	params.AsUser = true
 	slackClient.SlackRtm.PostMessage(channel, message, params)
 }
 
