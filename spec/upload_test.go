@@ -20,7 +20,7 @@ var _ = Describe("Upload Integration", func() {
 		slackClient = whiteboard.SlackClient.(*MockSlackClient)
 
 		file = &File{}
-		file.URL = "http://upload/link"
+		file.Permalink = "http://upload/link"
 		file.InitialComment = Comment{Comment: "Body of the event"}
 		file.Title = "wb i My Title"
 		uploadEvent = MessageEvent{Msg: Msg{Upload: true, File: file, Channel: "whiteboard-sydney"}}

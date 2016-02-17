@@ -96,7 +96,7 @@ func (whiteboard WhiteboardApp) handleCreateCommand(title string, ev *slack.Mess
 	whiteboard.EntryMap[slackUser.Username] = entryType
 
 	if ev.Upload {
-		entryType.GetEntry().Body = fmt.Sprintf("%v\n<img src=\"%v\" style=\"max-width: 500px\">", ev.File.InitialComment.Comment, ev.File.URL)
+		entryType.GetEntry().Body = fmt.Sprintf("%v\n<img src=\"%v\" style=\"max-width: 500px\">", ev.File.InitialComment.Comment, ev.File.Permalink)
 	}
 
 	whiteboard.validateAndPost(entryType, ev)
