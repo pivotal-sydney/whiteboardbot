@@ -55,7 +55,8 @@ WB_DB_HOST=localhost:6379             // The Redis IP address with port
 WB_DB_PASSWORD=password               // The Redis password 
 ```
 ## Building
-* Set GOPATH env variable
+* Install go 1.5: `brew install https://raw.githubusercontent.com/Homebrew/homebrew-versions/master/go15.rb`
+* [Set GOPATH env variable](https://golang.org/pkg/go/build/)
 * Check out whiteboardbot project from github using go get: `go get github.com/pivotal-sydney/whiteboardbot`
 * Go to the project directory: `cd $GOPATH/src/github.com/pivotal-sydney/whiteboardbot/`
 * Install godep (for dependency managment): `go get github.com/tools/godep`
