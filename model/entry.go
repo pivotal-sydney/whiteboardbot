@@ -44,6 +44,6 @@ func (entry Entry) String() string {
 }
 
 func createItem(entry Entry) (item Item) {
-	item = Item{StandupId: 1, Title: entry.Title, Date: entry.Time.Format("2006-01-02"), Public: "false", Description: entry.Body, Author: entry.Author}
+	item = Item{StandupId: 94, Title: entry.Title, Date: entry.Time.Format("2006-01-02"), Public: "false", Description: entry.Body, Author: entry.Author}
 	return
 }

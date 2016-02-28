@@ -7,7 +7,7 @@ import (
 	"os"
 	"errors"
 	"strings"
-	"github.com/xtreme-andleung/whiteboardbot/model"
+	"github.com/pivotal-sydney/whiteboardbot/model"
 )
 
 type RestClient interface {
@@ -23,7 +23,7 @@ func (RealRestClient) Post(request model.WhiteboardRequest) (itemId string, ok b
 	if len(request.Id) > 0 {
 		url += "/items/" + request.Id
 	} else {
-		url += "/standups/1/items"
+		url += "/standups/94/items"
 	}
 	httpRequest, err := http.NewRequest(toHttpVerb(request.Method), url, bytes.NewReader(json))
 	httpRequest.Header.Add("Content-Type", "application/json")
