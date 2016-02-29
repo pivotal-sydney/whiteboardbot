@@ -1,13 +1,14 @@
 package rest
+
 import (
-	"net/http"
-	"encoding/json"
 	"bytes"
-	"fmt"
-	"os"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/pivotal-sydney/whiteboardbot/model"
+	"net/http"
+	"os"
 	"strings"
-	"github.com/xtreme-andleung/whiteboardbot/model"
 )
 
 type RestClient interface {
@@ -23,7 +24,7 @@ func (RealRestClient) Post(request model.WhiteboardRequest) (itemId string, ok b
 	if len(request.Id) > 0 {
 		url += "/items/" + request.Id
 	} else {
-		url += "/standups/1/items"
+		url += "/standups/94/items"
 	}
 	httpRequest, err := http.NewRequest(toHttpVerb(request.Method), url, bytes.NewReader(json))
 	httpRequest.Header.Add("Content-Type", "application/json")
@@ -31,7 +32,7 @@ func (RealRestClient) Post(request model.WhiteboardRequest) (itemId string, ok b
 	fmt.Printf("\nResponse: %v, Err: %v, json: %v", resp, err, string(json))
 	fmt.Printf("\nURL %v", url)
 
-	ok = resp !=nil && resp.StatusCode == http.StatusFound
+	ok = resp != nil && resp.StatusCode == http.StatusFound
 	if ok {
 		itemId = resp.Header.Get("Item-Id")
 	}

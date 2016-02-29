@@ -1,20 +1,20 @@
 package spec_test
 
 import (
+	"github.com/nlopes/slack"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/xtreme-andleung/whiteboardbot/app"
-	"github.com/nlopes/slack"
-	"github.com/xtreme-andleung/whiteboardbot/spec"
+	. "github.com/pivotal-sydney/whiteboardbot/app"
+	"github.com/pivotal-sydney/whiteboardbot/spec"
 )
 
 var _ = Describe("Whiteboardbot", func() {
 	var (
 		helloWorldEvent slack.MessageEvent
-		randomEvent slack.MessageEvent
-		client spec.MockSlackClient
-		clock spec.MockClock
-		restClient spec.MockRestClient
+		randomEvent     slack.MessageEvent
+		client          spec.MockSlackClient
+		clock           spec.MockClock
+		restClient      spec.MockRestClient
 	)
 
 	BeforeEach(func() {

@@ -2,8 +2,8 @@ package spec
 
 import (
 	"github.com/nlopes/slack"
+	"github.com/pivotal-sydney/whiteboardbot/model"
 	"time"
-	"github.com/xtreme-andleung/whiteboardbot/model"
 )
 
 type MockSlackClient struct {

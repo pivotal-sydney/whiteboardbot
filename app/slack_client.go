@@ -1,11 +1,11 @@
 package app
 
 import (
-	"github.com/nlopes/slack"
-	"strings"
 	"fmt"
-	. "github.com/xtreme-andleung/whiteboardbot/model"
-	. "github.com/xtreme-andleung/whiteboardbot/rest"
+	"github.com/nlopes/slack"
+	. "github.com/pivotal-sydney/whiteboardbot/model"
+	. "github.com/pivotal-sydney/whiteboardbot/rest"
+	"strings"
 	"time"
 )
 

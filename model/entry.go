@@ -1,8 +1,9 @@
 package model
+
 import (
-	"time"
-	"os"
 	"fmt"
+	"os"
+	"time"
 )
 
 type EntryType interface {
@@ -35,7 +36,7 @@ func (entry Entry) MakeCreateRequest() (request WhiteboardRequest) {
 }
 
 func (entry Entry) MakeUpdateRequest() (request WhiteboardRequest) {
-	request = WhiteboardRequest{ Method: "patch", Token: os.Getenv("WB_AUTH_TOKEN"), Item: createItem(entry), Commit: "Update Item", Id: entry.Id}
+	request = WhiteboardRequest{Method: "patch", Token: os.Getenv("WB_AUTH_TOKEN"), Item: createItem(entry), Commit: "Update Item", Id: entry.Id}
 	return
 }
 
@@ -44,6 +45,6 @@ func (entry Entry) String() string {
 }
 
 func createItem(entry Entry) (item Item) {
-	item = Item{StandupId: 1, Title: entry.Title, Date: entry.Time.Format("2006-01-02"), Public: "false", Description: entry.Body, Author: entry.Author}
+	item = Item{StandupId: 94, Title: entry.Title, Date: entry.Time.Format("2006-01-02"), Public: "false", Description: entry.Body, Author: entry.Author}
 	return
 }
