@@ -2,7 +2,7 @@ package slack_client
 import (
 	"fmt"
 	"github.com/nlopes/slack"
-	"github.com/xtreme-andleung/whiteboardbot/model"
+	"github.com/pivotal-sydney/whiteboardbot/model"
 )
 
 const botName = "whiteboardbot"

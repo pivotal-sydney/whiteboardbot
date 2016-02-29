@@ -4,7 +4,7 @@ import (
 	"github.com/nlopes/slack"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/xtreme-andleung/whiteboardbot/slack_client"
+	"github.com/pivotal-sydney/whiteboardbot/slack_client"
 )
 
 var _ = Describe("Slack Client", func() {

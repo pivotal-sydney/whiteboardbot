@@ -3,10 +3,10 @@ package spec_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/xtreme-andleung/whiteboardbot/model"
-	"github.com/xtreme-andleung/whiteboardbot/spec"
+	. "github.com/pivotal-sydney/whiteboardbot/model"
+	"github.com/pivotal-sydney/whiteboardbot/spec"
 	"os"
-	"github.com/xtreme-andleung/whiteboardbot/model"
+	"github.com/pivotal-sydney/whiteboardbot/model"
 	"fmt"
 )
 

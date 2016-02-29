@@ -3,15 +3,15 @@ package main
 import (
 	"fmt"
 	"github.com/nlopes/slack"
-	"github.com/xtreme-andleung/whiteboardbot/app"
-	"github.com/xtreme-andleung/whiteboardbot/model"
-	"github.com/xtreme-andleung/whiteboardbot/persistance"
-	"github.com/xtreme-andleung/whiteboardbot/rest"
+	"github.com/pivotal-sydney/whiteboardbot/app"
+	"github.com/pivotal-sydney/whiteboardbot/model"
+	"github.com/pivotal-sydney/whiteboardbot/persistance"
+	"github.com/pivotal-sydney/whiteboardbot/rest"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
-	"github.com/xtreme-andleung/whiteboardbot/slack_client"
+	"github.com/pivotal-sydney/whiteboardbot/slack_client"
 )
 
 const (

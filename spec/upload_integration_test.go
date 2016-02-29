@@ -4,9 +4,9 @@ import (
 	. "github.com/nlopes/slack"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/xtreme-andleung/whiteboardbot/app"
-	"github.com/xtreme-andleung/whiteboardbot/spec"
-	"github.com/xtreme-andleung/whiteboardbot/model"
+	. "github.com/pivotal-sydney/whiteboardbot/app"
+	"github.com/pivotal-sydney/whiteboardbot/spec"
+	"github.com/pivotal-sydney/whiteboardbot/model"
 )
 
 var _ = Describe("Upload Integration", func() {

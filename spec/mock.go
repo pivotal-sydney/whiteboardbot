@@ -1,7 +1,7 @@
 package spec
 
 import (
-	"github.com/xtreme-andleung/whiteboardbot/model"
+	"github.com/pivotal-sydney/whiteboardbot/model"
 	"time"
 )
 
