@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"encoding/json"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
+	"github.com/nlopes/slack"
 )
 
 type MockSlackClient struct {
@@ -34,11 +35,35 @@ func (slackClient *MockSlackClient) PostEntry(entry *model.Entry, channel string
 
 func (slackClient *MockSlackClient) GetUserDetails(user string) (slackUser SlackUser) {
 	slackUser.Username = user
+
+	if slackUser.Username == "UUserId" {
+		slackUser.Username = "user-name"
+	}
+
+	if slackUser.Username == "UUserId2" {
+		slackUser.Username = "user-name-two"
+	}
+
 	if slackUser.Username == "" {
 		slackUser.Username = "aleung"
 	}
 	slackUser.Author = "Andrew Leung"
 	slackUser.TimeZone = "Australia/Sydney"
+	return
+}
+
+func (slackClient *MockSlackClient) GetChannelDetails(channel string) (slackChannel *slack.Channel) {
+
+	slackChannel = &slack.Channel{}
+
+	if channel == "CChannelId" {
+		slackChannel.Name = "channel-name"
+	} else if channel == "CChannelId2" {
+		slackChannel.Name = "channel-name-two"
+	} else {
+		slackChannel.Name = "unknown"
+	}
+
 	return
 }
 

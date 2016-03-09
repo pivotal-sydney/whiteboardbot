@@ -120,6 +120,24 @@ var _ = Describe("Entry Integration", func() {
 		})
 	})
 
+	Describe("with interesting keyword and title containing slack user IDs", func() {
+		It("should create a new interesting entry with user names", func() {
+			newInterestingWithTitleEvent.Text = "wb i <@UUserId> likes <@UUserId2>"
+			whiteboard.ParseMessageEvent(&newInterestingWithTitleEvent)
+			Expect(slackClient.Entry.Title).To(Equal("@user-name likes @user-name-two"))
+			Expect(restClient.Request.Item.Title).To(Equal("@user-name likes @user-name-two"))
+		})
+	})
+
+	Describe("with interesting keyword and title containing slack channel IDs", func() {
+		It("should create a new interesting entry with channel names", func() {
+			newInterestingWithTitleEvent.Text = "wb i <#CChannelId> has moved to <#CChannelId2>"
+			whiteboard.ParseMessageEvent(&newInterestingWithTitleEvent)
+			Expect(slackClient.Entry.Title).To(Equal("#channel-name has moved to #channel-name-two"))
+			Expect(restClient.Request.Item.Title).To(Equal("#channel-name has moved to #channel-name-two"))
+		})
+	})
+
 	Context("setting a title detail", func() {
 		Describe("with an interesting entry started", func() {
 			BeforeEach(func() {

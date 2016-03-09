@@ -20,6 +20,7 @@ type SlackClient interface {
 	PostMessageWithMarkdown(message string, channel string, status string)
 	PostEntry(entry *model.Entry, channel string, status string)
 	GetUserDetails(user string) (slackUser SlackUser)
+	GetChannelDetails(channel string) (slackChannel *slack.Channel)
 }
 
 func (slackClient *Slack) PostMessage(message string, channel string, status string) {
@@ -62,6 +63,16 @@ func GetAuthor(user *slack.User) (realName string) {
 		realName = user.Name
 	}
 	return
+}
+
+func (slackClient *Slack) GetChannelDetails(channel string) *slack.Channel {
+	slackChannel, err := slackClient.SlackRtm.GetChannelInfo(channel)
+	if err != nil {
+		slackChannel = &slack.Channel{}
+		slackChannel.ID = channel
+		slackChannel.Name = "unknown"
+	}
+	return slackChannel
 }
 
 func handleMissingEntry(slackClient SlackClient, channel string) {

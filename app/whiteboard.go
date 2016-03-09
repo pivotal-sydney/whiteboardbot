@@ -6,6 +6,7 @@ import (
 	"time"
 	"strings"
 	"strconv"
+	"regexp"
 )
 
 type WhiteboardApp struct {
@@ -46,6 +47,7 @@ func (whiteboard WhiteboardApp) registerCommand(command string, callback func(in
 
 func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 	input := getInputString(ev)
+	input = whiteboard.replaceIdsWithNames(input)
 
 	command, input := readNextCommand(input)
 	if !matches(command, "wb") {
@@ -260,4 +262,39 @@ func (whiteboard WhiteboardApp) FilterOutOld(entries []Entry, numDays int, userT
 		}
 	}
 	return entiriesFiltered
+}
+
+
+func (whiteboard WhiteboardApp) replaceIdsWithNames(input string) string {
+	input = whiteboard.replaceUserIdsWithNames(input)
+	input = whiteboard.replaceChannelIdsWithNames(input)
+	return input
+}
+
+func (whiteboard WhiteboardApp) replaceUserIdsWithNames(input string) string {
+	re := regexp.MustCompile("<@([a-zA-Z0-9]+)>")
+	userIds := re.FindAllStringSubmatch(input, -1)
+
+	for _, id := range userIds {
+		userId := id[1]
+		slackUser := whiteboard.SlackClient.GetUserDetails(userId)
+		userName := "@" + slackUser.Username
+		input = strings.Replace(input, id[0], userName, -1)
+	}
+
+	return input
+}
+
+func (whiteboard WhiteboardApp) replaceChannelIdsWithNames(input string) string {
+	re := regexp.MustCompile("<#([a-zA-Z0-9]+)>")
+	channelIds := re.FindAllStringSubmatch(input, -1)
+
+	for _, id := range channelIds {
+		channelId := id[1]
+		slackChannel := whiteboard.SlackClient.GetChannelDetails(channelId)
+		channelName := "#" + slackChannel.Name
+		input = strings.Replace(input, id[0], channelName, -1)
+	}
+
+	return input
 }
