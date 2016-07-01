@@ -118,5 +118,5 @@ More context about the image I'm uploading
 Most users will probably be adding entries on their phones. Most mobile phones will capitalize the first letter you type.
 Luckily, Whiteboardbot commands are case insensitive! So even if your phone starts capitalizing a command, it will still work!
 ```
-Wb InTeReStIng This will still work!
+Wb InTeReStInG This will still work!
 ```
