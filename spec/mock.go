@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"encoding/json"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
-	"github.com/nlopes/slack"
+	"github.com/benjamintanweihao/slack"
 )
 
 type MockSlackClient struct {

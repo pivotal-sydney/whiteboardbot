@@ -1,7 +1,7 @@
 package app_test
 
 import (
-	"github.com/nlopes/slack"
+	"github.com/benjamintanweihao/slack"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/pivotal-sydney/whiteboardbot/app"

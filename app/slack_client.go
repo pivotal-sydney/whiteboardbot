@@ -1,7 +1,7 @@
 package app
 import (
 	"fmt"
-	"github.com/nlopes/slack"
+	"github.com/benjamintanweihao/slack"
 	"github.com/pivotal-sydney/whiteboardbot/model"
 )
 

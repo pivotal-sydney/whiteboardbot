@@ -2,7 +2,7 @@ package app
 import (
 	. "github.com/pivotal-sydney/whiteboardbot/model"
 	"fmt"
-	"github.com/nlopes/slack"
+	"github.com/benjamintanweihao/slack"
 	"time"
 	"strings"
 	"strconv"
