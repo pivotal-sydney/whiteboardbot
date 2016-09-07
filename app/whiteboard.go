@@ -1,12 +1,13 @@
 package app
+
 import (
-	. "github.com/pivotal-sydney/whiteboardbot/model"
 	"fmt"
 	"github.com/benjamintanweihao/slack"
-	"time"
-	"strings"
-	"strconv"
+	. "github.com/pivotal-sydney/whiteboardbot/model"
 	"regexp"
+	"strconv"
+	"strings"
+	"time"
 )
 
 type WhiteboardApp struct {
@@ -50,7 +51,7 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 	input = whiteboard.replaceIdsWithNames(input)
 
 	command, input := readNextCommand(input)
-	if !matches(command, "wb") {
+	if !matches(command, "/wb") {
 		return
 	}
 
@@ -123,7 +124,7 @@ func (whiteboard WhiteboardApp) handleUpdateBodyCommand(body string, ev *slack.M
 		default:
 			entryType.GetEntry().Body = body
 		case Face:
-			whiteboard.SlackClient.PostMessage("Face does not have a body! " + randomInsult(), ev.Channel, THUMBS_DOWN)
+			whiteboard.SlackClient.PostMessage("Face does not have a body! "+randomInsult(), ev.Channel, THUMBS_DOWN)
 			finished = true
 		}
 		return
@@ -135,7 +136,7 @@ func (whiteboard WhiteboardApp) handleUpdateDateCommand(date string, ev *slack.M
 		if parsedDate, err := time.Parse(DATE_FORMAT, input); err == nil {
 			entryType.GetEntry().Date = parsedDate.Format(DATE_FORMAT)
 		} else {
-			whiteboard.SlackClient.PostEntry(entryType.GetEntry(), ev.Channel, THUMBS_DOWN + "Date not set, use YYYY-MM-DD as date format\n")
+			whiteboard.SlackClient.PostEntry(entryType.GetEntry(), ev.Channel, THUMBS_DOWN+"Date not set, use YYYY-MM-DD as date format\n")
 			finished = true
 		}
 		return
@@ -184,7 +185,7 @@ func (whiteboard WhiteboardApp) handlePresentCommand(numDays string, ev *slack.M
 		return
 	}
 
-	if (len(numDays) > 0) {
+	if len(numDays) > 0 {
 		numDaysInt, err := strconv.Atoi(numDays)
 		if err == nil {
 			items.Events = whiteboard.FilterOutOld(items.Events, numDaysInt, slackUser.TimeZone)
@@ -263,7 +264,6 @@ func (whiteboard WhiteboardApp) FilterOutOld(entries []Entry, numDays int, userT
 	}
 	return entiriesFiltered
 }
-
 
 func (whiteboard WhiteboardApp) replaceIdsWithNames(input string) string {
 	input = whiteboard.replaceUserIdsWithNames(input)
