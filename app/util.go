@@ -1,9 +1,10 @@
 package app
+
 import (
-	"strings"
-	"regexp"
-	"math/rand"
 	. "github.com/pivotal-sydney/whiteboardbot/model"
+	"math/rand"
+	"regexp"
+	"strings"
 )
 
 var insults = [...]string{"Stupid.", "You idiot.", "You fool."}

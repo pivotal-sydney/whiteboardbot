@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/benjamintanweihao/slack"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
@@ -38,8 +39,9 @@ func main() {
 	slackClient := Slack{SlackRtm: rtm}
 	whiteboard := NewWhiteboard(&slackClient, &RealRestClient{}, model.RealClock{}, &store)
 
-	go startHttpServer()
+	go startHttpServer(whiteboard)
 
+	// Might not even need this.
 Loop:
 	for {
 		select {
@@ -63,8 +65,8 @@ func cleanup() {
 	}
 }
 
-func startHttpServer() {
-	http.HandleFunc("/", HandleRequest)
+func startHttpServer(wb WhiteboardApp) {
+	http.HandleFunc("/", NewHandleRequest(wb))
 	if err := http.ListenAndServe(":"+getHealthCheckPort(), nil); err != nil {
 		fmt.Printf("ListenAndServe: %v\n", err)
 	}
@@ -78,10 +80,45 @@ func getHealthCheckPort() (port string) {
 	return
 }
 
-func HandleRequest(responseWriter http.ResponseWriter, req *http.Request) {
-	fmt.Printf("--> %s\n\n", formatRequest(req))
+type Response struct {
+	Text string `json:"text"`
 }
 
+func NewHandleRequest(wb WhiteboardApp) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		// fmt.Printf("--> %s\n\n", formatRequest(req))
+
+		channelId := req.FormValue("channel_id")
+		// channelName := req.FormValue("channel_name")
+		// teamDomain := req.FormValue("pivotal")
+		// teamId := req.FormValue("team_id")
+		cmdArgs := req.FormValue("text")
+		// token := req.FormValue("token")
+		// userId := req.FormValue("user_id")
+		// userName := req.FormValue("user_name")
+
+		ev := slack.MessageEvent{}
+		ev.Channel = channelId
+
+		// TODO: Here we get the response
+		// TODO: Don't think we would need ev.
+		wb.HandleInput(cmdArgs, &ev)
+
+		response := Response{USAGE}
+
+		j, err := json.Marshal(response)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(j)
+	}
+}
+
+// TODO: Remove when done. We don't need this.
 func formatRequest(r *http.Request) string {
 	// Create return string
 	var request []string

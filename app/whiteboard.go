@@ -54,10 +54,15 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 	if !matches(command, "/wb") {
 		return
 	}
+	whiteboard.HandleInput(input, ev)
 
-	command, input = readNextCommand(input)
+}
+
+func (whiteboard WhiteboardApp) HandleInput(input string, ev *slack.MessageEvent) {
+	command, input := readNextCommand(input)
 	whiteboard.handleCommand(command, input, ev)
 }
+
 func (whiteboard WhiteboardApp) handleCommand(command, input string, ev *slack.MessageEvent) {
 	for key, _ := range whiteboard.CommandMap {
 		if matches(command, key) {
