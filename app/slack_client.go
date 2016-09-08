@@ -1,4 +1,5 @@
 package app
+
 import (
 	"fmt"
 	"github.com/benjamintanweihao/slack"
@@ -11,7 +12,7 @@ type Slack struct {
 
 type SlackUser struct {
 	Username string
-	Author string
+	Author   string
 	TimeZone string
 }
 
@@ -24,11 +25,11 @@ type SlackClient interface {
 }
 
 func (slackClient *Slack) PostMessage(message string, channel string, status string) {
-	slackClient.postMessage(message, channel, status, slack.PostMessageParameters{})
+	slackClient.postMessage(message, channel, status, slack.PostMessageParameters{ResponseType: "ephemeral"})
 }
 
 func (slackClient *Slack) PostMessageWithMarkdown(message string, channel string, status string) {
-	slackClient.postMessage(message, channel, status, slack.PostMessageParameters{Markdown: true})
+	slackClient.postMessage(message, channel, status, slack.PostMessageParameters{Markdown: true, ResponseType: "ephemeral"})
 }
 
 func (slackClient *Slack) PostEntry(entry *model.Entry, channel string, status string) {
