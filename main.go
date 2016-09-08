@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 )
 
@@ -39,7 +40,7 @@ func main() {
 
 	go startHttpServer()
 
-	Loop:
+Loop:
 	for {
 		select {
 		case msg := <-rtm.IncomingEvents:
@@ -63,8 +64,8 @@ func cleanup() {
 }
 
 func startHttpServer() {
-	http.HandleFunc("/", HealthCheckServer)
-	if err := http.ListenAndServe(":" + getHealthCheckPort(), nil); err != nil {
+	http.HandleFunc("/", HandleRequest)
+	if err := http.ListenAndServe(":"+getHealthCheckPort(), nil); err != nil {
 		fmt.Printf("ListenAndServe: %v\n", err)
 	}
 }
@@ -77,6 +78,32 @@ func getHealthCheckPort() (port string) {
 	return
 }
 
-func HealthCheckServer(responseWriter http.ResponseWriter, req *http.Request) {
-	fmt.Fprintln(responseWriter, "I'm alive")
+func HandleRequest(responseWriter http.ResponseWriter, req *http.Request) {
+	fmt.Printf("--> %s\n\n", formatRequest(req))
+}
+
+func formatRequest(r *http.Request) string {
+	// Create return string
+	var request []string
+	// Add the request string
+	url := fmt.Sprintf("%v %v %v", r.Method, r.URL, r.Proto)
+	request = append(request, url)
+	// Add the host
+	request = append(request, fmt.Sprintf("Host: %v", r.Host))
+	// Loop through headers
+	for name, headers := range r.Header {
+		name = strings.ToLower(name)
+		for _, h := range headers {
+			request = append(request, fmt.Sprintf("%v: %v", name, h))
+		}
+	}
+
+	// If this is a POST, add post data
+	if r.Method == "POST" {
+		r.ParseForm()
+		request = append(request, "\n")
+		request = append(request, r.Form.Encode())
+	}
+	// Return the request as a string
+	return strings.Join(request, "\n")
 }
