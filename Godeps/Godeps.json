@@ -1,9 +1,7 @@
 {
 	"ImportPath": "github.com/pivotal-sydney/whiteboardbot",
-	"GoVersion": "go1.5",
-	"Packages": [
-		"./..."
-	],
+	"GoVersion": "go1.7",
+	"GodepVersion": "v74",
 	"Deps": [
 		{
 			"ImportPath": "github.com/garyburd/redigo/internal",
@@ -17,16 +15,6 @@
 			"ImportPath": "github.com/nlopes/slack",
 			"Comment": "v0.0.1-69-g9153359",
 			"Rev": "9153359e4c6e3dd6fecd68332164321b5efd543f"
-		},
-		{
-			"ImportPath": "github.com/onsi/ginkgo",
-			"Comment": "v1.2.0-29-g7f8ab55",
-			"Rev": "7f8ab55aaf3b86885aa55b762e803744d1674700"
-		},
-		{
-			"ImportPath": "github.com/onsi/gomega",
-			"Comment": "v1.0-71-g2152b45",
-			"Rev": "2152b45fa28a361beba9aab0885972323a444e28"
 		},
 		{
 			"ImportPath": "golang.org/x/net/websocket",
