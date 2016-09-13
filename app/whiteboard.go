@@ -51,7 +51,7 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 	input = whiteboard.replaceIdsWithNames(input)
 
 	command, input := readNextCommand(input)
-	if !matches(command, "/wb") {
+	if !matches(command, "/wb") && !matches(command, "wb") {
 		return
 	}
 	whiteboard.HandleInput(input, ev)
