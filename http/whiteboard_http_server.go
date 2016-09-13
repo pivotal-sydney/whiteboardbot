@@ -44,12 +44,20 @@ func (server WhiteboardHttpServer) getHealthCheckPort() (port string) {
 
 func (server WhiteboardHttpServer) NewHandleRequest(wb QuietWhiteboardApp) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
+		req.ParseForm()
+
 		cmdArgs := req.FormValue("text")
+		token := req.FormValue("token")
 		response := wb.HandleInput(cmdArgs)
 		j, err := json.Marshal(response)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if token != os.Getenv("SLACK_TOKEN") {
+			w.WriteHeader(http.StatusForbidden)
 			return
 		}
 
