@@ -4,3 +4,5 @@ applications:
     instances: 1
     buildpack: https://github.com/cloudfoundry/go-buildpack.git
     command: whiteboardbot
+    env:
+      SLACK_TOKEN: [your-slack-token]
