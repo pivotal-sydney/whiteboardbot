@@ -25,11 +25,11 @@ type SlackClient interface {
 }
 
 func (slackClient *Slack) PostMessage(message string, channel string, status string) {
-	slackClient.postMessage(message, channel, status, slack.PostMessageParameters{ResponseType: "ephemeral"})
+	slackClient.postMessage(message, channel, status, slack.PostMessageParameters{})
 }
 
 func (slackClient *Slack) PostMessageWithMarkdown(message string, channel string, status string) {
-	slackClient.postMessage(message, channel, status, slack.PostMessageParameters{Markdown: true, ResponseType: "ephemeral"})
+	slackClient.postMessage(message, channel, status, slack.PostMessageParameters{Markdown: true})
 }
 
 func (slackClient *Slack) PostEntry(entry *model.Entry, channel string, status string) {

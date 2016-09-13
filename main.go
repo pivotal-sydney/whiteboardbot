@@ -30,10 +30,10 @@ func init() {
 }
 
 func main() {
-	// TODO: need the store
-	// store := RealStore{redisConnectionPool}
+	store := RealStore{redisConnectionPool}
+	// TODO: Real clock
 	// whiteboard := NewWhiteboard(&slackClient, &RealRestClient{}, model.RealClock{}, &store)
-	whiteboard := NewQuietWhiteboard(&RealRestClient{})
+	whiteboard := NewQuietWhiteboard(&RealRestClient{}, &store)
 	startHttpServer(whiteboard)
 }
 

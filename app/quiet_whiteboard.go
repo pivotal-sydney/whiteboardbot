@@ -1,7 +1,12 @@
 package app
 
+import (
+	"fmt"
+)
+
 type QuietWhiteboardApp struct {
 	RestClient RestClient
+	Store      Store
 	CommandMap map[string]func(input string) Response
 }
 
@@ -10,8 +15,9 @@ type Response struct {
 }
 
 // TODO: Send a message to a channel
-func NewQuietWhiteboard(restClient RestClient) (whiteboard QuietWhiteboardApp) {
+func NewQuietWhiteboard(restClient RestClient, store Store) (whiteboard QuietWhiteboardApp) {
 	whiteboard = QuietWhiteboardApp{RestClient: restClient}
+	whiteboard.Store = store
 	whiteboard.CommandMap = make(map[string]func(input string) Response)
 	whiteboard.init()
 	return
@@ -19,6 +25,7 @@ func NewQuietWhiteboard(restClient RestClient) (whiteboard QuietWhiteboardApp) {
 
 func (whiteboard QuietWhiteboardApp) init() {
 	whiteboard.registerCommand("?", whiteboard.handleUsageCommand)
+	whiteboard.registerCommand("register", whiteboard.handleRegistrationCommand)
 }
 
 func (whiteboard QuietWhiteboardApp) registerCommand(
@@ -29,6 +36,19 @@ func (whiteboard QuietWhiteboardApp) registerCommand(
 
 func (whiteboard QuietWhiteboardApp) handleUsageCommand(_ string) Response {
 	return Response{USAGE}
+}
+
+func (whiteboard QuietWhiteboardApp) handleRegistrationCommand(standupId string) Response {
+	standup, ok := whiteboard.RestClient.GetStandup(standupId)
+	if !ok {
+		return Response{"Standup not found!"}
+	}
+
+	whiteboard.Store.SetStandup(standupId, standup)
+
+	text := fmt.Sprintf("Standup %v has been registered! You can now start creating Whiteboard entries!", standup.Title)
+
+	return Response{text}
 }
 
 func (whiteboard QuietWhiteboardApp) HandleInput(input string) Response {
