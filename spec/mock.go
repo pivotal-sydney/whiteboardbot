@@ -1,19 +1,19 @@
 package spec
 
 import (
-	"github.com/pivotal-sydney/whiteboardbot/model"
-	"time"
-	"strconv"
 	"encoding/json"
+	"github.com/nlopes/slack"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
-	"github.com/benjamintanweihao/slack"
+	"github.com/pivotal-sydney/whiteboardbot/model"
+	"strconv"
+	"time"
 )
 
 type MockSlackClient struct {
 	PostMessageCalled bool
 	Message           string
-	Entry 		      *model.Entry
-	Status 			  string
+	Entry             *model.Entry
+	Status            string
 }
 
 func (slackClient *MockSlackClient) PostMessage(message string, channel string, status string) {

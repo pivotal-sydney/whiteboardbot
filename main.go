@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	// "github.com/benjamintanweihao/slack"
+	// "github.com/nlopes/slack"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
 	// "github.com/pivotal-sydney/whiteboardbot/model"
 	"net/http"

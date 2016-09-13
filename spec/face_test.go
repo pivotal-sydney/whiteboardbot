@@ -1,7 +1,7 @@
 package spec
 
 import (
-	. "github.com/benjamintanweihao/slack"
+	. "github.com/nlopes/slack"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
@@ -9,9 +9,9 @@ import (
 
 var _ = Describe("Faces Integration", func() {
 	var (
-		whiteboard WhiteboardApp
+		whiteboard  WhiteboardApp
 		slackClient *MockSlackClient
-		restClient *MockRestClient
+		restClient  *MockRestClient
 
 		newFaceEvent, newFaceWithTitleEvent, setNameEvent, setDateEvent MessageEvent
 	)

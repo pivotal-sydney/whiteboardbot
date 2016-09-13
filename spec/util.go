@@ -1,7 +1,7 @@
 package spec
 
 import (
-	. "github.com/benjamintanweihao/slack"
+	. "github.com/nlopes/slack"
 	"github.com/pivotal-sydney/whiteboardbot/app"
 	"strconv"
 )

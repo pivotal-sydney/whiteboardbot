@@ -1,7 +1,7 @@
 package spec
 
 import (
-	"github.com/benjamintanweihao/slack"
+	"github.com/nlopes/slack"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
@@ -9,8 +9,8 @@ import (
 
 var _ = Describe("Whiteboardbot", func() {
 	var (
-		whiteboard 		  WhiteboardApp
-		slackClient       *MockSlackClient
+		whiteboard                                      WhiteboardApp
+		slackClient                                     *MockSlackClient
 		helloWorldEvent, randomEvent, registrationEvent slack.MessageEvent
 	)
 

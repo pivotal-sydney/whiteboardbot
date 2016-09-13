@@ -1,7 +1,7 @@
 package spec
 
 import (
-	. "github.com/benjamintanweihao/slack"
+	. "github.com/nlopes/slack"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
@@ -9,10 +9,10 @@ import (
 
 var _ = Describe("Upload Integration", func() {
 	var (
-		whiteboard WhiteboardApp
+		whiteboard  WhiteboardApp
 		slackClient *MockSlackClient
 		uploadEvent MessageEvent
-		file *File
+		file        *File
 	)
 
 	BeforeEach(func() {
