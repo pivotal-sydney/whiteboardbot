@@ -8,5 +8,5 @@ import (
 
 func TestWhiteboardbot(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Model Suite")
+	RunSpecs(t, "App Suite")
 }
