@@ -1,19 +1,11 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	// "github.com/nlopes/slack"
-	. "github.com/pivotal-sydney/whiteboardbot/app"
-	// "github.com/pivotal-sydney/whiteboardbot/model"
-	"net/http"
+	"github.com/pivotal-sydney/whiteboardbot/app"
 	"os"
 	"os/signal"
 	"syscall"
-)
-
-const (
-	DEFAULT_PORT = "9000"
 )
 
 var redisConnectionPool = NewPool()
@@ -29,14 +21,6 @@ func init() {
 	}()
 }
 
-func main() {
-	store := RealStore{redisConnectionPool}
-	// TODO: Real clock
-	// whiteboard := NewWhiteboard(&slackClient, &RealRestClient{}, model.RealClock{}, &store)
-	whiteboard := NewQuietWhiteboard(&RealRestClient{}, &store)
-	startHttpServer(whiteboard)
-}
-
 func cleanup() {
 	if redisConnectionPool != nil {
 		fmt.Println("Closing Redis connection pool")
@@ -44,34 +28,6 @@ func cleanup() {
 	}
 }
 
-func startHttpServer(wb QuietWhiteboardApp) {
-	http.HandleFunc("/", NewHandleRequest(wb))
-
-	if err := http.ListenAndServe(":"+getHealthCheckPort(), nil); err != nil {
-		fmt.Printf("ListenAndServe: %v\n", err)
-	}
-}
-
-func getHealthCheckPort() (port string) {
-	if port = os.Getenv("PORT"); len(port) == 0 {
-		fmt.Printf("Warning, PORT not set. Defaulting to %+v\n", DEFAULT_PORT)
-		port = DEFAULT_PORT
-	}
-	return
-}
-
-func NewHandleRequest(wb QuietWhiteboardApp) http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
-		cmdArgs := req.FormValue("text")
-		response := wb.HandleInput(cmdArgs)
-		j, err := json.Marshal(response)
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(j)
-	}
+func main() {
+	NewWhiteboardHttpServer(&RealStore{redisConnectionPool}).Run()
 }
