@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/pivotal-sydney/whiteboardbot/app"
+	. "github.com/pivotal-sydney/whiteboardbot/app"
+	. "github.com/pivotal-sydney/whiteboardbot/http"
 	"os"
 	"os/signal"
 	"syscall"
