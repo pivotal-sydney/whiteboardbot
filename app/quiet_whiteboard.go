@@ -4,6 +4,10 @@ import (
 	"fmt"
 )
 
+type QuietWhiteboard interface {
+	HandleInput(string) Response
+}
+
 type QuietWhiteboardApp struct {
 	RestClient RestClient
 	Store      Store
@@ -14,7 +18,6 @@ type Response struct {
 	Text string `json:"text"`
 }
 
-// TODO: Send a message to a channel
 func NewQuietWhiteboard(restClient RestClient, store Store) (whiteboard QuietWhiteboardApp) {
 	whiteboard = QuietWhiteboardApp{RestClient: restClient}
 	whiteboard.Store = store
@@ -26,6 +29,11 @@ func NewQuietWhiteboard(restClient RestClient, store Store) (whiteboard QuietWhi
 func (whiteboard QuietWhiteboardApp) init() {
 	whiteboard.registerCommand("?", whiteboard.handleUsageCommand)
 	whiteboard.registerCommand("register", whiteboard.handleRegistrationCommand)
+}
+
+func (whiteboard QuietWhiteboardApp) HandleInput(input string) Response {
+	command, input := readNextCommand(input)
+	return whiteboard.handleCommand(command, input)
 }
 
 func (whiteboard QuietWhiteboardApp) registerCommand(
@@ -49,11 +57,6 @@ func (whiteboard QuietWhiteboardApp) handleRegistrationCommand(standupId string)
 	text := fmt.Sprintf("Standup %v has been registered! You can now start creating Whiteboard entries!", standup.Title)
 
 	return Response{text}
-}
-
-func (whiteboard QuietWhiteboardApp) HandleInput(input string) Response {
-	command, input := readNextCommand(input)
-	return whiteboard.handleCommand(command, input)
 }
 
 func (whiteboard QuietWhiteboardApp) handleCommand(command, input string) Response {

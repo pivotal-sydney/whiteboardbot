@@ -42,22 +42,23 @@ func (server WhiteboardHttpServer) getHealthCheckPort() (port string) {
 	return
 }
 
-func (server WhiteboardHttpServer) NewHandleRequest(wb QuietWhiteboardApp) http.HandlerFunc {
+func (server WhiteboardHttpServer) NewHandleRequest(wb QuietWhiteboard) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		req.ParseForm()
 
 		cmdArgs := req.FormValue("text")
 		token := req.FormValue("token")
+
+		if token != os.Getenv("SLACK_TOKEN") {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
 		response := wb.HandleInput(cmdArgs)
 		j, err := json.Marshal(response)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		if token != os.Getenv("SLACK_TOKEN") {
-			w.WriteHeader(http.StatusForbidden)
 			return
 		}
 

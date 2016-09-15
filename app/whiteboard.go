@@ -55,7 +55,6 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 		return
 	}
 	whiteboard.HandleInput(input, ev)
-
 }
 
 func (whiteboard WhiteboardApp) HandleInput(input string, ev *slack.MessageEvent) {
