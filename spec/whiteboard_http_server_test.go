@@ -79,6 +79,28 @@ var _ = Describe("WhiteboardHttpServer", func() {
 			Expect(writer.Body.String()).To(Equal(`{"text":""}`))
 		})
 
+		Context("when the SLACK_TOKEN environment variable is blank", func() {
+			It("does not invoke QuietWhiteboard.HandleInput", func() {
+				os.Unsetenv("SLACK_TOKEN")
+				params := map[string]string{"token": ""}
+				request := makeRequest(params)
+
+				handlerFunc.ServeHTTP(writer, request)
+
+				Expect(mockWhiteBoard.HandleInputCalled).To(BeFalse())
+			})
+
+			It("returns a 403 Forbidden", func() {
+				os.Unsetenv("SLACK_TOKEN")
+				params := map[string]string{"token": ""}
+				request := makeRequest(params)
+
+				handlerFunc.ServeHTTP(writer, request)
+
+				Expect(writer.Code).To(Equal(http.StatusForbidden))
+			})
+		})
+
 		Context("when the token is invalid", func() {
 			It("does not invoke QuietWhiteboard.HandleInput", func() {
 				params := map[string]string{"token": "invalid"}

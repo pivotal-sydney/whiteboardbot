@@ -49,7 +49,7 @@ func (server WhiteboardHttpServer) NewHandleRequest(wb QuietWhiteboard) http.Han
 		cmdArgs := req.FormValue("text")
 		token := req.FormValue("token")
 
-		if token != os.Getenv("SLACK_TOKEN") {
+		if "" == os.Getenv("SLACK_TOKEN") || token != os.Getenv("SLACK_TOKEN") {
 			w.WriteHeader(http.StatusForbidden)
 			return
 		}
