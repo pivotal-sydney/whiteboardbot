@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
+	"io"
 	"net/http"
 	"os"
 )
@@ -51,6 +52,7 @@ func (server WhiteboardHttpServer) NewHandleRequest(wb QuietWhiteboard) http.Han
 
 		if "" == os.Getenv("SLACK_TOKEN") || token != os.Getenv("SLACK_TOKEN") {
 			w.WriteHeader(http.StatusForbidden)
+			io.WriteString(w, "Uh-oh, something went wrong... sorry!")
 			return
 		}
 

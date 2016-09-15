@@ -99,6 +99,16 @@ var _ = Describe("WhiteboardHttpServer", func() {
 
 				Expect(writer.Code).To(Equal(http.StatusForbidden))
 			})
+
+			It("returns an error message'", func() {
+				os.Unsetenv("SLACK_TOKEN")
+				params := map[string]string{"token": ""}
+				request := makeRequest(params)
+
+				handlerFunc.ServeHTTP(writer, request)
+
+				Expect(writer.Body.String()).To(Equal("Uh-oh, something went wrong... sorry!"))
+			})
 		})
 
 		Context("when the token is invalid", func() {
@@ -118,6 +128,16 @@ var _ = Describe("WhiteboardHttpServer", func() {
 				handlerFunc.ServeHTTP(writer, request)
 
 				Expect(writer.Code).To(Equal(http.StatusForbidden))
+			})
+
+			It("returns an error message'", func() {
+				os.Unsetenv("SLACK_TOKEN")
+				params := map[string]string{"token": ""}
+				request := makeRequest(params)
+
+				handlerFunc.ServeHTTP(writer, request)
+
+				Expect(writer.Body.String()).To(Equal("Uh-oh, something went wrong... sorry!"))
 			})
 		})
 	})
