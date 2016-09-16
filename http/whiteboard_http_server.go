@@ -17,11 +17,6 @@ type WhiteboardHttpServer struct {
 	Store Store
 }
 
-func NewWhiteboardHttpServer(store Store) (server WhiteboardHttpServer) {
-	server = WhiteboardHttpServer{Store: store}
-	return
-}
-
 func (server WhiteboardHttpServer) Run() {
 	whiteboard := NewQuietWhiteboard(&RealRestClient{}, server.Store)
 	server.startHttpServer(whiteboard)

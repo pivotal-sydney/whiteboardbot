@@ -30,5 +30,6 @@ func cleanup() {
 }
 
 func main() {
-	NewWhiteboardHttpServer(&RealStore{redisConnectionPool}).Run()
+	store := RealStore{Pool: redisConnectionPool}
+	WhiteboardHttpServer{Store: &store}.Run()
 }

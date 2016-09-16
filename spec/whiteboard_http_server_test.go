@@ -51,7 +51,7 @@ var _ = Describe("WhiteboardHttpServer", func() {
 
 		store := MockStore{}
 		writer = httptest.NewRecorder()
-		whiteboardServer := NewWhiteboardHttpServer(&store)
+		whiteboardServer := WhiteboardHttpServer{Store: &store}
 
 		mockWhiteBoard = MockQuietWhiteboard{}
 		handlerFunc = whiteboardServer.NewHandleRequest(&mockWhiteBoard)
