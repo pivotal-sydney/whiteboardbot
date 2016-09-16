@@ -15,10 +15,12 @@ import (
 
 type MockQuietWhiteboard struct {
 	HandleInputCalled bool
+	HandleInputArgs   struct{ Text string }
 }
 
 func (mqw *MockQuietWhiteboard) HandleInput(input string) Response {
 	mqw.HandleInputCalled = true
+	mqw.HandleInputArgs.Text = input
 	return Response{}
 }
 
@@ -42,9 +44,11 @@ var _ = Describe("WhiteboardHttpServer", func() {
 		writer         *httptest.ResponseRecorder
 		mockWhiteBoard MockQuietWhiteboard
 		handlerFunc    http.HandlerFunc
+		params         map[string]string
 	)
 
 	BeforeEach(func() {
+		params = make(map[string]string)
 		token = os.Getenv("SLACK_TOKEN")
 
 		os.Setenv("SLACK_TOKEN", "123")
@@ -62,17 +66,17 @@ var _ = Describe("WhiteboardHttpServer", func() {
 	}, 0)
 
 	Describe("HandleRequest", func() {
-		It("invokes QuietWhiteboard.HandleInput with payload text", func() {
-			params := make(map[string]string)
+		It("invokes QuietWhiteboard.HandleInput with payload text with the right arguments", func() {
+			params["text"] = "makeCoffee two sugars no milk"
 			request := makeRequest(params)
 
 			handlerFunc.ServeHTTP(writer, request)
 
 			Expect(mockWhiteBoard.HandleInputCalled).To(BeTrue())
+			Expect(mockWhiteBoard.HandleInputArgs.Text).To(Equal("makeCoffee two sugars no milk"))
 		})
 
 		It("returns the JSON representation of the QuietWhiteboard response", func() {
-			params := make(map[string]string)
 			request := makeRequest(params)
 
 			handlerFunc.ServeHTTP(writer, request)
@@ -80,27 +84,27 @@ var _ = Describe("WhiteboardHttpServer", func() {
 			Expect(writer.Body.String()).To(Equal(`{"text":""}`))
 		})
 
-		AssertDoesNotInvokeHandleInput := func(params *map[string]string) func() {
+		AssertDoesNotInvokeHandleInput := func() func() {
 			return func() {
-				request := makeRequest(*params)
+				request := makeRequest(params)
 				handlerFunc.ServeHTTP(writer, request)
 
 				Expect(mockWhiteBoard.HandleInputCalled).To(BeFalse())
 			}
 		}
 
-		AssertReturns403Forbidden := func(params *map[string]string) func() {
+		AssertReturns403Forbidden := func() func() {
 			return func() {
-				request := makeRequest(*params)
+				request := makeRequest(params)
 				handlerFunc.ServeHTTP(writer, request)
 
 				Expect(writer.Code).To(Equal(http.StatusForbidden))
 			}
 		}
 
-		AssertReturnsErrorMessage := func(params *map[string]string) func() {
+		AssertReturnsErrorMessage := func() func() {
 			return func() {
-				request := makeRequest(*params)
+				request := makeRequest(params)
 				handlerFunc.ServeHTTP(writer, request)
 
 				Expect(writer.Body.String()).To(Equal("Uh-oh, something went wrong... sorry!"))
@@ -108,28 +112,24 @@ var _ = Describe("WhiteboardHttpServer", func() {
 		}
 
 		Context("when the SLACK_TOKEN environment variable is blank", func() {
-			var params map[string]string
-
 			BeforeEach(func() {
-				params = map[string]string{"token": ""}
+				params["token"] = ""
 				os.Unsetenv("SLACK_TOKEN")
 			})
 
-			It("does not invoke QuietWhiteboard.HandleInput", AssertDoesNotInvokeHandleInput(&params))
-			It("returns a 403 Forbidden", AssertReturns403Forbidden(&params))
-			It("returns an error message'", AssertReturnsErrorMessage(&params))
+			It("does not invoke QuietWhiteboard.HandleInput", AssertDoesNotInvokeHandleInput())
+			It("returns a 403 Forbidden", AssertReturns403Forbidden())
+			It("returns an error message'", AssertReturnsErrorMessage())
 		})
 
 		Context("when the token is invalid", func() {
-			var params map[string]string
-
 			BeforeEach(func() {
-				params = map[string]string{"token": "invalid"}
+				params["token"] = "invalid"
 			})
 
-			It("does not invoke QuietWhiteboard.HandleInput", AssertDoesNotInvokeHandleInput(&params))
-			It("returns a 403 Forbidden", AssertReturns403Forbidden(&params))
-			It("returns an error message'", AssertReturnsErrorMessage(&params))
+			It("does not invoke QuietWhiteboard.HandleInput", AssertDoesNotInvokeHandleInput())
+			It("returns a 403 Forbidden", AssertReturns403Forbidden())
+			It("returns an error message'", AssertReturnsErrorMessage())
 		})
 	})
 })
