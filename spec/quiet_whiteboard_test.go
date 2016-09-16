@@ -17,7 +17,7 @@ var _ = Describe("QuietWhiteboard", func() {
 	)
 
 	BeforeEach(func() {
-		sydneyStandup = Standup{Id: 133, TimeZone: "Australia/Sydney", Title: "Sydney"}
+		sydneyStandup = Standup{Id: 1, TimeZone: "Australia/Sydney", Title: "Sydney"}
 
 		restClient := MockRestClient{}
 		restClient.SetStandup(sydneyStandup)
@@ -39,27 +39,27 @@ var _ = Describe("QuietWhiteboard", func() {
 				expectedStandupJson, _ := json.Marshal(sydneyStandup)
 				expectedStandupString := string(expectedStandupJson)
 
-				whiteboard.HandleInput("register 133")
+				whiteboard.HandleInput("register 1")
 
-				standupString, standupPresent := store.Get("133")
+				standupString, standupPresent := store.Get("1")
 				Expect(standupPresent).To(Equal(true))
 				Expect(standupString).To(Equal(expectedStandupString))
 			})
 
 			It("returns a message with the registered standup", func() {
 				expected := Response{Text: "Standup Sydney has been registered! You can now start creating Whiteboard entries!"}
-				Expect(whiteboard.HandleInput("register 133")).To(Equal(expected))
+				Expect(whiteboard.HandleInput("register 1")).To(Equal(expected))
 			})
 
 			Context("when standup does not exist", func() {
 				It("returns a message that the standup isn't found", func() {
-					// expected := Response{Text: "Standup not found!"}
-					// Expect(whiteboard.HandleInput("register 123")).To(Equal(expected))
+					expected := Response{Text: "Standup not found!"}
+					Expect(whiteboard.HandleInput("register 123")).To(Equal(expected))
 				})
 
 				It("does not store anything in the store", func() {
-					// whiteboard.HandleInput("register 123")
-					// Expect(len(store.StoreMap)).To(Equal(0))
+					whiteboard.HandleInput("register 123")
+					Expect(len(store.StoreMap)).To(Equal(0))
 				})
 			})
 		})
