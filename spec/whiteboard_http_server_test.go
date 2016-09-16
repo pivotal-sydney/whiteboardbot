@@ -37,11 +37,12 @@ func makeRequest(params map[string]string) *http.Request {
 }
 
 var _ = Describe("WhiteboardHttpServer", func() {
-	var token string
-
-	var writer *httptest.ResponseRecorder
-	var mockWhiteBoard MockQuietWhiteboard
-	var handlerFunc http.HandlerFunc
+	var (
+		token          string
+		writer         *httptest.ResponseRecorder
+		mockWhiteBoard MockQuietWhiteboard
+		handlerFunc    http.HandlerFunc
+	)
 
 	BeforeEach(func() {
 		token = os.Getenv("SLACK_TOKEN")
@@ -79,66 +80,56 @@ var _ = Describe("WhiteboardHttpServer", func() {
 			Expect(writer.Body.String()).To(Equal(`{"text":""}`))
 		})
 
-		Context("when the SLACK_TOKEN environment variable is blank", func() {
-			It("does not invoke QuietWhiteboard.HandleInput", func() {
-				os.Unsetenv("SLACK_TOKEN")
-				params := map[string]string{"token": ""}
-				request := makeRequest(params)
-
+		AssertDoesNotInvokeHandleInput := func(params *map[string]string) func() {
+			return func() {
+				request := makeRequest(*params)
 				handlerFunc.ServeHTTP(writer, request)
 
 				Expect(mockWhiteBoard.HandleInputCalled).To(BeFalse())
-			})
+			}
+		}
 
-			It("returns a 403 Forbidden", func() {
-				os.Unsetenv("SLACK_TOKEN")
-				params := map[string]string{"token": ""}
-				request := makeRequest(params)
-
+		AssertReturns403Forbidden := func(params *map[string]string) func() {
+			return func() {
+				request := makeRequest(*params)
 				handlerFunc.ServeHTTP(writer, request)
 
 				Expect(writer.Code).To(Equal(http.StatusForbidden))
-			})
+			}
+		}
 
-			It("returns an error message'", func() {
-				os.Unsetenv("SLACK_TOKEN")
-				params := map[string]string{"token": ""}
-				request := makeRequest(params)
-
+		AssertReturnsErrorMessage := func(params *map[string]string) func() {
+			return func() {
+				request := makeRequest(*params)
 				handlerFunc.ServeHTTP(writer, request)
 
 				Expect(writer.Body.String()).To(Equal("Uh-oh, something went wrong... sorry!"))
+			}
+		}
+
+		Context("when the SLACK_TOKEN environment variable is blank", func() {
+			var params map[string]string
+
+			BeforeEach(func() {
+				params = map[string]string{"token": ""}
+				os.Unsetenv("SLACK_TOKEN")
 			})
+
+			It("does not invoke QuietWhiteboard.HandleInput", AssertDoesNotInvokeHandleInput(&params))
+			It("returns a 403 Forbidden", AssertReturns403Forbidden(&params))
+			It("returns an error message'", AssertReturnsErrorMessage(&params))
 		})
 
 		Context("when the token is invalid", func() {
-			It("does not invoke QuietWhiteboard.HandleInput", func() {
-				params := map[string]string{"token": "invalid"}
-				request := makeRequest(params)
+			var params map[string]string
 
-				handlerFunc.ServeHTTP(writer, request)
-
-				Expect(mockWhiteBoard.HandleInputCalled).To(BeFalse())
+			BeforeEach(func() {
+				params = map[string]string{"token": "invalid"}
 			})
 
-			It("returns a 403 Forbidden", func() {
-				params := map[string]string{"token": "invalid"}
-				request := makeRequest(params)
-
-				handlerFunc.ServeHTTP(writer, request)
-
-				Expect(writer.Code).To(Equal(http.StatusForbidden))
-			})
-
-			It("returns an error message'", func() {
-				os.Unsetenv("SLACK_TOKEN")
-				params := map[string]string{"token": ""}
-				request := makeRequest(params)
-
-				handlerFunc.ServeHTTP(writer, request)
-
-				Expect(writer.Body.String()).To(Equal("Uh-oh, something went wrong... sorry!"))
-			})
+			It("does not invoke QuietWhiteboard.HandleInput", AssertDoesNotInvokeHandleInput(&params))
+			It("returns a 403 Forbidden", AssertReturns403Forbidden(&params))
+			It("returns an error message'", AssertReturnsErrorMessage(&params))
 		})
 	})
 })
