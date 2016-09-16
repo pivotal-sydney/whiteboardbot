@@ -3,6 +3,7 @@ package spec
 import (
 	. "github.com/nlopes/slack"
 	"github.com/pivotal-sydney/whiteboardbot/app"
+	"github.com/pivotal-sydney/whiteboardbot/model"
 	"strconv"
 )
 
@@ -18,6 +19,7 @@ func createWhiteboard() app.WhiteboardApp {
 	slackClient := MockSlackClient{}
 	clock := MockClock{}
 	restClient := MockRestClient{}
+	restClient.SetStandup(model.Standup{Id: 1, TimeZone: "Australia/Sydney", Title: "Sydney"})
 	store := MockStore{}
 	whiteboard := app.NewWhiteboard(&slackClient, &restClient, clock, &store)
 	return whiteboard

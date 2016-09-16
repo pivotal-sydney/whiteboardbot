@@ -5,6 +5,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
+	"github.com/pivotal-sydney/whiteboardbot/model"
 )
 
 var _ = Describe("Entry Integration", func() {
@@ -289,6 +290,8 @@ var _ = Describe("Entry Integration", func() {
 
 	Context("posting to another standup ID", func() {
 		BeforeEach(func() {
+			singaporeStandup := model.Standup{Id: 123, TimeZone: "Asia/Singapore", Title: "Singapore"}
+			(whiteboard.RestClient.(*MockRestClient)).SetStandup(singaporeStandup)
 			registerStandup(whiteboard, 123)
 		})
 

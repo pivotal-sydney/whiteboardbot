@@ -77,6 +77,7 @@ type MockRestClient struct {
 	PostCalledCount int
 	Request         model.WhiteboardRequest
 	StandupItems    model.StandupItems
+	StandupMap      map[int]model.Standup
 }
 
 func (client MockRestClient) GetStandupItems(standupId int) (items model.StandupItems, ok bool) {
@@ -93,12 +94,16 @@ func (client *MockRestClient) Post(request model.WhiteboardRequest) (itemId stri
 	return
 }
 
-func (*MockRestClient) GetStandup(standupId string) (standup model.Standup, ok bool) {
+func (client *MockRestClient) SetStandup(standup model.Standup) {
+	if client.StandupMap == nil {
+		client.StandupMap = make(map[int]model.Standup)
+	}
+	client.StandupMap[standup.Id] = standup
+}
+
+func (client *MockRestClient) GetStandup(standupId string) (standup model.Standup, ok bool) {
 	id, _ := strconv.Atoi(standupId)
-	standup.Id = id
-	standup.TimeZone = "Australia/Sydney"
-	standup.Title = "Sydney"
-	ok = true
+	standup, ok = client.StandupMap[id]
 	return
 }
 

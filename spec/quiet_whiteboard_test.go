@@ -20,8 +20,9 @@ var _ = Describe("QuietWhiteboard", func() {
 		sydneyStandup = Standup{Id: 133, TimeZone: "Australia/Sydney", Title: "Sydney"}
 
 		restClient := MockRestClient{}
-		store = MockStore{}
+		restClient.SetStandup(sydneyStandup)
 
+		store = MockStore{}
 		whiteboard = NewQuietWhiteboard(&restClient, &store)
 	})
 
@@ -47,7 +48,7 @@ var _ = Describe("QuietWhiteboard", func() {
 
 			It("returns a message with the registered standup", func() {
 				expected := Response{Text: "Standup Sydney has been registered! You can now start creating Whiteboard entries!"}
-				Expect(whiteboard.HandleInput("register 1234")).To(Equal(expected))
+				Expect(whiteboard.HandleInput("register 133")).To(Equal(expected))
 			})
 
 			Context("when standup does not exist", func() {
