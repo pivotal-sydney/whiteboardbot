@@ -16,6 +16,10 @@ type SlackUser struct {
 	TimeZone string
 }
 
+type SlackContext struct {
+	User SlackUser
+}
+
 type SlackClient interface {
 	PostMessage(message string, channel string, status string)
 	PostMessageWithMarkdown(message string, channel string, status string)

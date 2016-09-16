@@ -19,7 +19,7 @@ var _ = Describe("QuietWhiteboard", func() {
 
 	BeforeEach(func() {
 		sydneyStandup = Standup{Id: 1, TimeZone: "Australia/Sydney", Title: "Sydney"}
-		context = SlackContext{Username: "rmee"}
+		context = SlackContext{User: SlackUser{Username: "aleung"}}
 
 		restClient := MockRestClient{}
 		restClient.SetStandup(sydneyStandup)

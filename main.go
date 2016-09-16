@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/nlopes/slack"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
 	. "github.com/pivotal-sydney/whiteboardbot/http"
 	"os"
@@ -31,5 +32,15 @@ func cleanup() {
 
 func main() {
 	store := RealStore{Pool: redisConnectionPool}
-	WhiteboardHttpServer{Store: &store}.Run()
+	slackClient := makeSlackClient()
+
+	WhiteboardHttpServer{Store: &store, SlackClient: slackClient}.Run()
+}
+
+func makeSlackClient() SlackClient {
+	api := slack.New(os.Getenv("WB_BOT_API_TOKEN"))
+	rtm := api.NewRTM()
+	go rtm.ManageConnection()
+
+	return &Slack{SlackRtm: rtm}
 }

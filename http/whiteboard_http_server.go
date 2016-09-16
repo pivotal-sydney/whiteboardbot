@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
-	. "github.com/pivotal-sydney/whiteboardbot/model"
 	"io"
 	"net/http"
 	"os"
@@ -15,7 +14,8 @@ const (
 )
 
 type WhiteboardHttpServer struct {
-	Store Store
+	Store       Store
+	SlackClient SlackClient
 }
 
 func (server WhiteboardHttpServer) Run() {
@@ -52,7 +52,7 @@ func (server WhiteboardHttpServer) NewHandleRequest(wb QuietWhiteboard) http.Han
 			return
 		}
 
-		context := SlackContext{Username: req.FormValue("user_name")}
+		context := server.extractSlackContext(req)
 
 		response := wb.HandleInput(cmdArgs, context)
 		j, err := json.Marshal(response)
@@ -65,4 +65,11 @@ func (server WhiteboardHttpServer) NewHandleRequest(wb QuietWhiteboard) http.Han
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(j)
 	}
+}
+
+func (server WhiteboardHttpServer) extractSlackContext(req *http.Request) SlackContext {
+	username := req.FormValue("user_name")
+	slackUser := server.SlackClient.GetUserDetails(username)
+
+	return SlackContext{User: slackUser}
 }

@@ -6,7 +6,6 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
 	. "github.com/pivotal-sydney/whiteboardbot/http"
-	. "github.com/pivotal-sydney/whiteboardbot/model"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -50,17 +49,20 @@ var _ = Describe("WhiteboardHttpServer", func() {
 		mockWhiteBoard MockQuietWhiteboard
 		handlerFunc    http.HandlerFunc
 		params         map[string]string
+		slackUser      SlackUser
 	)
 
 	BeforeEach(func() {
-		params = map[string]string{"token": "123", "user_name": "rmee"}
 		token = os.Getenv("SLACK_TOKEN")
+		params = map[string]string{"token": "123", "user_name": "aleung"}
+		slackUser = SlackUser{Username: "aleung", Author: "Andrew Leung", TimeZone: "Australia/Sydney"}
 
 		os.Setenv("SLACK_TOKEN", "123")
 
 		store := MockStore{}
+		slackClient := MockSlackClient{}
 		writer = httptest.NewRecorder()
-		whiteboardServer := WhiteboardHttpServer{Store: &store}
+		whiteboardServer := WhiteboardHttpServer{Store: &store, SlackClient: &slackClient}
 
 		mockWhiteBoard = MockQuietWhiteboard{}
 		handlerFunc = whiteboardServer.NewHandleRequest(&mockWhiteBoard)
@@ -79,7 +81,7 @@ var _ = Describe("WhiteboardHttpServer", func() {
 
 			Expect(mockWhiteBoard.HandleInputCalled).To(BeTrue())
 			Expect(mockWhiteBoard.HandleInputArgs.Text).To(Equal("makeCoffee two sugars no milk"))
-			Expect(mockWhiteBoard.HandleInputArgs.Context).To(Equal(SlackContext{Username: "rmee"}))
+			Expect(mockWhiteBoard.HandleInputArgs.Context).To(Equal(SlackContext{User: slackUser}))
 		})
 
 		It("returns the JSON representation of the QuietWhiteboard response", func() {

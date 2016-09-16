@@ -2,7 +2,6 @@ package app
 
 import (
 	"fmt"
-	. "github.com/pivotal-sydney/whiteboardbot/model"
 )
 
 type QuietWhiteboard interface {
