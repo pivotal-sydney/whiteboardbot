@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
+	. "github.com/pivotal-sydney/whiteboardbot/model"
 	"io"
 	"net/http"
 	"os"
@@ -51,7 +52,9 @@ func (server WhiteboardHttpServer) NewHandleRequest(wb QuietWhiteboard) http.Han
 			return
 		}
 
-		response := wb.HandleInput(cmdArgs)
+		context := SlackContext{Username: req.FormValue("user_name")}
+
+		response := wb.HandleInput(cmdArgs, context)
 		j, err := json.Marshal(response)
 
 		if err != nil {

@@ -2,10 +2,11 @@ package app
 
 import (
 	"fmt"
+	. "github.com/pivotal-sydney/whiteboardbot/model"
 )
 
 type QuietWhiteboard interface {
-	HandleInput(string) Response
+	HandleInput(string, SlackContext) Response
 }
 
 type QuietWhiteboardApp struct {
@@ -31,7 +32,7 @@ func (whiteboard QuietWhiteboardApp) init() {
 	whiteboard.registerCommand("register", whiteboard.handleRegistrationCommand)
 }
 
-func (whiteboard QuietWhiteboardApp) HandleInput(input string) Response {
+func (whiteboard QuietWhiteboardApp) HandleInput(input string, context SlackContext) Response {
 	command, input := readNextCommand(input)
 	return whiteboard.handleCommand(command, input)
 }
