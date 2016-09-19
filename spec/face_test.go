@@ -13,7 +13,7 @@ var _ = Describe("Faces Integration", func() {
 		slackClient *MockSlackClient
 		restClient  *MockRestClient
 
-		newFaceEvent, newFaceWithTitleEvent, setNameEvent, setDateEvent MessageEvent
+		newFaceEvent, newFaceWithTitleEvent, setNameEvent MessageEvent
 	)
 
 	BeforeEach(func() {
@@ -24,7 +24,6 @@ var _ = Describe("Faces Integration", func() {
 		newFaceEvent = createMessageEvent("wb faces")
 		newFaceWithTitleEvent = createMessageEvent("wb faces Andrew Leung")
 		setNameEvent = createMessageEvent("wb name Dariusz Lorenc")
-		setDateEvent = createMessageEvent("wb date 2015-12-01")
 	})
 
 	Describe("with faces keyword without title", func() {

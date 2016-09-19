@@ -11,14 +11,12 @@ var _ = Describe("Usage Integration", func() {
 	var (
 		whiteboard  WhiteboardApp
 		slackClient *MockSlackClient
-		restClient  *MockRestClient
 		usageEvent  MessageEvent
 	)
 
 	BeforeEach(func() {
 		whiteboard = createWhiteboardAndRegisterStandup(1)
 		slackClient = whiteboard.SlackClient.(*MockSlackClient)
-		restClient = whiteboard.RestClient.(*MockRestClient)
 		usageEvent = createMessageEvent("wb ?")
 	})
 
