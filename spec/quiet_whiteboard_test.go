@@ -81,7 +81,7 @@ var _ = Describe("QuietWhiteboard", func() {
 				author := context.User.Author
 				expectedEntry := *NewEntry(clock, author, title, sydneyStandup, "New face")
 
-				result := whiteboard.ProcessCommand("faces Nicholas Cage", context)
+				result, _ := whiteboard.ProcessCommand("faces Nicholas Cage", context)
 
 				Expect(result.Entry).To(Equal(expectedEntry))
 			})
@@ -93,7 +93,7 @@ var _ = Describe("QuietWhiteboard", func() {
 
 					expectedEntry := InvalidEntry{Error: errorMsg}
 
-					result := whiteboard.ProcessCommand("faces", context)
+					result, _ := whiteboard.ProcessCommand("faces", context)
 
 					Expect(result.Entry).To(Equal(expectedEntry))
 

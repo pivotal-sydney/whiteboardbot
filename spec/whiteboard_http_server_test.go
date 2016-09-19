@@ -27,12 +27,12 @@ type MockQuietWhiteboard struct {
 	}
 }
 
-func (mqw *MockQuietWhiteboard) ProcessCommand(input string, context SlackContext) CommandResult {
+func (mqw *MockQuietWhiteboard) ProcessCommand(input string, context SlackContext) (CommandResult, error) {
 	mqw.HandleInputCalled = true
 	mqw.HandleInputArgs.Text = input
 	mqw.HandleInputArgs.Context = context
 
-	return CommandResult{Entry: &MockStringer{}}
+	return CommandResult{Entry: &MockStringer{}}, nil
 }
 
 func makeRequest(params map[string]string) *http.Request {

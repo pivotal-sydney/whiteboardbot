@@ -6,10 +6,10 @@ import (
 )
 
 type QuietWhiteboard interface {
-	ProcessCommand(string, SlackContext) CommandResult
+	ProcessCommand(string, SlackContext) (CommandResult, error)
 }
 
-type CommandHandler func(input string, context SlackContext) CommandResult
+type CommandHandler func(input string, context SlackContext) (CommandResult, error)
 
 type QuietWhiteboardApp struct {
 	RestClient RestClient
@@ -38,7 +38,7 @@ func (whiteboard QuietWhiteboardApp) init() {
 	whiteboard.registerCommand("faces", whiteboard.handleFacesCommand)
 }
 
-func (whiteboard QuietWhiteboardApp) ProcessCommand(input string, context SlackContext) CommandResult {
+func (whiteboard QuietWhiteboardApp) ProcessCommand(input string, context SlackContext) (CommandResult, error) {
 	command, input := readNextCommand(input)
 	return whiteboard.handleCommand(command, input, context)
 }
@@ -49,24 +49,24 @@ func (whiteboard QuietWhiteboardApp) registerCommand(
 	whiteboard.CommandMap[command] = callback
 }
 
-func (whiteboard QuietWhiteboardApp) handleUsageCommand(_ string, _ SlackContext) CommandResult {
-	return CommandResult{Text: USAGE}
+func (whiteboard QuietWhiteboardApp) handleUsageCommand(_ string, _ SlackContext) (CommandResult, error) {
+	return CommandResult{Text: USAGE}, nil
 }
 
-func (whiteboard QuietWhiteboardApp) handleRegistrationCommand(standupId string, context SlackContext) CommandResult {
+func (whiteboard QuietWhiteboardApp) handleRegistrationCommand(standupId string, context SlackContext) (CommandResult, error) {
 	standup, ok := whiteboard.RestClient.GetStandup(standupId)
 	if !ok {
-		return CommandResult{Text: "Standup not found!"}
+		return CommandResult{Text: "Standup not found!"}, nil
 	}
 
 	whiteboard.Store.SetStandup(context.Channel.ChannelId, standup)
 
 	text := fmt.Sprintf("Standup %v has been registered! You can now start creating Whiteboard entries!", standup.Title)
 
-	return CommandResult{Text: text}
+	return CommandResult{Text: text}, nil
 }
 
-func (whiteboard QuietWhiteboardApp) handleFacesCommand(input string, context SlackContext) CommandResult {
+func (whiteboard QuietWhiteboardApp) handleFacesCommand(input string, context SlackContext) (CommandResult, error) {
 	var entry fmt.Stringer
 
 	if entry = resultIfEmptyTitle(input); entry == nil {
@@ -75,7 +75,7 @@ func (whiteboard QuietWhiteboardApp) handleFacesCommand(input string, context Sl
 		entry = *face.GetEntry()
 	}
 
-	return CommandResult{Entry: entry}
+	return CommandResult{Entry: entry}, nil
 }
 
 func resultIfEmptyTitle(input string) fmt.Stringer {
@@ -85,7 +85,7 @@ func resultIfEmptyTitle(input string) fmt.Stringer {
 	return nil
 }
 
-func (whiteboard QuietWhiteboardApp) handleCommand(command, input string, context SlackContext) CommandResult {
+func (whiteboard QuietWhiteboardApp) handleCommand(command, input string, context SlackContext) (CommandResult, error) {
 	for key := range whiteboard.CommandMap {
 		if matches(command, key) {
 			callback := whiteboard.CommandMap[key]
@@ -93,5 +93,5 @@ func (whiteboard QuietWhiteboardApp) handleCommand(command, input string, contex
 		}
 	}
 
-	return CommandResult{Text: "Ooops"}
+	return CommandResult{Text: "Ooops"}, nil
 }
