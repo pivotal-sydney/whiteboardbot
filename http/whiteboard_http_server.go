@@ -18,6 +18,10 @@ type WhiteboardHttpServer struct {
 	SlackClient SlackClient
 }
 
+type SlackResponse struct {
+	Text string `json:"text"`
+}
+
 func (server WhiteboardHttpServer) Run() {
 	whiteboard := NewQuietWhiteboard(&RealRestClient{}, server.Store)
 	server.startHttpServer(whiteboard)
@@ -54,7 +58,8 @@ func (server WhiteboardHttpServer) NewHandleRequest(wb QuietWhiteboard) http.Han
 
 		context := server.extractSlackContext(req)
 
-		response := wb.ProcessCommand(cmdArgs, context)
+		result := wb.ProcessCommand(cmdArgs, context)
+		response := SlackResponse{Text: result.Text}
 		j, err := json.Marshal(response)
 
 		if err != nil {

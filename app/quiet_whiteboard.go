@@ -15,7 +15,7 @@ type QuietWhiteboardApp struct {
 }
 
 type CommandResult struct {
-	Text string `json:"text"`
+	Text string
 }
 
 func NewQuietWhiteboard(restClient RestClient, store Store) (whiteboard QuietWhiteboardApp) {
