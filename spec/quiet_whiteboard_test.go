@@ -32,7 +32,7 @@ var _ = Describe("QuietWhiteboard", func() {
 		Context("?", func() {
 			It("should return the usage text", func() {
 				expected := Response{Text: USAGE}
-				Expect(whiteboard.HandleInput("?", context)).To(Equal(expected))
+				Expect(whiteboard.ProcessCommand("?", context)).To(Equal(expected))
 			})
 		})
 
@@ -41,7 +41,7 @@ var _ = Describe("QuietWhiteboard", func() {
 				expectedStandupJson, _ := json.Marshal(sydneyStandup)
 				expectedStandupString := string(expectedStandupJson)
 
-				whiteboard.HandleInput("register 1", context)
+				whiteboard.ProcessCommand("register 1", context)
 
 				standupString, standupPresent := store.Get("1")
 				Expect(standupPresent).To(Equal(true))
@@ -50,17 +50,17 @@ var _ = Describe("QuietWhiteboard", func() {
 
 			It("returns a message with the registered standup", func() {
 				expected := Response{Text: "Standup Sydney has been registered! You can now start creating Whiteboard entries!"}
-				Expect(whiteboard.HandleInput("register 1", context)).To(Equal(expected))
+				Expect(whiteboard.ProcessCommand("register 1", context)).To(Equal(expected))
 			})
 
 			Context("when standup does not exist", func() {
 				It("returns a message that the standup isn't found", func() {
 					expected := Response{Text: "Standup not found!"}
-					Expect(whiteboard.HandleInput("register 123", context)).To(Equal(expected))
+					Expect(whiteboard.ProcessCommand("register 123", context)).To(Equal(expected))
 				})
 
 				It("does not store anything in the store", func() {
-					whiteboard.HandleInput("register 123", context)
+					whiteboard.ProcessCommand("register 123", context)
 					Expect(len(store.StoreMap)).To(Equal(0))
 				})
 			})

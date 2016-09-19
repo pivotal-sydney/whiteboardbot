@@ -5,7 +5,7 @@ import (
 )
 
 type QuietWhiteboard interface {
-	HandleInput(string, SlackContext) Response
+	ProcessCommand(string, SlackContext) Response
 }
 
 type QuietWhiteboardApp struct {
@@ -31,7 +31,7 @@ func (whiteboard QuietWhiteboardApp) init() {
 	whiteboard.registerCommand("register", whiteboard.handleRegistrationCommand)
 }
 
-func (whiteboard QuietWhiteboardApp) HandleInput(input string, context SlackContext) Response {
+func (whiteboard QuietWhiteboardApp) ProcessCommand(input string, context SlackContext) Response {
 	command, input := readNextCommand(input)
 	return whiteboard.handleCommand(command, input)
 }

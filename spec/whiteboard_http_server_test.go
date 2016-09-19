@@ -21,7 +21,7 @@ type MockQuietWhiteboard struct {
 	}
 }
 
-func (mqw *MockQuietWhiteboard) HandleInput(input string, context SlackContext) Response {
+func (mqw *MockQuietWhiteboard) ProcessCommand(input string, context SlackContext) Response {
 	mqw.HandleInputCalled = true
 	mqw.HandleInputArgs.Text = input
 	mqw.HandleInputArgs.Context = context
