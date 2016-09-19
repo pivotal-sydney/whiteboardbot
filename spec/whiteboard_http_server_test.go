@@ -50,17 +50,27 @@ var _ = Describe("WhiteboardHttpServer", func() {
 		handlerFunc    http.HandlerFunc
 		params         map[string]string
 		slackUser      SlackUser
+		slackChannel   SlackChannel
 	)
 
 	BeforeEach(func() {
 		token = os.Getenv("SLACK_TOKEN")
-		params = map[string]string{"token": "123", "user_name": "aleung"}
+
+		params = map[string]string{
+			"token":        "123",
+			"user_name":    "aleung",
+			"channel_id":   "C456",
+			"channel_name": "sydney-standup",
+		}
+
 		slackUser = SlackUser{Username: "aleung", Author: "Andrew Leung", TimeZone: "Australia/Sydney"}
+		slackChannel = SlackChannel{ChannelId: "C456", ChannelName: "sydney-standup"}
 
 		os.Setenv("SLACK_TOKEN", "123")
 
 		store := MockStore{}
 		slackClient := MockSlackClient{}
+
 		writer = httptest.NewRecorder()
 		whiteboardServer := WhiteboardHttpServer{Store: &store, SlackClient: &slackClient}
 
@@ -77,11 +87,13 @@ var _ = Describe("WhiteboardHttpServer", func() {
 			params["text"] = "makeCoffee two sugars no milk"
 			request := makeRequest(params)
 
+			expectedContext := SlackContext{User: slackUser, Channel: slackChannel}
+
 			handlerFunc.ServeHTTP(writer, request)
 
 			Expect(mockWhiteBoard.HandleInputCalled).To(BeTrue())
 			Expect(mockWhiteBoard.HandleInputArgs.Text).To(Equal("makeCoffee two sugars no milk"))
-			Expect(mockWhiteBoard.HandleInputArgs.Context).To(Equal(SlackContext{User: slackUser}))
+			Expect(mockWhiteBoard.HandleInputArgs.Context).To(Equal(expectedContext))
 		})
 
 		It("returns the JSON representation of the QuietWhiteboard response", func() {

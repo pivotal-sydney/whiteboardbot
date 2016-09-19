@@ -76,5 +76,9 @@ func (server WhiteboardHttpServer) extractSlackContext(req *http.Request) SlackC
 	username := req.FormValue("user_name")
 	slackUser := server.SlackClient.GetUserDetails(username)
 
-	return SlackContext{User: slackUser}
+	channelName := req.FormValue("channel_name")
+	channelId := req.FormValue("channel_id")
+	slackChannel := SlackChannel{ChannelId: channelId, ChannelName: channelName}
+
+	return SlackContext{User: slackUser, Channel: slackChannel}
 }

@@ -16,8 +16,14 @@ type SlackUser struct {
 	TimeZone string
 }
 
+type SlackChannel struct {
+	ChannelId   string
+	ChannelName string
+}
+
 type SlackContext struct {
-	User SlackUser
+	User    SlackUser
+	Channel SlackChannel
 }
 
 type SlackClient interface {
