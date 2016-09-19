@@ -1,14 +1,15 @@
 package app
+
 import (
-	"net/http"
-	"encoding/json"
 	"bytes"
-	"fmt"
-	"os"
+	"encoding/json"
 	"errors"
-	"strings"
+	"fmt"
 	. "github.com/pivotal-sydney/whiteboardbot/model"
 	"io/ioutil"
+	"net/http"
+	"os"
+	"strings"
 )
 
 type RestClient interface {
@@ -40,7 +41,7 @@ func (RealRestClient) Post(request WhiteboardRequest) (itemId string, ok bool) {
 	if ok {
 		itemId = resp.Header.Get("Item-Id")
 	}
-	if (len(itemId) == 0) {
+	if len(itemId) == 0 {
 		itemId = request.Id
 	}
 	return

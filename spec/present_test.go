@@ -36,10 +36,10 @@ var _ = Describe("Present Integration", func() {
 		Context("there are items in current standup", func() {
 			BeforeEach(func() {
 				restClient.StandupItems = model.StandupItems{}
-				restClient.StandupItems.Faces = []model.Entry{model.Entry{Title: "Dariusz", Date: "2015-12-03", Author: "Andrew"}}
-				restClient.StandupItems.Interestings = []model.Entry{model.Entry{Title: "Something interesting", Body: "link", Author: "Mik", Date: "2015-12-03"}}
-				restClient.StandupItems.Events = []model.Entry{model.Entry{Title: "Another meetup", Body: "link", Author: "Dariusz", Date: "2015-12-03"}}
-				restClient.StandupItems.Helps = []model.Entry{model.Entry{Title: "Help me!", Author: "Lawrence", Date: "2015-12-03"}}
+				restClient.StandupItems.Faces = []model.Entry{{Title: "Dariusz", Date: "2015-12-03", Author: "Andrew"}}
+				restClient.StandupItems.Interestings = []model.Entry{{Title: "Something interesting", Body: "link", Author: "Mik", Date: "2015-12-03"}}
+				restClient.StandupItems.Events = []model.Entry{{Title: "Another meetup", Body: "link", Author: "Dariusz", Date: "2015-12-03"}}
+				restClient.StandupItems.Helps = []model.Entry{{Title: "Help me!", Author: "Lawrence", Date: "2015-12-03"}}
 			})
 
 			It("should display all standup's items", func() {

@@ -1,13 +1,14 @@
 package model
+
 import (
-	"os"
 	"fmt"
-	"time"
+	"os"
 	"strings"
+	"time"
 )
 
 const (
-	DATE_FORMAT = "2006-01-02"
+	DATE_FORMAT        = "2006-01-02"
 	DATE_STRING_FORMAT = "02 Jan 2006"
 )
 
@@ -21,13 +22,13 @@ type EntryType interface {
 }
 
 type Entry struct {
-	Date      string     	`json:"date"`
-	Title     string        `json:"title"`
-	Body      string        `json:"description"`
-	Author    string        `json:"author"`
-	Id        string        `json:"-"`
-	StandupId int           `json:"-"`
-	ItemKind  string        `json:"-"`
+	Date      string `json:"date"`
+	Title     string `json:"title"`
+	Body      string `json:"description"`
+	Author    string `json:"author"`
+	Id        string `json:"-"`
+	StandupId int    `json:"-"`
+	ItemKind  string `json:"-"`
 }
 
 func NewEntry(clock Clock, author, title string, standup Standup, itemKind string) *Entry {

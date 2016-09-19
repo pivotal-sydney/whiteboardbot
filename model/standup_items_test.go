@@ -1,11 +1,11 @@
 package model_test
 
 import (
+	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/pivotal-sydney/whiteboardbot/model"
 	"github.com/pivotal-sydney/whiteboardbot/model"
-	"fmt"
+	. "github.com/pivotal-sydney/whiteboardbot/model"
 )
 
 var _ = Describe("StandupItems", func() {
@@ -14,10 +14,10 @@ var _ = Describe("StandupItems", func() {
 
 	BeforeEach(func() {
 		items = model.StandupItems{}
-		items.Faces = []model.Entry{model.Entry{Title: "Dariusz", Date: "2015-12-03", Author: "Andrew"}, model.Entry{Title: "Andrew", Date: "2015-12-03", Author: "Dariusz"}}
-		items.Interestings = []model.Entry{model.Entry{Title: "Something interesting", Body: "link", Author: "Mik", Date: "2015-12-03"}, model.Entry{Title: "Something else interesting", Body: "link", Author: "Mik", Date: "2016-12-03"}}
-		items.Events = []model.Entry{model.Entry{Title: "Another meetup", Body: "link", Author: "Dariusz", Date: "2015-12-03"}, model.Entry{Title: "Another bloody meetup", Body: "link", Author: "Dariusz", Date: "2025-12-03"}}
-		items.Helps = []model.Entry{model.Entry{Title: "Help me!", Author: "Lawrence", Date: "2015-12-03"}, model.Entry{Title: "Help me again!", Author: "Lawrence", Date: "2016-12-03"}}
+		items.Faces = []model.Entry{{Title: "Dariusz", Date: "2015-12-03", Author: "Andrew"}, {Title: "Andrew", Date: "2015-12-03", Author: "Dariusz"}}
+		items.Interestings = []model.Entry{{Title: "Something interesting", Body: "link", Author: "Mik", Date: "2015-12-03"}, {Title: "Something else interesting", Body: "link", Author: "Mik", Date: "2016-12-03"}}
+		items.Events = []model.Entry{{Title: "Another meetup", Body: "link", Author: "Dariusz", Date: "2015-12-03"}, {Title: "Another bloody meetup", Body: "link", Author: "Dariusz", Date: "2025-12-03"}}
+		items.Helps = []model.Entry{{Title: "Help me!", Author: "Lawrence", Date: "2015-12-03"}, {Title: "Help me again!", Author: "Lawrence", Date: "2016-12-03"}}
 	})
 
 	Describe("convert standup items to string", func() {

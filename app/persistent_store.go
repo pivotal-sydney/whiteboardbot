@@ -1,11 +1,11 @@
 package app
 
 import (
-	"github.com/garyburd/redigo/redis"
-	"os"
-	"fmt"
-	. "github.com/pivotal-sydney/whiteboardbot/model"
 	"encoding/json"
+	"fmt"
+	"github.com/garyburd/redigo/redis"
+	. "github.com/pivotal-sydney/whiteboardbot/model"
+	"os"
 )
 
 type Store interface {
@@ -15,13 +15,13 @@ type Store interface {
 	SetStandup(channel string, standup Standup)
 }
 
-type RealStore struct{
+type RealStore struct {
 	Pool *redis.Pool
 }
 
 func NewPool() *redis.Pool {
 	return &redis.Pool{
-		MaxIdle: 10,
+		MaxIdle:   10,
 		MaxActive: 50,
 		Dial: func() (redis.Conn, error) {
 			return redis.Dial("tcp", os.Getenv("WB_DB_HOST"), redis.DialPassword(os.Getenv("WB_DB_PASSWORD")))

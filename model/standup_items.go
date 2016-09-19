@@ -1,15 +1,16 @@
 package model
+
 import (
+	"bytes"
 	"fmt"
 	"strings"
-	"bytes"
 )
 
 type StandupItems struct {
-	Helps        []Entry            `json:"Help"`
-	Interestings []Entry  			`json:"Interesting"`
-	Faces        []Entry            `json:"New face"`
-	Events       []Entry        	`json:"Event"`
+	Helps        []Entry `json:"Help"`
+	Interestings []Entry `json:"Interesting"`
+	Faces        []Entry `json:"New face"`
+	Events       []Entry `json:"Event"`
 }
 
 func (items StandupItems) FacesString() string {

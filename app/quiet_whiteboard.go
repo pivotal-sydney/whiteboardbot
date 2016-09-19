@@ -60,7 +60,7 @@ func (whiteboard QuietWhiteboardApp) handleRegistrationCommand(standupId string)
 }
 
 func (whiteboard QuietWhiteboardApp) handleCommand(command, input string) CommandResult {
-	for key, _ := range whiteboard.CommandMap {
+	for key := range whiteboard.CommandMap {
 		if matches(command, key) {
 			callback := whiteboard.CommandMap[key]
 			return callback(input)

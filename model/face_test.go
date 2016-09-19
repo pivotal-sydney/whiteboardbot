@@ -11,7 +11,7 @@ import (
 var _ = Describe("Face", func() {
 
 	var (
-		face Face
+		face  Face
 		clock spec.MockClock
 	)
 

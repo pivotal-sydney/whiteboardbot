@@ -11,7 +11,7 @@ import (
 var _ = Describe("Help", func() {
 
 	var (
-		help Help
+		help  Help
 		clock spec.MockClock
 	)
 

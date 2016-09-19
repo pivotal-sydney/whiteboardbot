@@ -63,7 +63,7 @@ func (whiteboard WhiteboardApp) HandleInput(input string, ev *slack.MessageEvent
 }
 
 func (whiteboard WhiteboardApp) handleCommand(command, input string, ev *slack.MessageEvent) {
-	for key, _ := range whiteboard.CommandMap {
+	for key := range whiteboard.CommandMap {
 		if matches(command, key) {
 			callback := whiteboard.CommandMap[key]
 			callback(input, ev)
