@@ -101,7 +101,7 @@ var _ = Describe("WhiteboardHttpServer", func() {
 
 			handlerFunc.ServeHTTP(writer, request)
 
-			Expect(writer.Body.String()).To(Equal(`{"text":""}`))
+			Expect(writer.Body.String()).To(Equal(`{"text":"**\n"}`))
 		})
 
 		AssertDoesNotInvokeHandleInput := func() func() {

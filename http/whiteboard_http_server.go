@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
+	. "github.com/pivotal-sydney/whiteboardbot/model"
 	"io"
 	"net/http"
 	"os"
@@ -18,12 +19,8 @@ type WhiteboardHttpServer struct {
 	SlackClient SlackClient
 }
 
-type SlackResponse struct {
-	Text string `json:"text"`
-}
-
 func (server WhiteboardHttpServer) Run() {
-	whiteboard := NewQuietWhiteboard(&RealRestClient{}, server.Store)
+	whiteboard := NewQuietWhiteboard(&RealRestClient{}, server.Store, &RealClock{})
 	server.startHttpServer(whiteboard)
 }
 
@@ -59,8 +56,7 @@ func (server WhiteboardHttpServer) NewHandleRequest(wb QuietWhiteboard) http.Han
 		context := server.extractSlackContext(req)
 
 		result := wb.ProcessCommand(cmdArgs, context)
-		response := SlackResponse{Text: result.Text}
-		j, err := json.Marshal(response)
+		j, err := jsonify(result.Entry)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -70,6 +66,14 @@ func (server WhiteboardHttpServer) NewHandleRequest(wb QuietWhiteboard) http.Han
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(j)
 	}
+}
+
+func jsonify(s fmt.Stringer) ([]byte, error) {
+	response := struct {
+		Text string `json:"text"`
+	}{s.String()}
+
+	return json.Marshal(response)
 }
 
 func (server WhiteboardHttpServer) extractSlackContext(req *http.Request) SlackContext {

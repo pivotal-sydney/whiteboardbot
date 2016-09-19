@@ -15,17 +15,22 @@ var _ = Describe("QuietWhiteboard", func() {
 		store         MockStore
 		sydneyStandup Standup
 		context       SlackContext
+		clock         MockClock
 	)
 
 	BeforeEach(func() {
 		sydneyStandup = Standup{Id: 1, TimeZone: "Australia/Sydney", Title: "Sydney"}
-		context = SlackContext{User: SlackUser{Username: "aleung"}}
 
+		user := SlackUser{Username: "aleung", Author: "Andrew Leung"}
+		channel := SlackChannel{ChannelId: "C456", ChannelName: "sydney-standup"}
+		context = SlackContext{User: user, Channel: channel}
+
+		clock = MockClock{}
 		restClient := MockRestClient{}
 		restClient.SetStandup(sydneyStandup)
 
 		store = MockStore{}
-		whiteboard = NewQuietWhiteboard(&restClient, &store)
+		whiteboard = NewQuietWhiteboard(&restClient, &store, &clock)
 	})
 
 	Describe("Receives command", func() {
@@ -43,7 +48,7 @@ var _ = Describe("QuietWhiteboard", func() {
 
 				whiteboard.ProcessCommand("register 1", context)
 
-				standupString, standupPresent := store.Get("1")
+				standupString, standupPresent := store.Get("C456")
 				Expect(standupPresent).To(Equal(true))
 				Expect(standupString).To(Equal(expectedStandupString))
 			})
@@ -63,6 +68,22 @@ var _ = Describe("QuietWhiteboard", func() {
 					whiteboard.ProcessCommand("register 123", context)
 					Expect(len(store.StoreMap)).To(Equal(0))
 				})
+			})
+		})
+
+		Context("faces", func() {
+			BeforeEach(func() {
+				whiteboard.Store.SetStandup(context.Channel.ChannelId, sydneyStandup)
+			})
+
+			It("contains a new face entry in the result", func() {
+				title := "Nicholas Cage"
+				author := context.User.Author
+				expectedEntry := *NewEntry(clock, author, title, sydneyStandup, "New face")
+
+				result := whiteboard.ProcessCommand("faces Nicholas Cage", context)
+
+				Expect(result.Entry).To(Equal(expectedEntry))
 			})
 		})
 	})
