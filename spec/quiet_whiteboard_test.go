@@ -85,6 +85,24 @@ var _ = Describe("QuietWhiteboard", func() {
 
 				Expect(result.Entry).To(Equal(expectedEntry))
 			})
+
+			Context("when no arguments given", func() {
+				It("returns an error message", func() {
+
+					errorMsg := THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb i My title`\nNeed help? Try `wb ?`"
+
+					expectedEntry := InvalidEntry{Error: errorMsg}
+
+					result := whiteboard.ProcessCommand("faces", context)
+
+					Expect(result.Entry).To(Equal(expectedEntry))
+
+				})
+
+				It("doesn't create a post", func() {
+
+				})
+			})
 		})
 	})
 })

@@ -13,6 +13,12 @@ import (
 	"strconv"
 )
 
+type MockStringer struct{}
+
+func (MockStringer) String() string {
+	return ""
+}
+
 type MockQuietWhiteboard struct {
 	HandleInputCalled bool
 	HandleInputArgs   struct {
@@ -26,7 +32,7 @@ func (mqw *MockQuietWhiteboard) ProcessCommand(input string, context SlackContex
 	mqw.HandleInputArgs.Text = input
 	mqw.HandleInputArgs.Context = context
 
-	return CommandResult{}
+	return CommandResult{Entry: &MockStringer{}}
 }
 
 func makeRequest(params map[string]string) *http.Request {
@@ -101,7 +107,7 @@ var _ = Describe("WhiteboardHttpServer", func() {
 
 			handlerFunc.ServeHTTP(writer, request)
 
-			Expect(writer.Body.String()).To(Equal(`{"text":"**\n"}`))
+			Expect(writer.Body.String()).To(Equal(`{"text":""}`))
 		})
 
 		AssertDoesNotInvokeHandleInput := func() func() {

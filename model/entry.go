@@ -31,6 +31,10 @@ type Entry struct {
 	ItemKind  string `json:"-"`
 }
 
+type InvalidEntry struct {
+	Error string
+}
+
 func NewEntry(clock Clock, author, title string, standup Standup, itemKind string) *Entry {
 	location, err := time.LoadLocation(standup.TimeZone)
 	if err != nil {
@@ -77,6 +81,10 @@ func (entry Entry) GetDateString() string {
 
 func (entry Entry) toItem() Item {
 	return Item{StandupId: entry.StandupId, Title: slackUnescape(entry.Title), Date: entry.Date, Public: "false", Description: slackUnescape(entry.Body), Author: entry.Author, Kind: entry.ItemKind}
+}
+
+func (entry InvalidEntry) String() string {
+	return entry.Error
 }
 
 func slackUnescape(escaped string) string {

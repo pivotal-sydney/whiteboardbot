@@ -19,8 +19,8 @@ type QuietWhiteboardApp struct {
 }
 
 type CommandResult struct {
-	Text string
-	Entry
+	Text  string
+	Entry fmt.Stringer
 }
 
 func NewQuietWhiteboard(restClient RestClient, store Store, clock Clock) (whiteboard QuietWhiteboardApp) {
@@ -67,9 +67,22 @@ func (whiteboard QuietWhiteboardApp) handleRegistrationCommand(standupId string,
 }
 
 func (whiteboard QuietWhiteboardApp) handleFacesCommand(input string, context SlackContext) CommandResult {
-	standup, _ := whiteboard.Store.GetStandup(context.Channel.ChannelId)
-	face := NewFace(whiteboard.Clock, context.User.Author, input, standup).(EntryType)
-	return CommandResult{Entry: *face.GetEntry()}
+	var entry fmt.Stringer
+
+	if entry = resultIfEmptyTitle(input); entry == nil {
+		standup, _ := whiteboard.Store.GetStandup(context.Channel.ChannelId)
+		face := NewFace(whiteboard.Clock, context.User.Author, input, standup).(EntryType)
+		entry = *face.GetEntry()
+	}
+
+	return CommandResult{Entry: entry}
+}
+
+func resultIfEmptyTitle(input string) fmt.Stringer {
+	if len(input) == 0 {
+		return InvalidEntry{Error: THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb i My title`\nNeed help? Try `wb ?`"}
+	}
+	return nil
 }
 
 func (whiteboard QuietWhiteboardApp) handleCommand(command, input string, context SlackContext) CommandResult {
