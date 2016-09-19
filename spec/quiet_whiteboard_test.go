@@ -31,7 +31,7 @@ var _ = Describe("QuietWhiteboard", func() {
 	Describe("Receives command", func() {
 		Context("?", func() {
 			It("should return the usage text", func() {
-				expected := Response{Text: USAGE}
+				expected := CommandResult{Text: USAGE}
 				Expect(whiteboard.ProcessCommand("?", context)).To(Equal(expected))
 			})
 		})
@@ -49,13 +49,13 @@ var _ = Describe("QuietWhiteboard", func() {
 			})
 
 			It("returns a message with the registered standup", func() {
-				expected := Response{Text: "Standup Sydney has been registered! You can now start creating Whiteboard entries!"}
+				expected := CommandResult{Text: "Standup Sydney has been registered! You can now start creating Whiteboard entries!"}
 				Expect(whiteboard.ProcessCommand("register 1", context)).To(Equal(expected))
 			})
 
 			Context("when standup does not exist", func() {
 				It("returns a message that the standup isn't found", func() {
-					expected := Response{Text: "Standup not found!"}
+					expected := CommandResult{Text: "Standup not found!"}
 					Expect(whiteboard.ProcessCommand("register 123", context)).To(Equal(expected))
 				})
 

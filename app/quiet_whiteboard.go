@@ -5,23 +5,23 @@ import (
 )
 
 type QuietWhiteboard interface {
-	ProcessCommand(string, SlackContext) Response
+	ProcessCommand(string, SlackContext) CommandResult
 }
 
 type QuietWhiteboardApp struct {
 	RestClient RestClient
 	Store      Store
-	CommandMap map[string]func(input string) Response
+	CommandMap map[string]func(input string) CommandResult
 }
 
-type Response struct {
+type CommandResult struct {
 	Text string `json:"text"`
 }
 
 func NewQuietWhiteboard(restClient RestClient, store Store) (whiteboard QuietWhiteboardApp) {
 	whiteboard = QuietWhiteboardApp{RestClient: restClient}
 	whiteboard.Store = store
-	whiteboard.CommandMap = make(map[string]func(input string) Response)
+	whiteboard.CommandMap = make(map[string]func(input string) CommandResult)
 	whiteboard.init()
 	return
 }
@@ -31,35 +31,35 @@ func (whiteboard QuietWhiteboardApp) init() {
 	whiteboard.registerCommand("register", whiteboard.handleRegistrationCommand)
 }
 
-func (whiteboard QuietWhiteboardApp) ProcessCommand(input string, context SlackContext) Response {
+func (whiteboard QuietWhiteboardApp) ProcessCommand(input string, context SlackContext) CommandResult {
 	command, input := readNextCommand(input)
 	return whiteboard.handleCommand(command, input)
 }
 
 func (whiteboard QuietWhiteboardApp) registerCommand(
 	command string,
-	callback func(input string) Response) {
+	callback func(input string) CommandResult) {
 	whiteboard.CommandMap[command] = callback
 }
 
-func (whiteboard QuietWhiteboardApp) handleUsageCommand(_ string) Response {
-	return Response{USAGE}
+func (whiteboard QuietWhiteboardApp) handleUsageCommand(_ string) CommandResult {
+	return CommandResult{USAGE}
 }
 
-func (whiteboard QuietWhiteboardApp) handleRegistrationCommand(standupId string) Response {
+func (whiteboard QuietWhiteboardApp) handleRegistrationCommand(standupId string) CommandResult {
 	standup, ok := whiteboard.RestClient.GetStandup(standupId)
 	if !ok {
-		return Response{"Standup not found!"}
+		return CommandResult{"Standup not found!"}
 	}
 
 	whiteboard.Store.SetStandup(standupId, standup)
 
 	text := fmt.Sprintf("Standup %v has been registered! You can now start creating Whiteboard entries!", standup.Title)
 
-	return Response{text}
+	return CommandResult{text}
 }
 
-func (whiteboard QuietWhiteboardApp) handleCommand(command, input string) Response {
+func (whiteboard QuietWhiteboardApp) handleCommand(command, input string) CommandResult {
 	for key, _ := range whiteboard.CommandMap {
 		if matches(command, key) {
 			callback := whiteboard.CommandMap[key]
@@ -67,5 +67,5 @@ func (whiteboard QuietWhiteboardApp) handleCommand(command, input string) Respon
 		}
 	}
 
-	return Response{"Ooops"}
+	return CommandResult{"Ooops"}
 }
