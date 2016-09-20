@@ -86,6 +86,17 @@ var _ = Describe("QuietWhiteboard", func() {
 				Expect(result.Entry).To(Equal(expectedEntry))
 			})
 
+			It("stores the new face entry in the entry map", func() {
+				title := "Nicholas Cage"
+				author := context.User.Author
+				expectedEntry := Face{Entry: NewEntry(clock, author, title, sydneyStandup, "New face")}
+
+				whiteboard.ProcessCommand("faces Nicholas Cage", context)
+
+				entry := whiteboard.EntryMap[context.User.Username]
+				Expect(entry).To(Equal(expectedEntry))
+			})
+
 			Context("when no arguments given", func() {
 				It("returns an error message", func() {
 
@@ -97,6 +108,12 @@ var _ = Describe("QuietWhiteboard", func() {
 
 					Expect(result.Entry).To(Equal(expectedEntry))
 
+				})
+
+				It("doesn't store anything in the entry map", func() {
+					Expect(whiteboard.EntryMap[context.User.Username]).To(BeNil())
+					whiteboard.ProcessCommand("faces", context)
+					Expect(whiteboard.EntryMap[context.User.Username]).To(BeNil())
 				})
 
 				It("doesn't create a post", func() {

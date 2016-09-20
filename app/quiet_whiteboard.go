@@ -13,10 +13,11 @@ type QuietWhiteboard interface {
 type CommandHandler func(input string, context SlackContext) (CommandResult, error)
 
 type QuietWhiteboardApp struct {
+	Clock      Clock
 	RestClient RestClient
 	Store      Store
 	CommandMap map[string]CommandHandler
-	Clock      Clock
+	EntryMap   map[string]EntryType
 }
 
 type CommandResult struct {
@@ -25,10 +26,13 @@ type CommandResult struct {
 }
 
 func NewQuietWhiteboard(restClient RestClient, store Store, clock Clock) (whiteboard QuietWhiteboardApp) {
-	whiteboard = QuietWhiteboardApp{RestClient: restClient}
-	whiteboard.Store = store
-	whiteboard.Clock = clock
-	whiteboard.CommandMap = make(map[string]CommandHandler)
+	whiteboard = QuietWhiteboardApp{
+		Clock:      clock,
+		RestClient: restClient,
+		Store:      store,
+		CommandMap: make(map[string]CommandHandler),
+		EntryMap:   make(map[string]EntryType),
+	}
 	whiteboard.init()
 	return
 }
@@ -86,6 +90,7 @@ func (whiteboard QuietWhiteboardApp) handleFacesCommand(input string, context Sl
 	if entry = resultIfEmptyTitle(input); entry == nil {
 		standup, _ := whiteboard.Store.GetStandup(context.Channel.ChannelId)
 		face := NewFace(whiteboard.Clock, context.User.Author, input, standup).(EntryType)
+		whiteboard.EntryMap[context.User.Username] = face
 		entry = *face.GetEntry()
 	}
 
