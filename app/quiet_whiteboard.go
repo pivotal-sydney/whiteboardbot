@@ -43,9 +43,18 @@ func (whiteboard QuietWhiteboardApp) ProcessCommand(input string, context SlackC
 	return whiteboard.handleCommand(command, input, context)
 }
 
-func (whiteboard QuietWhiteboardApp) registerCommand(
-	command string,
-	callback CommandHandler) {
+func (whiteboard QuietWhiteboardApp) handleCommand(command, input string, context SlackContext) (CommandResult, error) {
+	for key := range whiteboard.CommandMap {
+		if matches(command, key) {
+			callback := whiteboard.CommandMap[key]
+			return callback(input, context)
+		}
+	}
+
+	return CommandResult{Text: "Ooops"}, nil
+}
+
+func (whiteboard QuietWhiteboardApp) registerCommand(command string, callback CommandHandler) {
 	whiteboard.CommandMap[command] = callback
 }
 
@@ -83,15 +92,4 @@ func resultIfEmptyTitle(input string) fmt.Stringer {
 		return InvalidEntry{Error: THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb i My title`\nNeed help? Try `wb ?`"}
 	}
 	return nil
-}
-
-func (whiteboard QuietWhiteboardApp) handleCommand(command, input string, context SlackContext) (CommandResult, error) {
-	for key := range whiteboard.CommandMap {
-		if matches(command, key) {
-			callback := whiteboard.CommandMap[key]
-			return callback(input, context)
-		}
-	}
-
-	return CommandResult{Text: "Ooops"}, nil
 }
