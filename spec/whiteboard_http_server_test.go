@@ -17,7 +17,7 @@ import (
 type MockStringer struct{}
 
 func (MockStringer) String() string {
-	return ""
+	return "This is a mock message"
 }
 
 type MockQuietWhiteboard struct {
@@ -118,7 +118,7 @@ var _ = Describe("WhiteboardHttpServer", func() {
 			handlerFunc.ServeHTTP(writer, request)
 
 			Expect(writer.Header().Get("Content-Type")).To(Equal("application/json"))
-			Expect(writer.Body.String()).To(Equal(`{"text":""}`))
+			Expect(writer.Body.String()).To(Equal(`{"text":"This is a mock message"}`))
 		})
 
 		Context("when processing the command errors out", func() {
