@@ -55,16 +55,19 @@ func (server WhiteboardHttpServer) NewHandleRequest(wb QuietWhiteboard) http.Han
 
 		context := server.extractSlackContext(req)
 
-		result, _ := wb.ProcessCommand(cmdArgs, context)
-		j, err := jsonify(result.Entry)
+		result, err := wb.ProcessCommand(cmdArgs, context)
+		if err != nil {
+			result = CommandResult{Entry: InvalidEntry{Error: err.Error()}}
+		}
 
+		resultJson, err := jsonify(result.Entry)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		w.Write(j)
+		w.Write(resultJson)
 	}
 }
 

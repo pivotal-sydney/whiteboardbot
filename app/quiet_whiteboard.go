@@ -1,6 +1,7 @@
 package app
 
 import (
+	"errors"
 	"fmt"
 	. "github.com/pivotal-sydney/whiteboardbot/model"
 )
@@ -62,17 +63,21 @@ func (whiteboard QuietWhiteboardApp) handleUsageCommand(_ string, _ SlackContext
 	return CommandResult{Text: USAGE}, nil
 }
 
-func (whiteboard QuietWhiteboardApp) handleRegistrationCommand(standupId string, context SlackContext) (CommandResult, error) {
+func (whiteboard QuietWhiteboardApp) handleRegistrationCommand(standupId string, context SlackContext) (command CommandResult, err error) {
+	command = CommandResult{}
+
 	standup, ok := whiteboard.RestClient.GetStandup(standupId)
 	if !ok {
-		return CommandResult{Text: "Standup not found!"}, nil
+		err = errors.New("Standup not found!")
+		return
 	}
 
 	whiteboard.Store.SetStandup(context.Channel.ChannelId, standup)
 
 	text := fmt.Sprintf("Standup %v has been registered! You can now start creating Whiteboard entries!", standup.Title)
 
-	return CommandResult{Text: text}, nil
+	command.Text = text
+	return
 }
 
 func (whiteboard QuietWhiteboardApp) handleFacesCommand(input string, context SlackContext) (CommandResult, error) {

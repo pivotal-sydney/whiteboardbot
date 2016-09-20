@@ -60,8 +60,8 @@ var _ = Describe("QuietWhiteboard", func() {
 
 			Context("when standup does not exist", func() {
 				It("returns a message that the standup isn't found", func() {
-					expected := CommandResult{Text: "Standup not found!"}
-					Expect(whiteboard.ProcessCommand("register 123", context)).To(Equal(expected))
+					_, err := whiteboard.ProcessCommand("register 123", context)
+					Expect(err.Error()).To(Equal("Standup not found!"))
 				})
 
 				It("does not store anything in the store", func() {

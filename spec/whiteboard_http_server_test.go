@@ -2,6 +2,7 @@ package spec
 
 import (
 	"bytes"
+	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
@@ -25,6 +26,7 @@ type MockQuietWhiteboard struct {
 		Text    string
 		Context SlackContext
 	}
+	errToReturn error
 }
 
 func (mqw *MockQuietWhiteboard) ProcessCommand(input string, context SlackContext) (CommandResult, error) {
@@ -32,7 +34,15 @@ func (mqw *MockQuietWhiteboard) ProcessCommand(input string, context SlackContex
 	mqw.HandleInputArgs.Text = input
 	mqw.HandleInputArgs.Context = context
 
+	if mqw.errToReturn != nil {
+		return CommandResult{}, mqw.errToReturn
+	}
+
 	return CommandResult{Entry: &MockStringer{}}, nil
+}
+
+func (mqw *MockQuietWhiteboard) SetErrorToReturn(err error) {
+	mqw.errToReturn = err
 }
 
 func makeRequest(params map[string]string) *http.Request {
@@ -107,7 +117,20 @@ var _ = Describe("WhiteboardHttpServer", func() {
 
 			handlerFunc.ServeHTTP(writer, request)
 
+			Expect(writer.Header().Get("Content-Type")).To(Equal("application/json"))
 			Expect(writer.Body.String()).To(Equal(`{"text":""}`))
+		})
+
+		Context("when processing the command errors out", func() {
+			It("returns the JSON representation of the error", func() {
+				mockWhiteBoard.SetErrorToReturn(errors.New("This is an error"))
+				request := makeRequest(params)
+
+				handlerFunc.ServeHTTP(writer, request)
+
+				Expect(writer.Header().Get("Content-Type")).To(Equal("application/json"))
+				Expect(writer.Body.String()).To(Equal(`{"text":"This is an error"}`))
+			})
 		})
 
 		AssertDoesNotInvokeHandleInput := func() func() {
