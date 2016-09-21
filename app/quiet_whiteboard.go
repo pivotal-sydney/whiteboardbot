@@ -13,6 +13,8 @@ type QuietWhiteboard interface {
 
 type CommandHandler func(input string, context SlackContext) (CommandResult, error)
 
+type EntryFactory func(clock Clock, author, title string, standup Standup) EntryType
+
 type QuietWhiteboardApp struct {
 	Clock      Clock
 	RestClient RestClient
@@ -100,32 +102,24 @@ func (whiteboard QuietWhiteboardApp) handleRegistrationCommand(standupId string,
 }
 
 func (whiteboard QuietWhiteboardApp) handleFacesCommand(input string, context SlackContext) (CommandResult, error) {
-	var entry fmt.Stringer
-
-	if entry = resultIfEmptyTitle(input); entry == nil {
-		standup, _ := whiteboard.Store.GetStandup(context.Channel.ChannelId)
-		face := NewFace(whiteboard.Clock, context.User.Author, input, standup)
-		whiteboard.EntryMap[context.User.Username] = face
-		if _, err := whiteboard.PostEntry(face); err != nil {
-			return CommandResult{Entry: InvalidEntry{Error: err.Error()}}, nil
-		}
-		entry = *face.GetEntry()
-	}
-
-	return CommandResult{Entry: entry}, nil
+	return whiteboard.handleCreateCommand(input, context, NewFace)
 }
 
 func (whiteboard QuietWhiteboardApp) handleHelpsCommand(input string, context SlackContext) (CommandResult, error) {
+	return whiteboard.handleCreateCommand(input, context, NewHelp)
+}
+
+func (whiteboard QuietWhiteboardApp) handleCreateCommand(input string, context SlackContext, factory EntryFactory) (CommandResult, error) {
 	var entry fmt.Stringer
 
 	if entry = resultIfEmptyTitle(input); entry == nil {
 		standup, _ := whiteboard.Store.GetStandup(context.Channel.ChannelId)
-		help := NewHelp(whiteboard.Clock, context.User.Author, input, standup)
-		whiteboard.EntryMap[context.User.Username] = help
-		if _, err := whiteboard.PostEntry(help); err != nil {
+		entryType := factory(whiteboard.Clock, context.User.Author, input, standup)
+		whiteboard.EntryMap[context.User.Username] = entryType
+		if _, err := whiteboard.PostEntry(entryType); err != nil {
 			return CommandResult{Entry: InvalidEntry{Error: err.Error()}}, nil
 		}
-		entry = *help.GetEntry()
+		entry = *entryType.GetEntry()
 	}
 
 	return CommandResult{Entry: entry}, nil
