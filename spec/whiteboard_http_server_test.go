@@ -42,7 +42,7 @@ func (mqw *MockQuietWhiteboard) ProcessCommand(input string, context SlackContex
 	return CommandResult{Entry: &MockStringer{}}, nil
 }
 
-func (mqw *MockQuietWhiteboard) PostEntry(context SlackContext) (PostResult, error) {
+func (MockQuietWhiteboard) PostEntry(EntryType) (PostResult, error) {
 	return PostResult{}, nil
 }
 

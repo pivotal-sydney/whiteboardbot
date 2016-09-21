@@ -8,7 +8,7 @@ import (
 
 type QuietWhiteboard interface {
 	ProcessCommand(string, SlackContext) (CommandResult, error)
-	PostEntry(SlackContext) (PostResult, error)
+	PostEntry(EntryType) (PostResult, error)
 }
 
 type CommandHandler func(input string, context SlackContext) (CommandResult, error)
@@ -53,17 +53,11 @@ func (whiteboard QuietWhiteboardApp) ProcessCommand(input string, context SlackC
 	return whiteboard.handleCommand(command, input, context)
 }
 
-func (whiteboard QuietWhiteboardApp) PostEntry(context SlackContext) (PostResult, error) {
-	var itemId string
+func (whiteboard QuietWhiteboardApp) PostEntry(entryType EntryType) (PostResult, error) {
+	itemId, ok := PostEntryToWhiteboard(whiteboard.RestClient, entryType)
 
-	if entryType, ok := whiteboard.EntryMap[context.User.Username]; ok {
-		itemId, ok = PostEntryToWhiteboard(whiteboard.RestClient, entryType)
-
-		if !ok {
-			return PostResult{}, errors.New("Problem creating post.")
-		}
-	} else {
-		return PostResult{}, errors.New("No entry found.")
+	if !ok {
+		return PostResult{}, errors.New("Problem creating post.")
 	}
 
 	return PostResult{itemId}, nil
@@ -112,6 +106,9 @@ func (whiteboard QuietWhiteboardApp) handleFacesCommand(input string, context Sl
 		standup, _ := whiteboard.Store.GetStandup(context.Channel.ChannelId)
 		face := NewFace(whiteboard.Clock, context.User.Author, input, standup)
 		whiteboard.EntryMap[context.User.Username] = face
+		if _, err := whiteboard.PostEntry(face); err != nil {
+			return CommandResult{Entry: InvalidEntry{Error: err.Error()}}, nil
+		}
 		entry = *face.GetEntry()
 	}
 

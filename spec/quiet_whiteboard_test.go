@@ -100,7 +100,6 @@ var _ = Describe("QuietWhiteboard", func() {
 
 			It("creates a post", func() {
 				whiteboard.ProcessCommand("faces Nicholas Cage", context)
-				whiteboard.PostEntry(context)
 
 				expectedRequest := WhiteboardRequest{
 					Utf8:   "",
@@ -124,6 +123,17 @@ var _ = Describe("QuietWhiteboard", func() {
 				Expect(restClient.PostCalledCount).To(Equal(1))
 			})
 
+			Context("when posting to Whiteboard fails", func() {
+				It("returns the proper error message", func() {
+					restClient.SetPostError()
+					expectedEntry := InvalidEntry{Error: "Problem creating post."}
+
+					result, _ := whiteboard.ProcessCommand("faces George Clooney", context)
+
+					Expect(result.Entry).To(Equal(expectedEntry))
+				})
+			})
+
 			Context("when no arguments given", func() {
 				It("returns an error message", func() {
 					errorMsg := THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb i My title`\nNeed help? Try `wb ?`"
@@ -144,7 +154,6 @@ var _ = Describe("QuietWhiteboard", func() {
 
 				It("doesn't create a post", func() {
 					whiteboard.ProcessCommand("faces", context)
-					whiteboard.PostEntry(context)
 
 					Expect(restClient.Request).To(Equal(WhiteboardRequest{}))
 					Expect(restClient.PostCalledCount).To(BeZero())
