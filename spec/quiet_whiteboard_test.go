@@ -160,5 +160,94 @@ var _ = Describe("QuietWhiteboard", func() {
 				})
 			})
 		})
+
+		Context("helps", func() {
+			BeforeEach(func() {
+				whiteboard.Store.SetStandup(context.Channel.ChannelId, sydneyStandup)
+			})
+
+			It("contains a help entry in the result", func() {
+				title := "Good wicker furniture shop recommendations?"
+				author := context.User.Author
+				expectedEntry := *NewEntry(clock, author, title, sydneyStandup, "Help")
+
+				result, _ := whiteboard.ProcessCommand("helps Good wicker furniture shop recommendations?", context)
+
+				Expect(result.Entry).To(Equal(expectedEntry))
+			})
+
+			It("stores the help entry in the entry map", func() {
+				title := "Good wicker furniture shop recommendations?"
+				author := context.User.Author
+				expectedEntry := Help{Entry: NewEntry(clock, author, title, sydneyStandup, "Help")}
+
+				whiteboard.ProcessCommand("helps Good wicker furniture shop recommendations?", context)
+
+				entry := whiteboard.EntryMap[context.User.Username]
+				Expect(entry).To(Equal(expectedEntry))
+			})
+
+			It("creates a post", func() {
+				whiteboard.ProcessCommand("helps Good wicker furniture shop recommendations?", context)
+
+				expectedRequest := WhiteboardRequest{
+					Utf8:   "",
+					Method: "",
+					Token:  "",
+					Item: Item{
+						StandupId:   1,
+						Title:       "Good wicker furniture shop recommendations?",
+						Date:        "2015-01-02",
+						PostId:      "",
+						Public:      "false",
+						Kind:        "Help",
+						Description: "",
+						Author:      "Andrew Leung",
+					},
+					Commit: "Create Item",
+					Id:     "",
+				}
+
+				Expect(restClient.Request).To(Equal(expectedRequest))
+				Expect(restClient.PostCalledCount).To(Equal(1))
+			})
+
+			Context("when posting to Whiteboard fails", func() {
+				It("returns the proper error message", func() {
+					restClient.SetPostError()
+					expectedEntry := InvalidEntry{Error: "Problem creating post."}
+
+					result, _ := whiteboard.ProcessCommand("helps Good wicker furniture shop recommendations?", context)
+
+					Expect(result.Entry).To(Equal(expectedEntry))
+				})
+			})
+
+			Context("when no arguments given", func() {
+				It("returns an error message", func() {
+					errorMsg := THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb i My title`\nNeed help? Try `wb ?`"
+
+					expectedEntry := InvalidEntry{Error: errorMsg}
+
+					result, _ := whiteboard.ProcessCommand("helps", context)
+
+					Expect(result.Entry).To(Equal(expectedEntry))
+
+				})
+
+				It("doesn't store anything in the entry map", func() {
+					Expect(whiteboard.EntryMap[context.User.Username]).To(BeNil())
+					whiteboard.ProcessCommand("helps", context)
+					Expect(whiteboard.EntryMap[context.User.Username]).To(BeNil())
+				})
+
+				It("doesn't create a post", func() {
+					whiteboard.ProcessCommand("helps", context)
+
+					Expect(restClient.Request).To(Equal(WhiteboardRequest{}))
+					Expect(restClient.PostCalledCount).To(BeZero())
+				})
+			})
+		})
 	})
 })

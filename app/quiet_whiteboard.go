@@ -45,6 +45,7 @@ func (whiteboard QuietWhiteboardApp) init() {
 	whiteboard.registerCommand("?", whiteboard.handleUsageCommand)
 	whiteboard.registerCommand("register", whiteboard.handleRegistrationCommand)
 	whiteboard.registerCommand("faces", whiteboard.handleFacesCommand)
+	whiteboard.registerCommand("helps", whiteboard.handleHelpsCommand)
 }
 
 func (whiteboard QuietWhiteboardApp) ProcessCommand(input string, context SlackContext) (CommandResult, error) {
@@ -109,6 +110,22 @@ func (whiteboard QuietWhiteboardApp) handleFacesCommand(input string, context Sl
 			return CommandResult{Entry: InvalidEntry{Error: err.Error()}}, nil
 		}
 		entry = *face.GetEntry()
+	}
+
+	return CommandResult{Entry: entry}, nil
+}
+
+func (whiteboard QuietWhiteboardApp) handleHelpsCommand(input string, context SlackContext) (CommandResult, error) {
+	var entry fmt.Stringer
+
+	if entry = resultIfEmptyTitle(input); entry == nil {
+		standup, _ := whiteboard.Store.GetStandup(context.Channel.ChannelId)
+		help := NewHelp(whiteboard.Clock, context.User.Author, input, standup)
+		whiteboard.EntryMap[context.User.Username] = help
+		if _, err := whiteboard.PostEntry(help); err != nil {
+			return CommandResult{Entry: InvalidEntry{Error: err.Error()}}, nil
+		}
+		entry = *help.GetEntry()
 	}
 
 	return CommandResult{Entry: entry}, nil
