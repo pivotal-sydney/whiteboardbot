@@ -6,6 +6,7 @@ deployment:
     branch: master
     commands:
       - 'go get github.com/tools/godep'
+      - 'godep restore'
       - 'godep update ./...'
       - 'curl -L "https://cli.run.pivotal.io/stable?release=linux64-binary&source=github" | tar -zx'
       - './cf login -u $CF_USERNAME -p $CF_PASSWORD -a "https://api.run.pivotal.io" -o $CF_ORG -s $CF_SPACE'
