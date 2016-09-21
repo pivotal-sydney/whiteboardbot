@@ -16,6 +16,7 @@ var _ = Describe("QuietWhiteboard", func() {
 		sydneyStandup Standup
 		context       SlackContext
 		clock         MockClock
+		restClient    MockRestClient
 	)
 
 	BeforeEach(func() {
@@ -26,7 +27,7 @@ var _ = Describe("QuietWhiteboard", func() {
 		context = SlackContext{User: user, Channel: channel}
 
 		clock = MockClock{}
-		restClient := MockRestClient{}
+		restClient = MockRestClient{}
 		restClient.SetStandup(sydneyStandup)
 
 		store = MockStore{}
@@ -97,9 +98,34 @@ var _ = Describe("QuietWhiteboard", func() {
 				Expect(entry).To(Equal(expectedEntry))
 			})
 
+			It("creates a post", func() {
+				whiteboard.ProcessCommand("faces Nicholas Cage", context)
+				whiteboard.PostEntry(context)
+
+				expectedRequest := WhiteboardRequest{
+					Utf8:   "",
+					Method: "",
+					Token:  "",
+					Item: Item{
+						StandupId:   1,
+						Title:       "Nicholas Cage",
+						Date:        "2015-01-02",
+						PostId:      "",
+						Public:      "false",
+						Kind:        "New face",
+						Description: "",
+						Author:      "Andrew Leung",
+					},
+					Commit: "Create New Face",
+					Id:     "",
+				}
+
+				Expect(restClient.Request).To(Equal(expectedRequest))
+				Expect(restClient.PostCalledCount).To(Equal(1))
+			})
+
 			Context("when no arguments given", func() {
 				It("returns an error message", func() {
-
 					errorMsg := THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb i My title`\nNeed help? Try `wb ?`"
 
 					expectedEntry := InvalidEntry{Error: errorMsg}
@@ -117,7 +143,11 @@ var _ = Describe("QuietWhiteboard", func() {
 				})
 
 				It("doesn't create a post", func() {
+					whiteboard.ProcessCommand("faces", context)
+					whiteboard.PostEntry(context)
 
+					Expect(restClient.Request).To(Equal(WhiteboardRequest{}))
+					Expect(restClient.PostCalledCount).To(BeZero())
 				})
 			})
 		})

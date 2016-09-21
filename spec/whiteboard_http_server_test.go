@@ -7,6 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
 	. "github.com/pivotal-sydney/whiteboardbot/http"
+	. "github.com/pivotal-sydney/whiteboardbot/model"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -39,6 +40,10 @@ func (mqw *MockQuietWhiteboard) ProcessCommand(input string, context SlackContex
 	}
 
 	return CommandResult{Entry: &MockStringer{}}, nil
+}
+
+func (mqw *MockQuietWhiteboard) PostEntry(context SlackContext) (PostResult, error) {
+	return PostResult{}, nil
 }
 
 func (mqw *MockQuietWhiteboard) SetErrorToReturn(err error) {

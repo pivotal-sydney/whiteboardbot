@@ -89,7 +89,7 @@ func (whiteboard WhiteboardApp) handleEventsCommand(title string, ev *slack.Mess
 	whiteboard.handleCreateCommand(title, ev, NewEvent)
 }
 
-func (whiteboard WhiteboardApp) handleCreateCommand(title string, ev *slack.MessageEvent, createEntryCallback func(clock Clock, author string, title string, standup Standup) (entryType interface{})) {
+func (whiteboard WhiteboardApp) handleCreateCommand(title string, ev *slack.MessageEvent, createEntryCallback func(clock Clock, author string, title string, standup Standup) (entryType EntryType)) {
 	standup, slackUser, _, ok := whiteboard.getEntryDetails(ev)
 	if !ok {
 		return
@@ -99,7 +99,7 @@ func (whiteboard WhiteboardApp) handleCreateCommand(title string, ev *slack.Mess
 		return
 	}
 
-	entryType := createEntryCallback(whiteboard.Clock, slackUser.Author, title, standup).(EntryType)
+	entryType := createEntryCallback(whiteboard.Clock, slackUser.Author, title, standup)
 
 	whiteboard.EntryMap[slackUser.Username] = entryType
 
