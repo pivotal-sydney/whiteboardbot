@@ -8,5 +8,5 @@ deployment:
       - 'go get github.com/tools/godep'
       - 'godep update ./...'
       - 'curl -L "https://cli.run.pivotal.io/stable?release=linux64-binary&source=github" | tar -zx'
-      - './cf login -u $CF_USERNAME -p $CF_PASSWORD -a "https://api.run.pivotal.io" -o labs-playground -s aleung'
-      - './cf push'
+      - './cf login -u $CF_USERNAME -p $CF_PASSWORD -a "https://api.run.pivotal.io" -o $CF_ORG -s $CF_SPACE'
+      - './cf push whiteboardbot -b "https://github.com/cloudfoundry/go-buildpack.git" -i 1 -m 64M -c "whiteboardbot"'
