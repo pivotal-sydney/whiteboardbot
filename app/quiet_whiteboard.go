@@ -48,6 +48,8 @@ func (whiteboard QuietWhiteboardApp) init() {
 	whiteboard.registerCommand("register", whiteboard.handleRegistrationCommand)
 	whiteboard.registerCommand("faces", whiteboard.handleFacesCommand)
 	whiteboard.registerCommand("helps", whiteboard.handleHelpsCommand)
+	whiteboard.registerCommand("interestings", whiteboard.handleInterestingsCommand)
+	whiteboard.registerCommand("events", whiteboard.handleEventsCommand)
 }
 
 func (whiteboard QuietWhiteboardApp) ProcessCommand(input string, context SlackContext) (CommandResult, error) {
@@ -107,6 +109,14 @@ func (whiteboard QuietWhiteboardApp) handleFacesCommand(input string, context Sl
 
 func (whiteboard QuietWhiteboardApp) handleHelpsCommand(input string, context SlackContext) (CommandResult, error) {
 	return whiteboard.handleCreateCommand(input, context, NewHelp)
+}
+
+func (whiteboard QuietWhiteboardApp) handleInterestingsCommand(input string, context SlackContext) (CommandResult, error) {
+	return whiteboard.handleCreateCommand(input, context, NewInteresting)
+}
+
+func (whiteboard QuietWhiteboardApp) handleEventsCommand(input string, context SlackContext) (CommandResult, error) {
+	return whiteboard.handleCreateCommand(input, context, NewEvent)
 }
 
 func (whiteboard QuietWhiteboardApp) handleCreateCommand(input string, context SlackContext, factory EntryFactory) (CommandResult, error) {

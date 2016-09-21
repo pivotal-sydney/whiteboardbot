@@ -231,6 +231,72 @@ var _ = Describe("QuietWhiteboard", func() {
 					It("doesn't create a post", AssertNoArgumentWontCreatePost())
 				})
 			})
+
+			Context("interestings", func() {
+
+				BeforeEach(func() {
+					command = "interestings"
+					commitString = "Create Item"
+					expectedEntryItemKind = "Interesting"
+					title = "Nicholas Cage did a remake of The Wicker Man!"
+					author = context.User.Author
+					expectedEntry = *NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
+					expectedEntryType = Interesting{Entry: &expectedEntry}
+
+					whiteboard.Store.SetStandup(context.Channel.ChannelId, sydneyStandup)
+				})
+
+				It("contains a help entry in the result", AssertContainsEntryInResult())
+
+				It("stores the help entry in the entry map", AssertEntryStoredInEntryMap())
+
+				It("creates a post", AssertPostCreated())
+
+				Context("when posting to Whiteboard fails", func() {
+					It("returns the proper error message", AssertErrorMessageWhenCreatingPostFails())
+				})
+
+				Context("when no arguments given", func() {
+					It("returns an error message", AssertNoArgumentErrorMessage())
+
+					It("doesn't store anything in the entry map", AssertNoArgumentWontStoreInEntryMap())
+
+					It("doesn't create a post", AssertNoArgumentWontCreatePost())
+				})
+			})
+
+			Context("events", func() {
+
+				BeforeEach(func() {
+					command = "events"
+					commitString = "Create Item"
+					expectedEntryItemKind = "Event"
+					title = "Movie Screening for The Wicker Man!"
+					author = context.User.Author
+					expectedEntry = *NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
+					expectedEntryType = Event{Entry: &expectedEntry}
+
+					whiteboard.Store.SetStandup(context.Channel.ChannelId, sydneyStandup)
+				})
+
+				It("contains a help entry in the result", AssertContainsEntryInResult())
+
+				It("stores the help entry in the entry map", AssertEntryStoredInEntryMap())
+
+				It("creates a post", AssertPostCreated())
+
+				Context("when posting to Whiteboard fails", func() {
+					It("returns the proper error message", AssertErrorMessageWhenCreatingPostFails())
+				})
+
+				Context("when no arguments given", func() {
+					It("returns an error message", AssertNoArgumentErrorMessage())
+
+					It("doesn't store anything in the entry map", AssertNoArgumentWontStoreInEntryMap())
+
+					It("doesn't create a post", AssertNoArgumentWontCreatePost())
+				})
+			})
 		})
 	})
 })
