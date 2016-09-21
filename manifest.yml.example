@@ -1,5 +1,5 @@
 applications:
-  - name: whiteboardbot
+  - name: [your-app-name]
     memory: 64M
     instances: 1
     buildpack: https://github.com/cloudfoundry/go-buildpack.git

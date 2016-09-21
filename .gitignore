@@ -1,1 +1,3 @@
-Godeps/_workspace/
+vendor/
+manifest.yml
+whiteboardbot
