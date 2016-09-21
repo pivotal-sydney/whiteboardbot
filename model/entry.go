@@ -31,6 +31,10 @@ type Entry struct {
 	ItemKind  string `json:"-"`
 }
 
+type TextEntry struct {
+	Text string
+}
+
 type InvalidEntry struct {
 	Error string
 }
@@ -81,6 +85,10 @@ func (entry Entry) GetDateString() string {
 
 func (entry Entry) toItem() Item {
 	return Item{StandupId: entry.StandupId, Title: slackUnescape(entry.Title), Date: entry.Date, Public: "false", Description: slackUnescape(entry.Body), Author: entry.Author, Kind: entry.ItemKind}
+}
+
+func (entry TextEntry) String() string {
+	return entry.Text
 }
 
 func (entry InvalidEntry) String() string {

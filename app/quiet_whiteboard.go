@@ -22,7 +22,6 @@ type QuietWhiteboardApp struct {
 }
 
 type CommandResult struct {
-	Text  string
 	Entry fmt.Stringer
 }
 
@@ -71,7 +70,7 @@ func (whiteboard QuietWhiteboardApp) handleCommand(command, input string, contex
 		}
 	}
 
-	return CommandResult{Text: "Ooops"}, nil
+	return CommandResult{Entry: InvalidEntry{Error: "Ooops"}}, nil
 }
 
 func (whiteboard QuietWhiteboardApp) registerCommand(command string, callback CommandHandler) {
@@ -79,7 +78,7 @@ func (whiteboard QuietWhiteboardApp) registerCommand(command string, callback Co
 }
 
 func (whiteboard QuietWhiteboardApp) handleUsageCommand(_ string, _ SlackContext) (CommandResult, error) {
-	return CommandResult{Text: USAGE}, nil
+	return CommandResult{Entry: TextEntry{Text: USAGE}}, nil
 }
 
 func (whiteboard QuietWhiteboardApp) handleRegistrationCommand(standupId string, context SlackContext) (command CommandResult, err error) {
@@ -95,7 +94,7 @@ func (whiteboard QuietWhiteboardApp) handleRegistrationCommand(standupId string,
 
 	text := fmt.Sprintf("Standup %v has been registered! You can now start creating Whiteboard entries!", standup.Title)
 
-	command.Text = text
+	command.Entry = TextEntry{Text: text}
 	return
 }
 
