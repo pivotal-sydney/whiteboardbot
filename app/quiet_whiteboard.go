@@ -53,8 +53,8 @@ func (whiteboard QuietWhiteboardApp) init() {
 	whiteboard.registerCommand("events", whiteboard.handleEventsCommand)
 	whiteboard.registerCommand("body", whiteboard.handleBodyCommand)
 	whiteboard.registerCommand("date", whiteboard.handleDateCommand)
-	whiteboard.registerCommand("name", whiteboard.handleNameCommand)
-	whiteboard.registerCommand("title", whiteboard.handleTitleCommand)
+	whiteboard.registerCommand("name", whiteboard.handleUpdateCommand)
+	whiteboard.registerCommand("title", whiteboard.handleUpdateCommand)
 }
 
 func (whiteboard QuietWhiteboardApp) ProcessCommand(input string, context SlackContext) (CommandResult, error) {
@@ -184,7 +184,7 @@ func (whiteboard QuietWhiteboardApp) handleDateCommand(input string, context Sla
 	}
 }
 
-func (whiteboard QuietWhiteboardApp) handleNameCommand(input string, context SlackContext) (CommandResult, error) {
+func (whiteboard QuietWhiteboardApp) handleUpdateCommand(input string, context SlackContext) (CommandResult, error) {
 	if len(input) == 0 {
 		entry := InvalidEntry{Error: THUMBS_DOWN + "Oi! The title/name can't be empty!"}
 		return CommandResult{Entry: entry}, nil
@@ -193,21 +193,8 @@ func (whiteboard QuietWhiteboardApp) handleNameCommand(input string, context Sla
 	if entryType, ok := whiteboard.EntryMap[context.User.Username]; ok {
 		entryType.GetEntry().Title = input
 
-		return CommandResult{Entry: entryType}, nil
-	} else {
-		errorMsg := THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"
-		return CommandResult{Entry: InvalidEntry{Error: errorMsg}}, nil
-	}
-}
-
-func (whiteboard QuietWhiteboardApp) handleTitleCommand(input string, context SlackContext) (CommandResult, error) {
-	if len(input) == 0 {
-		entry := InvalidEntry{Error: THUMBS_DOWN + "Oi! The title/name can't be empty!"}
-		return CommandResult{Entry: entry}, nil
-	}
-
-	if entryType, ok := whiteboard.EntryMap[context.User.Username]; ok {
-		entryType.GetEntry().Title = input
+		request := createRequest(entryType, len(entryType.GetEntry().Id) > 0)
+		whiteboard.RestClient.Post(request)
 
 		return CommandResult{Entry: entryType}, nil
 	} else {
