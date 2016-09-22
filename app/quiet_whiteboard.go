@@ -50,6 +50,7 @@ func (whiteboard QuietWhiteboardApp) init() {
 	whiteboard.registerCommand("helps", whiteboard.handleHelpsCommand)
 	whiteboard.registerCommand("interestings", whiteboard.handleInterestingsCommand)
 	whiteboard.registerCommand("events", whiteboard.handleEventsCommand)
+	whiteboard.registerCommand("body", whiteboard.handleBodyCommand)
 }
 
 func (whiteboard QuietWhiteboardApp) ProcessCommand(input string, context SlackContext) (CommandResult, error) {
@@ -117,6 +118,40 @@ func (whiteboard QuietWhiteboardApp) handleInterestingsCommand(input string, con
 
 func (whiteboard QuietWhiteboardApp) handleEventsCommand(input string, context SlackContext) (CommandResult, error) {
 	return whiteboard.handleCreateCommand(input, context, NewEvent)
+}
+
+func (whiteboard QuietWhiteboardApp) handleBodyCommand(input string, context SlackContext) (CommandResult, error) {
+
+	if len(input) == 0 {
+		errorMsg := THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb b My title`\nNeed help? Try `wb ?`"
+		return CommandResult{Entry: InvalidEntry{Error: errorMsg}}, nil
+	}
+
+	username := context.User.Username
+
+	if entryType, ok := whiteboard.EntryMap[username]; ok {
+		entry := *entryType.GetEntry()
+
+		if entry.ItemKind == "New face" {
+			errorMsg := ":-1:\nHey, new faces should not have a body!"
+			return CommandResult{InvalidEntry{Error: errorMsg}}, nil
+		}
+
+		entry.Body = input
+		whiteboard.EntryMap[username] = entry
+
+		entryType = whiteboard.EntryMap[username]
+
+		if _, err := whiteboard.PostEntry(entryType); err != nil {
+			return CommandResult{Entry: InvalidEntry{Error: err.Error()}}, nil
+		}
+		return CommandResult{Entry: entry}, nil
+	} else {
+
+		errorMsg := THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"
+
+		return CommandResult{Entry: InvalidEntry{Error: errorMsg}}, nil
+	}
 }
 
 func (whiteboard QuietWhiteboardApp) handleCreateCommand(input string, context SlackContext, factory EntryFactory) (CommandResult, error) {

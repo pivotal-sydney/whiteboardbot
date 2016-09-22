@@ -72,6 +72,85 @@ var _ = Describe("QuietWhiteboard", func() {
 			})
 		})
 
+		Context("body", func() {
+			BeforeEach(func() {
+				whiteboard.ProcessCommand("register 1", context)
+			})
+
+			It("adds a body to the entry type", func() {
+				whiteboard.ProcessCommand("interestings Nicholas Cage did a remake of The Wicker Man!", context)
+				entryType := whiteboard.EntryMap[context.User.Username]
+				Expect(entryType.GetEntry().Body).To(BeEmpty())
+
+				whiteboard.ProcessCommand("body And the movie was terrible!", context)
+				entryType = whiteboard.EntryMap[context.User.Username]
+
+				Expect(entryType.GetEntry().Body).To(Equal("And the movie was terrible!"))
+			})
+
+			It("creates a post", func() {
+				whiteboard.ProcessCommand("interestings Nicholas Cage did a remake of The Wicker Man!", context)
+				whiteboard.ProcessCommand("body And the movie was terrible!", context)
+
+				expectedRequest := WhiteboardRequest{
+					Utf8:   "",
+					Method: "",
+					Token:  "",
+					Item: Item{
+						StandupId:   1,
+						Title:       "Nicholas Cage did a remake of The Wicker Man!",
+						Date:        "2015-01-02",
+						PostId:      "",
+						Public:      "false",
+						Kind:        "Interesting",
+						Description: "And the movie was terrible!",
+						Author:      "Andrew Leung",
+					},
+					Commit: "Create Item",
+					Id:     "",
+				}
+
+				Expect(restClient.Request).To(Equal(expectedRequest))
+				Expect(restClient.PostCalledCount).To(Equal(2))
+			})
+
+			Context("when there is no entry", func() {
+				It("returns an error", func() {
+					errorMsg := ":-1:\nHey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"
+					expectedEntry := InvalidEntry{Error: errorMsg}
+
+					result, _ := whiteboard.ProcessCommand("body And the movie was terrible!", context)
+
+					Expect(result).To(Equal(CommandResult{Entry: expectedEntry}))
+				})
+			})
+
+			Context("when entry type is a New Face", func() {
+				FIt("returns an error", func() {
+					whiteboard.ProcessCommand("faces Nicholas Cage", context)
+					errorMsg := ":-1:\nHey, new faces should not have a body!"
+					expectedEntry := InvalidEntry{Error: errorMsg}
+
+					result, _ := whiteboard.ProcessCommand("body And John Travolta!", context)
+
+					Expect(result).To(Equal(CommandResult{Entry: expectedEntry}))
+				})
+			})
+
+			Context("when given no arguments", func() {
+				It("returns an error", func() {
+					whiteboard.ProcessCommand("interestings Nicholas Cage did a remake of The Wicker Man!", context)
+					errorMsg := THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb b My title`\nNeed help? Try `wb ?`"
+					expectedEntry := InvalidEntry{Error: errorMsg}
+
+					result, _ := whiteboard.ProcessCommand("body", context)
+
+					Expect(result.Entry).To(Equal(expectedEntry))
+				})
+			})
+
+		})
+
 		Describe("creating entries", func() {
 			var (
 				title                 string
