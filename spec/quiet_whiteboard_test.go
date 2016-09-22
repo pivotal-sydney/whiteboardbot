@@ -151,6 +151,10 @@ var _ = Describe("QuietWhiteboard", func() {
 		})
 
 		Context("date", func() {
+			BeforeEach(func() {
+				whiteboard.ProcessCommand("register 1", context)
+			})
+
 			It("updates the date of an entry", func() {
 				whiteboard.ProcessCommand("interestings Nicholas Cage did a remake of The Wicker Man!", context)
 				entryType := whiteboard.EntryMap[context.User.Username]
@@ -160,6 +164,33 @@ var _ = Describe("QuietWhiteboard", func() {
 				entryType = whiteboard.EntryMap[context.User.Username]
 
 				Expect(entryType.GetDateString()).To(Equal("13 May 3000"))
+			})
+
+			It("updates the entry", func() {
+				whiteboard.ProcessCommand("interestings Nicholas Cage did a remake of The Wicker Man!", context)
+				Expect(whiteboard.EntryMap[context.User.Username].GetEntry().Id).To(Equal("1"))
+				whiteboard.ProcessCommand("date 3000-05-13", context)
+
+				expectedRequest := WhiteboardRequest{
+					Utf8:   "",
+					Method: "patch",
+					Token:  "",
+					Item: Item{
+						StandupId:   1,
+						Title:       "Nicholas Cage did a remake of The Wicker Man!",
+						Date:        "3000-05-13",
+						PostId:      "",
+						Public:      "false",
+						Kind:        "Interesting",
+						Description: "",
+						Author:      context.User.Author,
+					},
+					Commit: "Update Item",
+					Id:     whiteboard.EntryMap[context.User.Username].GetEntry().Id,
+				}
+
+				Expect(restClient.PostCalledCount).To(Equal(2))
+				Expect(restClient.Request).To(Equal(expectedRequest))
 			})
 
 			Context("when there is no entry", func() {

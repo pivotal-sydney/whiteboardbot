@@ -166,6 +166,10 @@ func (whiteboard QuietWhiteboardApp) handleDateCommand(input string, context Sla
 		if entryType, ok := whiteboard.EntryMap[context.User.Username]; ok {
 			entryType.GetEntry().Date = parsedDate.Format(DATE_FORMAT)
 
+			request := createRequest(entryType, len(entryType.GetEntry().Id) > 0)
+
+			whiteboard.RestClient.Post(request)
+
 			return CommandResult{Entry: entryType.GetEntry()}, nil
 		} else {
 			errorMsg := THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"
