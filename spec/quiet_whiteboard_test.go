@@ -94,7 +94,7 @@ var _ = Describe("QuietWhiteboard", func() {
 
 				expectedRequest := WhiteboardRequest{
 					Utf8:   "",
-					Method: "",
+					Method: "patch",
 					Token:  "",
 					Item: Item{
 						StandupId:   1,
@@ -106,8 +106,8 @@ var _ = Describe("QuietWhiteboard", func() {
 						Description: "And the movie was terrible!",
 						Author:      "Andrew Leung",
 					},
-					Commit: "Create Item",
-					Id:     "",
+					Commit: "Update Item",
+					Id:     "1",
 				}
 
 				Expect(restClient.Request).To(Equal(expectedRequest))
@@ -224,6 +224,15 @@ var _ = Describe("QuietWhiteboard", func() {
 				}
 			}
 
+			AssertEntryHasAnId := func() func() {
+				return func() {
+					whiteboard.ProcessCommand(command+" "+title, context)
+
+					entry := whiteboard.EntryMap[context.User.Username]
+					Expect(entry.GetEntry().Id).To(Equal("1"))
+				}
+			}
+
 			AssertPostCreated := func() func() {
 				return func() {
 					whiteboard.ProcessCommand(command+" "+title, context)
@@ -299,6 +308,7 @@ var _ = Describe("QuietWhiteboard", func() {
 					title = "Nicholas Cage"
 					author = context.User.Author
 					expectedEntry = *NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
+					expectedEntry.Id = "1"
 					expectedEntryType = Face{Entry: &expectedEntry}
 
 					whiteboard.Store.SetStandup(context.Channel.ChannelId, sydneyStandup)
@@ -307,6 +317,8 @@ var _ = Describe("QuietWhiteboard", func() {
 				It("contains a help entry in the result", AssertContainsEntryInResult())
 
 				It("stores the help entry in the entry map", AssertEntryStoredInEntryMap())
+
+				It("assigns an Id to the entry", AssertEntryHasAnId())
 
 				It("creates a post", AssertPostCreated())
 
@@ -332,6 +344,7 @@ var _ = Describe("QuietWhiteboard", func() {
 					title = "Good wicker furniture shop recommendations?"
 					author = context.User.Author
 					expectedEntry = *NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
+					expectedEntry.Id = "1"
 					expectedEntryType = Help{Entry: &expectedEntry}
 
 					whiteboard.Store.SetStandup(context.Channel.ChannelId, sydneyStandup)
@@ -340,6 +353,8 @@ var _ = Describe("QuietWhiteboard", func() {
 				It("contains a help entry in the result", AssertContainsEntryInResult())
 
 				It("stores the help entry in the entry map", AssertEntryStoredInEntryMap())
+
+				It("assigns an Id to the entry", AssertEntryHasAnId())
 
 				It("creates a post", AssertPostCreated())
 
@@ -365,6 +380,7 @@ var _ = Describe("QuietWhiteboard", func() {
 					title = "Nicholas Cage did a remake of The Wicker Man!"
 					author = context.User.Author
 					expectedEntry = *NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
+					expectedEntry.Id = "1"
 					expectedEntryType = Interesting{Entry: &expectedEntry}
 
 					whiteboard.Store.SetStandup(context.Channel.ChannelId, sydneyStandup)
@@ -373,6 +389,8 @@ var _ = Describe("QuietWhiteboard", func() {
 				It("contains a help entry in the result", AssertContainsEntryInResult())
 
 				It("stores the help entry in the entry map", AssertEntryStoredInEntryMap())
+
+				It("assigns an Id to the entry", AssertEntryHasAnId())
 
 				It("creates a post", AssertPostCreated())
 
@@ -398,6 +416,7 @@ var _ = Describe("QuietWhiteboard", func() {
 					title = "Movie Screening for The Wicker Man!"
 					author = context.User.Author
 					expectedEntry = *NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
+					expectedEntry.Id = "1"
 					expectedEntryType = Event{Entry: &expectedEntry}
 
 					whiteboard.Store.SetStandup(context.Channel.ChannelId, sydneyStandup)
@@ -406,6 +425,8 @@ var _ = Describe("QuietWhiteboard", func() {
 				It("contains a help entry in the result", AssertContainsEntryInResult())
 
 				It("stores the help entry in the entry map", AssertEntryStoredInEntryMap())
+
+				It("assigns an Id to the entry", AssertEntryHasAnId())
 
 				It("creates a post", AssertPostCreated())
 

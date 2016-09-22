@@ -185,9 +185,11 @@ func (whiteboard QuietWhiteboardApp) handleCreateCommand(input string, context S
 		standup, _ := whiteboard.Store.GetStandup(context.Channel.ChannelId)
 		entryType := factory(whiteboard.Clock, context.User.Author, input, standup)
 		whiteboard.EntryMap[context.User.Username] = entryType
-		if _, err := whiteboard.PostEntry(entryType); err != nil {
+		postResult, err := whiteboard.PostEntry(entryType)
+		if err != nil {
 			return CommandResult{Entry: InvalidEntry{Error: err.Error()}}, nil
 		}
+		entryType.GetEntry().Id = postResult.ItemId
 		entry = *entryType.GetEntry()
 	}
 
