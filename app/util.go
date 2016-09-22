@@ -1,7 +1,6 @@
 package app
 
 import (
-	. "github.com/pivotal-sydney/whiteboardbot/model"
 	"math/rand"
 	"regexp"
 	"strings"
@@ -32,8 +31,4 @@ func readNextCommand(input string) (keyword string, newInput string) {
 		newInput = ""
 	}
 	return
-}
-
-func missingEntry(entryType EntryType) bool {
-	return entryType == nil
 }

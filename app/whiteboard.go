@@ -152,7 +152,7 @@ func (whiteboard WhiteboardApp) handleUpdateCommand(detail string, ev *slack.Mes
 	if !ok {
 		return
 	}
-	if missingEntry(entryType) {
+	if entryType == nil {
 		handleMissingEntry(whiteboard.SlackClient, ev.Channel)
 		return
 	}

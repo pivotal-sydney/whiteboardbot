@@ -79,6 +79,7 @@ type MockRestClient struct {
 	StandupItems    model.StandupItems
 	StandupMap      map[int]model.Standup
 	failPost        bool
+	postItemId      string
 }
 
 func (client MockRestClient) GetStandupItems(standupId int) (items model.StandupItems, ok bool) {
@@ -92,13 +93,27 @@ func (client *MockRestClient) Post(request model.WhiteboardRequest) (itemId stri
 	if !client.failPost {
 		client.Request = request
 		ok = true
-		itemId = "1"
+		itemId = client.getNextId()
 	}
+	return
+}
+
+func (client *MockRestClient) getNextId() (id string) {
+	id = client.postItemId
+	if id == "" {
+		id = "1"
+	}
+
+	client.postItemId += client.postItemId
 	return
 }
 
 func (client *MockRestClient) SetPostError() {
 	client.failPost = true
+}
+
+func (client *MockRestClient) SetPostItemId(id string) {
+	client.postItemId = id
 }
 
 func (client *MockRestClient) SetStandup(standup model.Standup) {

@@ -473,6 +473,100 @@ var _ = Describe("QuietWhiteboard", func() {
 					It("doesn't create a post", AssertNoArgumentWontCreatePost())
 				})
 			})
+
+			Context("name", func() {
+				var (
+					originalEntry   Entry
+					originalEntryId string
+				)
+
+				BeforeEach(func() {
+					originalEntryId = "abc123"
+					originalEntryType := NewFace(clock, context.User.Author, "Oliver Newton John", sydneyStandup)
+					originalEntryType.GetEntry().Id = originalEntryId
+					whiteboard.EntryMap[context.User.Username] = originalEntryType
+					originalEntry = *whiteboard.EntryMap[context.User.Username].GetEntry()
+				})
+
+				It("updates the name on a new face", func() {
+					whiteboard.ProcessCommand("name Olivia Newton John", context)
+
+					entry := whiteboard.EntryMap[context.User.Username].GetEntry()
+					entryId := entry.Id
+					title := entry.Title
+
+					Expect(title).To(Equal("Olivia Newton John"))
+					Expect(entryId).To(Equal(originalEntryId))
+				})
+
+				Context("when the new name is the empty string", func() {
+					It("returns an error message", func() {
+						entry, _ := whiteboard.ProcessCommand("name     ", context)
+
+						expectedMessage := THUMBS_DOWN + "Oi! The title/name can't be empty!"
+						Expect(entry.Entry.String()).To(Equal(expectedMessage))
+					})
+				})
+
+				Context("no entry in store", func() {
+					It("returns an error message", func() {
+						delete(whiteboard.EntryMap, context.User.Username)
+
+						result, _ := whiteboard.ProcessCommand("name Olivia Newton John", context)
+
+						errorMsg := THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"
+
+						Expect(result.Entry.String()).To(Equal(errorMsg))
+					})
+				})
+			})
+
+			Context("title", func() {
+				var (
+					originalEntry   Entry
+					originalEntryId string
+				)
+
+				BeforeEach(func() {
+					originalEntryId = "abc123"
+					originalEntryType := NewEvent(clock, context.User.Author, "Saturday Night Fever", sydneyStandup)
+					originalEntryType.GetEntry().Id = originalEntryId
+					whiteboard.EntryMap[context.User.Username] = originalEntryType
+					originalEntry = *whiteboard.EntryMap[context.User.Username].GetEntry()
+				})
+
+				It("updates the title on an entry", func() {
+					whiteboard.ProcessCommand("title Saturday Night Live", context)
+
+					entry := whiteboard.EntryMap[context.User.Username].GetEntry()
+					entryId := entry.Id
+					title := entry.Title
+
+					Expect(title).To(Equal("Saturday Night Live"))
+					Expect(entryId).To(Equal(originalEntryId))
+				})
+
+				Context("when the new title is the empty string", func() {
+					It("returns an error message", func() {
+						entry, _ := whiteboard.ProcessCommand("title", context)
+
+						expectedMessage := THUMBS_DOWN + "Oi! The title/name can't be empty!"
+						Expect(entry.Entry.String()).To(Equal(expectedMessage))
+					})
+				})
+
+				Context("no entry in store", func() {
+					It("returns an error message", func() {
+						delete(whiteboard.EntryMap, context.User.Username)
+
+						result, _ := whiteboard.ProcessCommand("title Olivia Newton John", context)
+
+						errorMsg := THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"
+
+						Expect(result.Entry.String()).To(Equal(errorMsg))
+					})
+				})
+			})
 		})
 	})
 })
