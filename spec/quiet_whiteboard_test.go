@@ -126,7 +126,7 @@ var _ = Describe("QuietWhiteboard", func() {
 			})
 
 			Context("when entry type is a New Face", func() {
-				FIt("returns an error", func() {
+				It("returns an error", func() {
 					whiteboard.ProcessCommand("faces Nicholas Cage", context)
 					errorMsg := ":-1:\nHey, new faces should not have a body!"
 					expectedEntry := InvalidEntry{Error: errorMsg}
@@ -148,7 +148,52 @@ var _ = Describe("QuietWhiteboard", func() {
 					Expect(result.Entry).To(Equal(expectedEntry))
 				})
 			})
+		})
 
+		Context("date", func() {
+			It("updates the date of an entry", func() {
+				whiteboard.ProcessCommand("interestings Nicholas Cage did a remake of The Wicker Man!", context)
+				entryType := whiteboard.EntryMap[context.User.Username]
+				Expect(entryType.GetDateString()).To(Equal("02 Jan 2015"))
+
+				whiteboard.ProcessCommand("date 3000-05-13", context)
+				entryType = whiteboard.EntryMap[context.User.Username]
+
+				Expect(entryType.GetDateString()).To(Equal("13 May 3000"))
+			})
+
+			Context("when there is no entry", func() {
+				It("returns an error", func() {
+					result, _ := whiteboard.ProcessCommand("date 3000-05-13", context)
+					errorMsg := THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"
+
+					Expect(result).To(Equal(CommandResult{Entry: InvalidEntry{Error: errorMsg}}))
+				})
+			})
+
+			Context("when given no arguments", func() {
+				It("returns an error", func() {
+					whiteboard.ProcessCommand("interestings Nicholas Cage did a remake of The Wicker Man!", context)
+					errorMsg := THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb d 2017-05-21`\nNeed help? Try `wb ?`"
+					expectedEntry := InvalidEntry{Error: errorMsg}
+
+					result, _ := whiteboard.ProcessCommand("date", context)
+
+					Expect(result.Entry).To(Equal(expectedEntry))
+				})
+			})
+
+			Context("when the date format is wrong", func() {
+				It("returns an error", func() {
+					errorMsg := THUMBS_DOWN + "Date not set, use YYYY-MM-DD as date format\n"
+					expectedEntry := InvalidEntry{Error: errorMsg}
+					whiteboard.ProcessCommand("interestings Nicholas Cage did a remake of The Wicker Man!", context)
+
+					result, _ := whiteboard.ProcessCommand("date LOLWUT", context)
+
+					Expect(result.Entry).To(Equal(expectedEntry))
+				})
+			})
 		})
 
 		Describe("creating entries", func() {

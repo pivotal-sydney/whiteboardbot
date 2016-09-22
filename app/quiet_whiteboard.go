@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	. "github.com/pivotal-sydney/whiteboardbot/model"
+	"time"
 )
 
 type QuietWhiteboard interface {
@@ -51,6 +52,7 @@ func (whiteboard QuietWhiteboardApp) init() {
 	whiteboard.registerCommand("interestings", whiteboard.handleInterestingsCommand)
 	whiteboard.registerCommand("events", whiteboard.handleEventsCommand)
 	whiteboard.registerCommand("body", whiteboard.handleBodyCommand)
+	whiteboard.registerCommand("date", whiteboard.handleDateCommand)
 }
 
 func (whiteboard QuietWhiteboardApp) ProcessCommand(input string, context SlackContext) (CommandResult, error) {
@@ -147,9 +149,31 @@ func (whiteboard QuietWhiteboardApp) handleBodyCommand(input string, context Sla
 		}
 		return CommandResult{Entry: entry}, nil
 	} else {
-
 		errorMsg := THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"
 
+		return CommandResult{Entry: InvalidEntry{Error: errorMsg}}, nil
+	}
+}
+
+func (whiteboard QuietWhiteboardApp) handleDateCommand(input string, context SlackContext) (CommandResult, error) {
+
+	if len(input) == 0 {
+		errorMsg := THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb d 2017-05-21`\nNeed help? Try `wb ?`"
+		return CommandResult{Entry: InvalidEntry{Error: errorMsg}}, nil
+	}
+
+	if parsedDate, err := time.Parse(DATE_FORMAT, input); err == nil {
+		if entryType, ok := whiteboard.EntryMap[context.User.Username]; ok {
+			entryType.GetEntry().Date = parsedDate.Format(DATE_FORMAT)
+
+			return CommandResult{Entry: entryType.GetEntry()}, nil
+		} else {
+			errorMsg := THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"
+
+			return CommandResult{Entry: InvalidEntry{Error: errorMsg}}, nil
+		}
+	} else {
+		errorMsg := THUMBS_DOWN + "Date not set, use YYYY-MM-DD as date format\n"
 		return CommandResult{Entry: InvalidEntry{Error: errorMsg}}, nil
 	}
 }
