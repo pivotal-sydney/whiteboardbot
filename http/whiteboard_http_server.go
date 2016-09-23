@@ -78,8 +78,8 @@ func jsonify(s fmt.Stringer) ([]byte, error) {
 }
 
 func (server WhiteboardHttpServer) extractSlackContext(req *http.Request) SlackContext {
-	username := req.FormValue("user_name")
-	slackUser := server.SlackClient.GetUserDetails(username)
+	userId := req.FormValue("user_id")
+	slackUser := server.SlackClient.GetUserDetails(userId)
 
 	channelName := req.FormValue("channel_name")
 	channelId := req.FormValue("channel_id")
