@@ -8,17 +8,35 @@ import (
 )
 
 var _ = Describe("WhiteboardGateway", func() {
-	Describe("SaveEntry", func() {
-		var (
-			restClient MockRestClient
-			gateway    WhiteboardGateway
-		)
+	var (
+		restClient MockRestClient
+		gateway    WhiteboardGateway
+	)
 
-		BeforeEach(func() {
-			restClient = MockRestClient{}
-			gateway = WhiteboardGateway{RestClient: &restClient}
+	BeforeEach(func() {
+		restClient = MockRestClient{}
+		gateway = WhiteboardGateway{RestClient: &restClient}
+	})
+
+	Describe("FindStandup", func() {
+		It("returns the standup", func() {
+			expectedStandup := Standup{Id: 1, TimeZone: "Australia/Sydney", Title: "Sydney"}
+			restClient.SetStandup(expectedStandup)
+
+			standup, _ := gateway.FindStandup("1")
+
+			Expect(standup).To(Equal(expectedStandup))
 		})
 
+		Context("when the standup is not found", func() {
+			It("returns an error message", func() {
+				_, err := gateway.FindStandup("abc123")
+				Expect(err.Error()).To(Equal("Standup not found!"))
+			})
+		})
+	})
+
+	Describe("SaveEntry", func() {
 		It("returns a PostResult with the item ID", func() {
 			result, _ := gateway.SaveEntry(&Entry{})
 

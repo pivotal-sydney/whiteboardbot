@@ -6,6 +6,7 @@ import (
 )
 
 type StandupRepository interface {
+	FindStandup(string) (Standup, error)
 	SaveEntry(EntryType) (PostResult, error)
 }
 
@@ -15,6 +16,14 @@ type PostResult struct {
 
 type WhiteboardGateway struct {
 	RestClient RestClient
+}
+
+func (gateway WhiteboardGateway) FindStandup(standupId string) (standup Standup, err error) {
+	standup, ok := gateway.RestClient.GetStandup(standupId)
+	if !ok {
+		err = errors.New("Standup not found!")
+	}
+	return
 }
 
 func (gateway WhiteboardGateway) SaveEntry(entryType EntryType) (PostResult, error) {
