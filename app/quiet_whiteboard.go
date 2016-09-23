@@ -28,10 +28,6 @@ type CommandResult struct {
 	Entry fmt.Stringer
 }
 
-type PostResult struct {
-	ItemId string
-}
-
 func NewQuietWhiteboard(restClient RestClient, store Store, clock Clock) (whiteboard QuietWhiteboardApp) {
 	whiteboard = QuietWhiteboardApp{
 		Clock:      clock,
