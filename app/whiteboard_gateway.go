@@ -5,6 +5,10 @@ import (
 	. "github.com/pivotal-sydney/whiteboardbot/model"
 )
 
+type StandupRepository interface {
+	SaveEntry(EntryType) (PostResult, error)
+}
+
 type PostResult struct {
 	ItemId string
 }
@@ -13,7 +17,7 @@ type WhiteboardGateway struct {
 	RestClient RestClient
 }
 
-func (gateway WhiteboardGateway) Post(entryType EntryType) (PostResult, error) {
+func (gateway WhiteboardGateway) SaveEntry(entryType EntryType) (PostResult, error) {
 	itemId, ok := PostEntryToWhiteboard(gateway.RestClient, entryType)
 
 	if !ok {

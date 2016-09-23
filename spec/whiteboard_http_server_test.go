@@ -36,10 +36,6 @@ func (mqw *MockQuietWhiteboard) ProcessCommand(input string, context SlackContex
 	return CommandResult{Entry: &MockStringer{}}
 }
 
-func (MockQuietWhiteboard) PostEntry(EntryType) (PostResult, error) {
-	return PostResult{}, nil
-}
-
 func makeRequest(params map[string]string) *http.Request {
 	data := url.Values{}
 

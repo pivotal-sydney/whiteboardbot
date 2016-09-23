@@ -2,11 +2,32 @@ package spec
 
 import (
 	"encoding/json"
+	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
 	. "github.com/pivotal-sydney/whiteboardbot/model"
 )
+
+type MockWhiteboardGateway struct {
+	SaveEntryCalled bool
+	EntrySaved      EntryType
+	failSaveEntry   bool
+}
+
+func (gateway *MockWhiteboardGateway) SaveEntry(entryType EntryType) (PostResult, error) {
+	if gateway.failSaveEntry {
+		return PostResult{}, errors.New("Problem creating post.")
+	}
+	gateway.SaveEntryCalled = true
+	gateway.EntrySaved = entryType
+
+	return PostResult{ItemId: "1"}, nil
+}
+
+func (gateway *MockWhiteboardGateway) SetSaveEntryError() {
+	gateway.failSaveEntry = true
+}
 
 var _ = Describe("QuietWhiteboard", func() {
 
@@ -17,6 +38,7 @@ var _ = Describe("QuietWhiteboard", func() {
 		context       SlackContext
 		clock         MockClock
 		restClient    MockRestClient
+		gateway       MockWhiteboardGateway
 	)
 
 	BeforeEach(func() {
@@ -31,7 +53,8 @@ var _ = Describe("QuietWhiteboard", func() {
 		restClient.SetStandup(sydneyStandup)
 
 		store = MockStore{}
-		whiteboard = NewQuietWhiteboard(&restClient, &store, &clock)
+		gateway = MockWhiteboardGateway{}
+		whiteboard = NewQuietWhiteboard(&restClient, &gateway, &store, &clock)
 	})
 
 	Describe("Receives command", func() {
@@ -73,12 +96,23 @@ var _ = Describe("QuietWhiteboard", func() {
 		})
 
 		Context("body", func() {
+			var expectedEntry EntryType
+
 			BeforeEach(func() {
-				whiteboard.ProcessCommand("register 1", context)
+				entry := Entry{
+					Date:      "2015-01-02",
+					Title:     "Nicholas Cage did a remake of The Wicker Man!",
+					Body:      "",
+					Author:    "Andrew Leung",
+					Id:        "1",
+					StandupId: 1,
+					ItemKind:  "Interesting",
+				}
+				expectedEntry = Interesting{Entry: &entry}
+				whiteboard.EntryMap[context.User.Username] = expectedEntry
 			})
 
 			It("adds a body to the entry type", func() {
-				whiteboard.ProcessCommand("interestings Nicholas Cage did a remake of The Wicker Man!", context)
 				entryType := whiteboard.EntryMap[context.User.Username]
 				Expect(entryType.GetEntry().Body).To(BeEmpty())
 
@@ -89,33 +123,16 @@ var _ = Describe("QuietWhiteboard", func() {
 			})
 
 			It("creates a post", func() {
-				whiteboard.ProcessCommand("interestings Nicholas Cage did a remake of The Wicker Man!", context)
 				whiteboard.ProcessCommand("body And the movie was terrible!", context)
 
-				expectedRequest := WhiteboardRequest{
-					Utf8:   "",
-					Method: "patch",
-					Token:  "",
-					Item: Item{
-						StandupId:   1,
-						Title:       "Nicholas Cage did a remake of The Wicker Man!",
-						Date:        "2015-01-02",
-						PostId:      "",
-						Public:      "false",
-						Kind:        "Interesting",
-						Description: "And the movie was terrible!",
-						Author:      "Andrew Leung",
-					},
-					Commit: "Update Item",
-					Id:     "1",
-				}
-
-				Expect(restClient.Request).To(Equal(expectedRequest))
-				Expect(restClient.PostCalledCount).To(Equal(2))
+				Expect(gateway.SaveEntryCalled).To(BeTrue())
+				Expect(gateway.EntrySaved).To(Equal(expectedEntry))
 			})
 
 			Context("when there is no entry", func() {
 				It("returns an error", func() {
+					delete(whiteboard.EntryMap, context.User.Username)
+
 					expectedEntry := InvalidEntry{Error: MISSING_ENTRY}
 
 					result := whiteboard.ProcessCommand("body And the movie was terrible!", context)
@@ -146,15 +163,37 @@ var _ = Describe("QuietWhiteboard", func() {
 					Expect(result.Entry).To(Equal(expectedEntry))
 				})
 			})
+
+			Context("when saving the entry fails", func() {
+				It("returns an error message", func() {
+					gateway.SetSaveEntryError()
+					expectedEntry := InvalidEntry{Error: "Problem creating post."}
+
+					result := whiteboard.ProcessCommand("body And the movie was terrible!", context)
+
+					Expect(result.Entry).To(Equal(expectedEntry))
+				})
+			})
 		})
 
 		Context("date", func() {
+			var expectedEntry EntryType
+
 			BeforeEach(func() {
-				whiteboard.ProcessCommand("register 1", context)
+				entry := Entry{
+					Date:      "2015-01-02",
+					Title:     "Nicholas Cage did a remake of The Wicker Man!",
+					Body:      "",
+					Author:    "Andrew Leung",
+					Id:        "1",
+					StandupId: 1,
+					ItemKind:  "Interesting",
+				}
+				expectedEntry = Interesting{Entry: &entry}
+				whiteboard.EntryMap[context.User.Username] = expectedEntry
 			})
 
 			It("updates the date of an entry", func() {
-				whiteboard.ProcessCommand("interestings Nicholas Cage did a remake of The Wicker Man!", context)
 				entryType := whiteboard.EntryMap[context.User.Username]
 				Expect(entryType.GetDateString()).To(Equal("02 Jan 2015"))
 
@@ -165,34 +204,16 @@ var _ = Describe("QuietWhiteboard", func() {
 			})
 
 			It("updates the entry", func() {
-				whiteboard.ProcessCommand("interestings Nicholas Cage did a remake of The Wicker Man!", context)
-				Expect(whiteboard.EntryMap[context.User.Username].GetEntry().Id).To(Equal("1"))
 				whiteboard.ProcessCommand("date 3000-05-13", context)
 
-				expectedRequest := WhiteboardRequest{
-					Utf8:   "",
-					Method: "patch",
-					Token:  "",
-					Item: Item{
-						StandupId:   1,
-						Title:       "Nicholas Cage did a remake of The Wicker Man!",
-						Date:        "3000-05-13",
-						PostId:      "",
-						Public:      "false",
-						Kind:        "Interesting",
-						Description: "",
-						Author:      context.User.Author,
-					},
-					Commit: "Update Item",
-					Id:     whiteboard.EntryMap[context.User.Username].GetEntry().Id,
-				}
-
-				Expect(restClient.PostCalledCount).To(Equal(2))
-				Expect(restClient.Request).To(Equal(expectedRequest))
+				Expect(gateway.SaveEntryCalled).To(BeTrue())
+				Expect(gateway.EntrySaved.GetDateString()).To(Equal("13 May 3000"))
 			})
 
 			Context("when there is no entry", func() {
 				It("returns an error", func() {
+					delete(whiteboard.EntryMap, context.User.Username)
+
 					expectedEntry := InvalidEntry{Error: MISSING_ENTRY}
 
 					result := whiteboard.ProcessCommand("date 3000-05-13", context)
@@ -203,7 +224,6 @@ var _ = Describe("QuietWhiteboard", func() {
 
 			Context("when given no arguments", func() {
 				It("returns an error", func() {
-					whiteboard.ProcessCommand("interestings Nicholas Cage did a remake of The Wicker Man!", context)
 					expectedEntry := InvalidEntry{Error: MISSING_INPUT}
 
 					result := whiteboard.ProcessCommand("date", context)
@@ -219,6 +239,17 @@ var _ = Describe("QuietWhiteboard", func() {
 					whiteboard.ProcessCommand("interestings Nicholas Cage did a remake of The Wicker Man!", context)
 
 					result := whiteboard.ProcessCommand("date LOLWUT", context)
+
+					Expect(result.Entry).To(Equal(expectedEntry))
+				})
+			})
+
+			Context("when saving the entry fails", func() {
+				It("returns an error message", func() {
+					gateway.SetSaveEntryError()
+					expectedEntry := InvalidEntry{Error: "Problem creating post."}
+
+					result := whiteboard.ProcessCommand("date 3000-05-13", context)
 
 					Expect(result.Entry).To(Equal(expectedEntry))
 				})
@@ -262,36 +293,18 @@ var _ = Describe("QuietWhiteboard", func() {
 				}
 			}
 
-			AssertPostCreated := func() func() {
+			AssertEntrySaved := func() func() {
 				return func() {
 					whiteboard.ProcessCommand(command+" "+title, context)
 
-					expectedRequest := WhiteboardRequest{
-						Utf8:   "",
-						Method: "",
-						Token:  "",
-						Item: Item{
-							StandupId:   1,
-							Title:       title,
-							Date:        "2015-01-02",
-							PostId:      "",
-							Public:      "false",
-							Kind:        expectedEntry.ItemKind,
-							Description: "",
-							Author:      author,
-						},
-						Commit: commitString,
-						Id:     "",
-					}
-
-					Expect(restClient.Request).To(Equal(expectedRequest))
-					Expect(restClient.PostCalledCount).To(Equal(1))
+					Expect(gateway.SaveEntryCalled).To(BeTrue())
+					Expect(gateway.EntrySaved).To(Equal(expectedEntryType))
 				}
 			}
 
-			AssertErrorMessageWhenCreatingPostFails := func() func() {
+			AssertErrorMessageWhenEntrySaveFails := func() func() {
 				return func() {
-					restClient.SetPostError()
+					gateway.SetSaveEntryError()
 					expectedEntry := InvalidEntry{Error: "Problem creating post."}
 
 					result := whiteboard.ProcessCommand(command+" "+title, context)
@@ -347,10 +360,10 @@ var _ = Describe("QuietWhiteboard", func() {
 
 				It("assigns an Id to the entry", AssertEntryHasAnId())
 
-				It("creates a post", AssertPostCreated())
+				It("creates a post", AssertEntrySaved())
 
 				Context("when posting to Whiteboard fails", func() {
-					It("returns the proper error message", AssertErrorMessageWhenCreatingPostFails())
+					It("returns the proper error message", AssertErrorMessageWhenEntrySaveFails())
 				})
 
 				Context("when no arguments given", func() {
@@ -383,10 +396,10 @@ var _ = Describe("QuietWhiteboard", func() {
 
 				It("assigns an Id to the entry", AssertEntryHasAnId())
 
-				It("creates a post", AssertPostCreated())
+				It("creates a post", AssertEntrySaved())
 
 				Context("when posting to Whiteboard fails", func() {
-					It("returns the proper error message", AssertErrorMessageWhenCreatingPostFails())
+					It("returns the proper error message", AssertErrorMessageWhenEntrySaveFails())
 				})
 
 				Context("when no arguments given", func() {
@@ -419,10 +432,10 @@ var _ = Describe("QuietWhiteboard", func() {
 
 				It("assigns an Id to the entry", AssertEntryHasAnId())
 
-				It("creates a post", AssertPostCreated())
+				It("creates a post", AssertEntrySaved())
 
 				Context("when posting to Whiteboard fails", func() {
-					It("returns the proper error message", AssertErrorMessageWhenCreatingPostFails())
+					It("returns the proper error message", AssertErrorMessageWhenEntrySaveFails())
 				})
 
 				Context("when no arguments given", func() {
@@ -455,10 +468,10 @@ var _ = Describe("QuietWhiteboard", func() {
 
 				It("assigns an Id to the entry", AssertEntryHasAnId())
 
-				It("creates a post", AssertPostCreated())
+				It("creates a post", AssertEntrySaved())
 
 				Context("when posting to Whiteboard fails", func() {
-					It("returns the proper error message", AssertErrorMessageWhenCreatingPostFails())
+					It("returns the proper error message", AssertErrorMessageWhenEntrySaveFails())
 				})
 
 				Context("when no arguments given", func() {
@@ -514,6 +527,17 @@ var _ = Describe("QuietWhiteboard", func() {
 				}
 			}
 
+			AssertSaveEntryFailureErrorMessage := func() func() {
+				return func() {
+					gateway.SetSaveEntryError()
+					expectedEntry := InvalidEntry{Error: "Problem creating post."}
+
+					result := whiteboard.ProcessCommand(command+" "+newValue, context)
+
+					Expect(result.Entry).To(Equal(expectedEntry))
+				}
+			}
+
 			Context("name", func() {
 				BeforeEach(func() {
 					command = "name"
@@ -533,6 +557,9 @@ var _ = Describe("QuietWhiteboard", func() {
 
 				Context("no entry in store", func() {
 					It("returns an error message", AssertNoEntryErrorMessage())
+				})
+				Context("when saving the entry fails", func() {
+					It("returns an error message", AssertSaveEntryFailureErrorMessage())
 				})
 			})
 

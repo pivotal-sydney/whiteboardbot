@@ -9,7 +9,6 @@ import (
 
 type QuietWhiteboard interface {
 	ProcessCommand(string, SlackContext) CommandResult
-	PostEntry(EntryType) (PostResult, error)
 }
 
 type CommandHandler func(input string, context SlackContext) CommandResult
@@ -19,6 +18,7 @@ type EntryFactory func(clock Clock, author, title string, standup Standup) Entry
 type QuietWhiteboardApp struct {
 	Clock      Clock
 	RestClient RestClient
+	Repository StandupRepository
 	Store      Store
 	CommandMap map[string]CommandHandler
 	EntryMap   map[string]EntryType
@@ -28,10 +28,11 @@ type CommandResult struct {
 	Entry fmt.Stringer
 }
 
-func NewQuietWhiteboard(restClient RestClient, store Store, clock Clock) (whiteboard QuietWhiteboardApp) {
+func NewQuietWhiteboard(restClient RestClient, gateway StandupRepository, store Store, clock Clock) (whiteboard QuietWhiteboardApp) {
 	whiteboard = QuietWhiteboardApp{
 		Clock:      clock,
 		RestClient: restClient,
+		Repository: gateway,
 		Store:      store,
 		CommandMap: make(map[string]CommandHandler),
 		EntryMap:   make(map[string]EntryType),
@@ -56,16 +57,6 @@ func (whiteboard QuietWhiteboardApp) init() {
 func (whiteboard QuietWhiteboardApp) ProcessCommand(input string, context SlackContext) CommandResult {
 	command, input := readNextCommand(input)
 	return whiteboard.handleCommand(command, input, context)
-}
-
-func (whiteboard QuietWhiteboardApp) PostEntry(entryType EntryType) (PostResult, error) {
-	itemId, ok := PostEntryToWhiteboard(whiteboard.RestClient, entryType)
-
-	if !ok {
-		return PostResult{}, errors.New("Problem creating post.")
-	}
-
-	return PostResult{itemId}, nil
 }
 
 func (whiteboard QuietWhiteboardApp) handleCommand(command, input string, context SlackContext) CommandResult {
@@ -128,19 +119,16 @@ func (whiteboard QuietWhiteboardApp) handleBodyCommand(input string, context Sla
 	username := context.User.Username
 
 	if entryType, ok := whiteboard.EntryMap[username]; ok {
-		entry := *entryType.GetEntry()
+		entry := entryType.GetEntry()
 
 		if entry.ItemKind == "New face" {
 			errorMsg := ":-1:\nHey, new faces should not have a body!"
 			return CommandResult{InvalidEntry{Error: errorMsg}}
 		}
 
-		entry.Body = input
-		whiteboard.EntryMap[username] = entry
+		entryType.GetEntry().Body = input
 
-		entryType = whiteboard.EntryMap[username]
-
-		if _, err := whiteboard.PostEntry(entryType); err != nil {
+		if _, err := whiteboard.Repository.SaveEntry(entryType); err != nil {
 			return CommandResult{Entry: InvalidEntry{Error: err.Error()}}
 		}
 		return CommandResult{Entry: entry}
@@ -158,9 +146,9 @@ func (whiteboard QuietWhiteboardApp) handleDateCommand(input string, context Sla
 		if entryType, ok := whiteboard.EntryMap[context.User.Username]; ok {
 			entryType.GetEntry().Date = parsedDate.Format(DATE_FORMAT)
 
-			request := createRequest(entryType, len(entryType.GetEntry().Id) > 0)
-
-			whiteboard.RestClient.Post(request)
+			if _, err := whiteboard.Repository.SaveEntry(entryType); err != nil {
+				return CommandResult{Entry: InvalidEntry{Error: err.Error()}}
+			}
 
 			return CommandResult{Entry: entryType.GetEntry()}
 		} else {
@@ -180,8 +168,9 @@ func (whiteboard QuietWhiteboardApp) handleUpdateCommand(input string, context S
 	if entryType, ok := whiteboard.EntryMap[context.User.Username]; ok {
 		entryType.GetEntry().Title = input
 
-		request := createRequest(entryType, len(entryType.GetEntry().Id) > 0)
-		whiteboard.RestClient.Post(request)
+		if _, err := whiteboard.Repository.SaveEntry(entryType); err != nil {
+			return CommandResult{Entry: InvalidEntry{Error: err.Error()}}
+		}
 
 		return CommandResult{Entry: entryType}
 	} else {
@@ -199,7 +188,7 @@ func (whiteboard QuietWhiteboardApp) handleCreateCommand(input string, context S
 	standup, _ := whiteboard.Store.GetStandup(context.Channel.ChannelId)
 	entryType := factory(whiteboard.Clock, context.User.Author, input, standup)
 	whiteboard.EntryMap[context.User.Username] = entryType
-	postResult, err := whiteboard.PostEntry(entryType)
+	postResult, err := whiteboard.Repository.SaveEntry(entryType)
 	if err != nil {
 		return CommandResult{Entry: InvalidEntry{Error: err.Error()}}
 	}

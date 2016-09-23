@@ -8,7 +8,7 @@ import (
 )
 
 var _ = Describe("WhiteboardGateway", func() {
-	Describe("Post", func() {
+	Describe("SaveEntry", func() {
 		var (
 			restClient MockRestClient
 			gateway    WhiteboardGateway
@@ -20,7 +20,7 @@ var _ = Describe("WhiteboardGateway", func() {
 		})
 
 		It("returns a PostResult with the item ID", func() {
-			result, _ := gateway.Post(&Entry{})
+			result, _ := gateway.SaveEntry(&Entry{})
 
 			Expect(result).To(Equal(PostResult{ItemId: "1"}))
 		})
@@ -29,7 +29,7 @@ var _ = Describe("WhiteboardGateway", func() {
 			It("returns an error with the correct message", func() {
 				restClient.SetPostError()
 
-				_, err := gateway.Post(&Entry{})
+				_, err := gateway.SaveEntry(&Entry{})
 
 				Expect(err.Error()).To(Equal("Problem creating post."))
 			})
