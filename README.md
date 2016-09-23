@@ -49,12 +49,16 @@ You can continue to edit the entry until you begin [creating a new entry](#creat
 In order to have the bot work correctly, you need to have several ENV variables configured.
 
 ```
+SLACK_TOKEN=payloadtoken              // The token Slack sends with slash command payloads
 WB_HOST_URL=http://localhost:3000     // The host url of the Whiteboard App
-WB_AUTH_TOKEN=someauthtoken           // You can get this from pulling the csrf_token from the whiteboard app embedded in the html
+WB_AUTH_TOKEN=rails-auth-token        // Visit Whiteboard in your browser and copy the contents of `csrf-token` meta tag
 WB_BOT_API_TOKEN=someapitoken         // The API token of your bot.  See Slack docs to create a bot, and get API token
 WB_DB_HOST=localhost:6379             // The Redis IP address with port 
 WB_DB_PASSWORD=password               // The Redis password 
 ```
+
+Set these in the `manifest.yml` file you copied from `manifest.yml.example` if you're deploying to Cloud Foundry.
+
 ## Building
 * Set GOPATH env variable
 * Check out whiteboardbot project from github using go get: `go get github.com/pivotal-sydney/whiteboardbot`
