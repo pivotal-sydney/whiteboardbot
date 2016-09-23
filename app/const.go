@@ -26,4 +26,7 @@ const (
 		"Example:\n" +
 		"        `wb f New Face!` - will create a new face with the name 'New Face!'\n" +
 		"        `wb d 2015-01-02` - will update the new face date to 02 Jan 2015"
+
+	MISSING_ENTRY = THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `/wb <command> [title]` first!\nNeed help? Try `/wb ?`"
+	MISSING_INPUT = THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `/wb <command> My title`\nNeed help? Try `/wb ?`"
 )

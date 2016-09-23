@@ -125,10 +125,8 @@ func (whiteboard QuietWhiteboardApp) handleEventsCommand(input string, context S
 }
 
 func (whiteboard QuietWhiteboardApp) handleBodyCommand(input string, context SlackContext) CommandResult {
-
-	if len(input) == 0 {
-		errorMsg := THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb b My title`\nNeed help? Try `wb ?`"
-		return CommandResult{Entry: InvalidEntry{Error: errorMsg}}
+	if err := handleEmptyInput(input); err != nil {
+		return CommandResult{Entry: InvalidEntry{Error: err.Error()}}
 	}
 
 	username := context.User.Username
@@ -151,17 +149,13 @@ func (whiteboard QuietWhiteboardApp) handleBodyCommand(input string, context Sla
 		}
 		return CommandResult{Entry: entry}
 	} else {
-		errorMsg := THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"
-
-		return CommandResult{Entry: InvalidEntry{Error: errorMsg}}
+		return CommandResult{Entry: InvalidEntry{Error: MISSING_ENTRY}}
 	}
 }
 
 func (whiteboard QuietWhiteboardApp) handleDateCommand(input string, context SlackContext) CommandResult {
-
-	if len(input) == 0 {
-		errorMsg := THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb d 2017-05-21`\nNeed help? Try `wb ?`"
-		return CommandResult{Entry: InvalidEntry{Error: errorMsg}}
+	if err := handleEmptyInput(input); err != nil {
+		return CommandResult{Entry: InvalidEntry{Error: err.Error()}}
 	}
 
 	if parsedDate, err := time.Parse(DATE_FORMAT, input); err == nil {
@@ -174,9 +168,7 @@ func (whiteboard QuietWhiteboardApp) handleDateCommand(input string, context Sla
 
 			return CommandResult{Entry: entryType.GetEntry()}
 		} else {
-			errorMsg := THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"
-
-			return CommandResult{Entry: InvalidEntry{Error: errorMsg}}
+			return CommandResult{Entry: InvalidEntry{Error: MISSING_ENTRY}}
 		}
 	} else {
 		errorMsg := THUMBS_DOWN + "Date not set, use YYYY-MM-DD as date format\n"
@@ -185,9 +177,8 @@ func (whiteboard QuietWhiteboardApp) handleDateCommand(input string, context Sla
 }
 
 func (whiteboard QuietWhiteboardApp) handleUpdateCommand(input string, context SlackContext) CommandResult {
-	if len(input) == 0 {
-		entry := InvalidEntry{Error: THUMBS_DOWN + "Oi! The title/name can't be empty!"}
-		return CommandResult{Entry: entry}
+	if err := handleEmptyInput(input); err != nil {
+		return CommandResult{Entry: InvalidEntry{Error: err.Error()}}
 	}
 
 	if entryType, ok := whiteboard.EntryMap[context.User.Username]; ok {
@@ -198,32 +189,33 @@ func (whiteboard QuietWhiteboardApp) handleUpdateCommand(input string, context S
 
 		return CommandResult{Entry: entryType}
 	} else {
-		errorMsg := THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"
-		return CommandResult{Entry: InvalidEntry{Error: errorMsg}}
+		return CommandResult{Entry: InvalidEntry{Error: MISSING_ENTRY}}
 	}
 }
 
 func (whiteboard QuietWhiteboardApp) handleCreateCommand(input string, context SlackContext, factory EntryFactory) CommandResult {
 	var entry fmt.Stringer
 
-	if entry = resultIfEmptyTitle(input); entry == nil {
-		standup, _ := whiteboard.Store.GetStandup(context.Channel.ChannelId)
-		entryType := factory(whiteboard.Clock, context.User.Author, input, standup)
-		whiteboard.EntryMap[context.User.Username] = entryType
-		postResult, err := whiteboard.PostEntry(entryType)
-		if err != nil {
-			return CommandResult{Entry: InvalidEntry{Error: err.Error()}}
-		}
-		entryType.GetEntry().Id = postResult.ItemId
-		entry = *entryType.GetEntry()
+	if err := handleEmptyInput(input); err != nil {
+		return CommandResult{Entry: InvalidEntry{Error: err.Error()}}
 	}
 
+	standup, _ := whiteboard.Store.GetStandup(context.Channel.ChannelId)
+	entryType := factory(whiteboard.Clock, context.User.Author, input, standup)
+	whiteboard.EntryMap[context.User.Username] = entryType
+	postResult, err := whiteboard.PostEntry(entryType)
+	if err != nil {
+		return CommandResult{Entry: InvalidEntry{Error: err.Error()}}
+	}
+	entryType.GetEntry().Id = postResult.ItemId
+	entry = *entryType.GetEntry()
 	return CommandResult{Entry: entry}
+
 }
 
-func resultIfEmptyTitle(input string) fmt.Stringer {
+func handleEmptyInput(input string) (err error) {
 	if len(input) == 0 {
-		return InvalidEntry{Error: THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb i My title`\nNeed help? Try `wb ?`"}
+		err = errors.New(MISSING_INPUT)
 	}
-	return nil
+	return
 }

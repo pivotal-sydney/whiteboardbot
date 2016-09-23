@@ -116,8 +116,7 @@ var _ = Describe("QuietWhiteboard", func() {
 
 			Context("when there is no entry", func() {
 				It("returns an error", func() {
-					errorMsg := ":-1:\nHey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"
-					expectedEntry := InvalidEntry{Error: errorMsg}
+					expectedEntry := InvalidEntry{Error: MISSING_ENTRY}
 
 					result := whiteboard.ProcessCommand("body And the movie was terrible!", context)
 
@@ -140,8 +139,7 @@ var _ = Describe("QuietWhiteboard", func() {
 			Context("when given no arguments", func() {
 				It("returns an error", func() {
 					whiteboard.ProcessCommand("interestings Nicholas Cage did a remake of The Wicker Man!", context)
-					errorMsg := THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb b My title`\nNeed help? Try `wb ?`"
-					expectedEntry := InvalidEntry{Error: errorMsg}
+					expectedEntry := InvalidEntry{Error: MISSING_INPUT}
 
 					result := whiteboard.ProcessCommand("body", context)
 
@@ -196,17 +194,15 @@ var _ = Describe("QuietWhiteboard", func() {
 			Context("when there is no entry", func() {
 				It("returns an error", func() {
 					result := whiteboard.ProcessCommand("date 3000-05-13", context)
-					errorMsg := THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"
 
-					Expect(result).To(Equal(CommandResult{Entry: InvalidEntry{Error: errorMsg}}))
+					Expect(result).To(Equal(CommandResult{Entry: InvalidEntry{Error: MISSING_ENTRY}}))
 				})
 			})
 
 			Context("when given no arguments", func() {
 				It("returns an error", func() {
 					whiteboard.ProcessCommand("interestings Nicholas Cage did a remake of The Wicker Man!", context)
-					errorMsg := THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb d 2017-05-21`\nNeed help? Try `wb ?`"
-					expectedEntry := InvalidEntry{Error: errorMsg}
+					expectedEntry := InvalidEntry{Error: MISSING_INPUT}
 
 					result := whiteboard.ProcessCommand("date", context)
 
@@ -304,9 +300,7 @@ var _ = Describe("QuietWhiteboard", func() {
 
 			AssertNoArgumentErrorMessage := func() func() {
 				return func() {
-					errorMsg := THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb i My title`\nNeed help? Try `wb ?`"
-
-					expectedEntry := InvalidEntry{Error: errorMsg}
+					expectedEntry := InvalidEntry{Error: MISSING_INPUT}
 
 					result := whiteboard.ProcessCommand(command, context)
 
@@ -503,8 +497,7 @@ var _ = Describe("QuietWhiteboard", func() {
 					It("returns an error message", func() {
 						entry := whiteboard.ProcessCommand("name     ", context)
 
-						expectedMessage := THUMBS_DOWN + "Oi! The title/name can't be empty!"
-						Expect(entry.Entry.String()).To(Equal(expectedMessage))
+						Expect(entry.Entry.String()).To(Equal(MISSING_INPUT))
 					})
 				})
 
@@ -514,9 +507,7 @@ var _ = Describe("QuietWhiteboard", func() {
 
 						result := whiteboard.ProcessCommand("name Olivia Newton John", context)
 
-						errorMsg := THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"
-
-						Expect(result.Entry.String()).To(Equal(errorMsg))
+						Expect(result.Entry.String()).To(Equal(MISSING_ENTRY))
 					})
 				})
 			})
@@ -550,8 +541,7 @@ var _ = Describe("QuietWhiteboard", func() {
 					It("returns an error message", func() {
 						entry := whiteboard.ProcessCommand("title", context)
 
-						expectedMessage := THUMBS_DOWN + "Oi! The title/name can't be empty!"
-						Expect(entry.Entry.String()).To(Equal(expectedMessage))
+						Expect(entry.Entry.String()).To(Equal(MISSING_INPUT))
 					})
 				})
 
@@ -561,9 +551,7 @@ var _ = Describe("QuietWhiteboard", func() {
 
 						result := whiteboard.ProcessCommand("title Olivia Newton John", context)
 
-						errorMsg := THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"
-
-						Expect(result.Entry.String()).To(Equal(errorMsg))
+						Expect(result.Entry.String()).To(Equal(MISSING_ENTRY))
 					})
 				})
 			})
