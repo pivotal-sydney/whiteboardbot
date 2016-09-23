@@ -55,10 +55,7 @@ func (server WhiteboardHttpServer) NewHandleRequest(wb QuietWhiteboard) http.Han
 
 		context := server.extractSlackContext(req)
 
-		result, err := wb.ProcessCommand(cmdArgs, context)
-		if err != nil {
-			result = CommandResult{Entry: InvalidEntry{Error: err.Error()}}
-		}
+		result := wb.ProcessCommand(cmdArgs, context)
 
 		resultJson, err := jsonify(result.Entry)
 		if err != nil {

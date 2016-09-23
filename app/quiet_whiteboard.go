@@ -8,11 +8,11 @@ import (
 )
 
 type QuietWhiteboard interface {
-	ProcessCommand(string, SlackContext) (CommandResult, error)
+	ProcessCommand(string, SlackContext) CommandResult
 	PostEntry(EntryType) (PostResult, error)
 }
 
-type CommandHandler func(input string, context SlackContext) (CommandResult, error)
+type CommandHandler func(input string, context SlackContext) CommandResult
 
 type EntryFactory func(clock Clock, author, title string, standup Standup) EntryType
 
@@ -57,7 +57,7 @@ func (whiteboard QuietWhiteboardApp) init() {
 	whiteboard.registerCommand("title", whiteboard.handleUpdateCommand)
 }
 
-func (whiteboard QuietWhiteboardApp) ProcessCommand(input string, context SlackContext) (CommandResult, error) {
+func (whiteboard QuietWhiteboardApp) ProcessCommand(input string, context SlackContext) CommandResult {
 	command, input := readNextCommand(input)
 	return whiteboard.handleCommand(command, input, context)
 }
@@ -72,7 +72,7 @@ func (whiteboard QuietWhiteboardApp) PostEntry(entryType EntryType) (PostResult,
 	return PostResult{itemId}, nil
 }
 
-func (whiteboard QuietWhiteboardApp) handleCommand(command, input string, context SlackContext) (CommandResult, error) {
+func (whiteboard QuietWhiteboardApp) handleCommand(command, input string, context SlackContext) CommandResult {
 	for key := range whiteboard.CommandMap {
 		if matches(command, key) {
 			callback := whiteboard.CommandMap[key]
@@ -80,23 +80,23 @@ func (whiteboard QuietWhiteboardApp) handleCommand(command, input string, contex
 		}
 	}
 
-	return CommandResult{Entry: InvalidEntry{Error: "Ooops"}}, nil
+	return CommandResult{Entry: InvalidEntry{Error: "Ooops"}}
 }
 
 func (whiteboard QuietWhiteboardApp) registerCommand(command string, callback CommandHandler) {
 	whiteboard.CommandMap[command] = callback
 }
 
-func (whiteboard QuietWhiteboardApp) handleUsageCommand(_ string, _ SlackContext) (CommandResult, error) {
-	return CommandResult{Entry: TextEntry{Text: USAGE}}, nil
+func (whiteboard QuietWhiteboardApp) handleUsageCommand(_ string, _ SlackContext) CommandResult {
+	return CommandResult{Entry: TextEntry{Text: USAGE}}
 }
 
-func (whiteboard QuietWhiteboardApp) handleRegistrationCommand(standupId string, context SlackContext) (command CommandResult, err error) {
+func (whiteboard QuietWhiteboardApp) handleRegistrationCommand(standupId string, context SlackContext) (command CommandResult) {
 	command = CommandResult{}
 
 	standup, ok := whiteboard.RestClient.GetStandup(standupId)
 	if !ok {
-		err = errors.New("Standup not found!")
+		command = CommandResult{Entry: InvalidEntry{Error: "Standup not found!"}}
 		return
 	}
 
@@ -108,27 +108,27 @@ func (whiteboard QuietWhiteboardApp) handleRegistrationCommand(standupId string,
 	return
 }
 
-func (whiteboard QuietWhiteboardApp) handleFacesCommand(input string, context SlackContext) (CommandResult, error) {
+func (whiteboard QuietWhiteboardApp) handleFacesCommand(input string, context SlackContext) CommandResult {
 	return whiteboard.handleCreateCommand(input, context, NewFace)
 }
 
-func (whiteboard QuietWhiteboardApp) handleHelpsCommand(input string, context SlackContext) (CommandResult, error) {
+func (whiteboard QuietWhiteboardApp) handleHelpsCommand(input string, context SlackContext) CommandResult {
 	return whiteboard.handleCreateCommand(input, context, NewHelp)
 }
 
-func (whiteboard QuietWhiteboardApp) handleInterestingsCommand(input string, context SlackContext) (CommandResult, error) {
+func (whiteboard QuietWhiteboardApp) handleInterestingsCommand(input string, context SlackContext) CommandResult {
 	return whiteboard.handleCreateCommand(input, context, NewInteresting)
 }
 
-func (whiteboard QuietWhiteboardApp) handleEventsCommand(input string, context SlackContext) (CommandResult, error) {
+func (whiteboard QuietWhiteboardApp) handleEventsCommand(input string, context SlackContext) CommandResult {
 	return whiteboard.handleCreateCommand(input, context, NewEvent)
 }
 
-func (whiteboard QuietWhiteboardApp) handleBodyCommand(input string, context SlackContext) (CommandResult, error) {
+func (whiteboard QuietWhiteboardApp) handleBodyCommand(input string, context SlackContext) CommandResult {
 
 	if len(input) == 0 {
 		errorMsg := THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb b My title`\nNeed help? Try `wb ?`"
-		return CommandResult{Entry: InvalidEntry{Error: errorMsg}}, nil
+		return CommandResult{Entry: InvalidEntry{Error: errorMsg}}
 	}
 
 	username := context.User.Username
@@ -138,7 +138,7 @@ func (whiteboard QuietWhiteboardApp) handleBodyCommand(input string, context Sla
 
 		if entry.ItemKind == "New face" {
 			errorMsg := ":-1:\nHey, new faces should not have a body!"
-			return CommandResult{InvalidEntry{Error: errorMsg}}, nil
+			return CommandResult{InvalidEntry{Error: errorMsg}}
 		}
 
 		entry.Body = input
@@ -147,21 +147,21 @@ func (whiteboard QuietWhiteboardApp) handleBodyCommand(input string, context Sla
 		entryType = whiteboard.EntryMap[username]
 
 		if _, err := whiteboard.PostEntry(entryType); err != nil {
-			return CommandResult{Entry: InvalidEntry{Error: err.Error()}}, nil
+			return CommandResult{Entry: InvalidEntry{Error: err.Error()}}
 		}
-		return CommandResult{Entry: entry}, nil
+		return CommandResult{Entry: entry}
 	} else {
 		errorMsg := THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"
 
-		return CommandResult{Entry: InvalidEntry{Error: errorMsg}}, nil
+		return CommandResult{Entry: InvalidEntry{Error: errorMsg}}
 	}
 }
 
-func (whiteboard QuietWhiteboardApp) handleDateCommand(input string, context SlackContext) (CommandResult, error) {
+func (whiteboard QuietWhiteboardApp) handleDateCommand(input string, context SlackContext) CommandResult {
 
 	if len(input) == 0 {
 		errorMsg := THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb d 2017-05-21`\nNeed help? Try `wb ?`"
-		return CommandResult{Entry: InvalidEntry{Error: errorMsg}}, nil
+		return CommandResult{Entry: InvalidEntry{Error: errorMsg}}
 	}
 
 	if parsedDate, err := time.Parse(DATE_FORMAT, input); err == nil {
@@ -172,22 +172,22 @@ func (whiteboard QuietWhiteboardApp) handleDateCommand(input string, context Sla
 
 			whiteboard.RestClient.Post(request)
 
-			return CommandResult{Entry: entryType.GetEntry()}, nil
+			return CommandResult{Entry: entryType.GetEntry()}
 		} else {
 			errorMsg := THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"
 
-			return CommandResult{Entry: InvalidEntry{Error: errorMsg}}, nil
+			return CommandResult{Entry: InvalidEntry{Error: errorMsg}}
 		}
 	} else {
 		errorMsg := THUMBS_DOWN + "Date not set, use YYYY-MM-DD as date format\n"
-		return CommandResult{Entry: InvalidEntry{Error: errorMsg}}, nil
+		return CommandResult{Entry: InvalidEntry{Error: errorMsg}}
 	}
 }
 
-func (whiteboard QuietWhiteboardApp) handleUpdateCommand(input string, context SlackContext) (CommandResult, error) {
+func (whiteboard QuietWhiteboardApp) handleUpdateCommand(input string, context SlackContext) CommandResult {
 	if len(input) == 0 {
 		entry := InvalidEntry{Error: THUMBS_DOWN + "Oi! The title/name can't be empty!"}
-		return CommandResult{Entry: entry}, nil
+		return CommandResult{Entry: entry}
 	}
 
 	if entryType, ok := whiteboard.EntryMap[context.User.Username]; ok {
@@ -196,14 +196,14 @@ func (whiteboard QuietWhiteboardApp) handleUpdateCommand(input string, context S
 		request := createRequest(entryType, len(entryType.GetEntry().Id) > 0)
 		whiteboard.RestClient.Post(request)
 
-		return CommandResult{Entry: entryType}, nil
+		return CommandResult{Entry: entryType}
 	} else {
 		errorMsg := THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"
-		return CommandResult{Entry: InvalidEntry{Error: errorMsg}}, nil
+		return CommandResult{Entry: InvalidEntry{Error: errorMsg}}
 	}
 }
 
-func (whiteboard QuietWhiteboardApp) handleCreateCommand(input string, context SlackContext, factory EntryFactory) (CommandResult, error) {
+func (whiteboard QuietWhiteboardApp) handleCreateCommand(input string, context SlackContext, factory EntryFactory) CommandResult {
 	var entry fmt.Stringer
 
 	if entry = resultIfEmptyTitle(input); entry == nil {
@@ -212,13 +212,13 @@ func (whiteboard QuietWhiteboardApp) handleCreateCommand(input string, context S
 		whiteboard.EntryMap[context.User.Username] = entryType
 		postResult, err := whiteboard.PostEntry(entryType)
 		if err != nil {
-			return CommandResult{Entry: InvalidEntry{Error: err.Error()}}, nil
+			return CommandResult{Entry: InvalidEntry{Error: err.Error()}}
 		}
 		entryType.GetEntry().Id = postResult.ItemId
 		entry = *entryType.GetEntry()
 	}
 
-	return CommandResult{Entry: entry}, nil
+	return CommandResult{Entry: entry}
 }
 
 func resultIfEmptyTitle(input string) fmt.Stringer {

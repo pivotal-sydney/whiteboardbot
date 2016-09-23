@@ -61,8 +61,8 @@ var _ = Describe("QuietWhiteboard", func() {
 
 			Context("when standup does not exist", func() {
 				It("returns a message that the standup isn't found", func() {
-					_, err := whiteboard.ProcessCommand("register 123", context)
-					Expect(err.Error()).To(Equal("Standup not found!"))
+					result := whiteboard.ProcessCommand("register 123", context)
+					Expect(result.Entry.String()).To(Equal("Standup not found!"))
 				})
 
 				It("does not store anything in the store", func() {
@@ -119,7 +119,7 @@ var _ = Describe("QuietWhiteboard", func() {
 					errorMsg := ":-1:\nHey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"
 					expectedEntry := InvalidEntry{Error: errorMsg}
 
-					result, _ := whiteboard.ProcessCommand("body And the movie was terrible!", context)
+					result := whiteboard.ProcessCommand("body And the movie was terrible!", context)
 
 					Expect(result).To(Equal(CommandResult{Entry: expectedEntry}))
 				})
@@ -131,7 +131,7 @@ var _ = Describe("QuietWhiteboard", func() {
 					errorMsg := ":-1:\nHey, new faces should not have a body!"
 					expectedEntry := InvalidEntry{Error: errorMsg}
 
-					result, _ := whiteboard.ProcessCommand("body And John Travolta!", context)
+					result := whiteboard.ProcessCommand("body And John Travolta!", context)
 
 					Expect(result).To(Equal(CommandResult{Entry: expectedEntry}))
 				})
@@ -143,7 +143,7 @@ var _ = Describe("QuietWhiteboard", func() {
 					errorMsg := THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb b My title`\nNeed help? Try `wb ?`"
 					expectedEntry := InvalidEntry{Error: errorMsg}
 
-					result, _ := whiteboard.ProcessCommand("body", context)
+					result := whiteboard.ProcessCommand("body", context)
 
 					Expect(result.Entry).To(Equal(expectedEntry))
 				})
@@ -195,7 +195,7 @@ var _ = Describe("QuietWhiteboard", func() {
 
 			Context("when there is no entry", func() {
 				It("returns an error", func() {
-					result, _ := whiteboard.ProcessCommand("date 3000-05-13", context)
+					result := whiteboard.ProcessCommand("date 3000-05-13", context)
 					errorMsg := THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"
 
 					Expect(result).To(Equal(CommandResult{Entry: InvalidEntry{Error: errorMsg}}))
@@ -208,7 +208,7 @@ var _ = Describe("QuietWhiteboard", func() {
 					errorMsg := THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb d 2017-05-21`\nNeed help? Try `wb ?`"
 					expectedEntry := InvalidEntry{Error: errorMsg}
 
-					result, _ := whiteboard.ProcessCommand("date", context)
+					result := whiteboard.ProcessCommand("date", context)
 
 					Expect(result.Entry).To(Equal(expectedEntry))
 				})
@@ -220,7 +220,7 @@ var _ = Describe("QuietWhiteboard", func() {
 					expectedEntry := InvalidEntry{Error: errorMsg}
 					whiteboard.ProcessCommand("interestings Nicholas Cage did a remake of The Wicker Man!", context)
 
-					result, _ := whiteboard.ProcessCommand("date LOLWUT", context)
+					result := whiteboard.ProcessCommand("date LOLWUT", context)
 
 					Expect(result.Entry).To(Equal(expectedEntry))
 				})
@@ -240,7 +240,7 @@ var _ = Describe("QuietWhiteboard", func() {
 
 			AssertContainsEntryInResult := func() func() {
 				return func() {
-					result, _ := whiteboard.ProcessCommand(command+" "+title, context)
+					result := whiteboard.ProcessCommand(command+" "+title, context)
 
 					Expect(result.Entry).To(Equal(expectedEntry))
 				}
@@ -296,7 +296,7 @@ var _ = Describe("QuietWhiteboard", func() {
 					restClient.SetPostError()
 					expectedEntry := InvalidEntry{Error: "Problem creating post."}
 
-					result, _ := whiteboard.ProcessCommand(command+" "+title, context)
+					result := whiteboard.ProcessCommand(command+" "+title, context)
 
 					Expect(result.Entry).To(Equal(expectedEntry))
 				}
@@ -308,7 +308,7 @@ var _ = Describe("QuietWhiteboard", func() {
 
 					expectedEntry := InvalidEntry{Error: errorMsg}
 
-					result, _ := whiteboard.ProcessCommand(command, context)
+					result := whiteboard.ProcessCommand(command, context)
 
 					Expect(result.Entry).To(Equal(expectedEntry))
 				}
@@ -501,7 +501,7 @@ var _ = Describe("QuietWhiteboard", func() {
 
 				Context("when the new name is the empty string", func() {
 					It("returns an error message", func() {
-						entry, _ := whiteboard.ProcessCommand("name     ", context)
+						entry := whiteboard.ProcessCommand("name     ", context)
 
 						expectedMessage := THUMBS_DOWN + "Oi! The title/name can't be empty!"
 						Expect(entry.Entry.String()).To(Equal(expectedMessage))
@@ -512,7 +512,7 @@ var _ = Describe("QuietWhiteboard", func() {
 					It("returns an error message", func() {
 						delete(whiteboard.EntryMap, context.User.Username)
 
-						result, _ := whiteboard.ProcessCommand("name Olivia Newton John", context)
+						result := whiteboard.ProcessCommand("name Olivia Newton John", context)
 
 						errorMsg := THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"
 
@@ -548,7 +548,7 @@ var _ = Describe("QuietWhiteboard", func() {
 
 				Context("when the new title is the empty string", func() {
 					It("returns an error message", func() {
-						entry, _ := whiteboard.ProcessCommand("title", context)
+						entry := whiteboard.ProcessCommand("title", context)
 
 						expectedMessage := THUMBS_DOWN + "Oi! The title/name can't be empty!"
 						Expect(entry.Entry.String()).To(Equal(expectedMessage))
@@ -559,7 +559,7 @@ var _ = Describe("QuietWhiteboard", func() {
 					It("returns an error message", func() {
 						delete(whiteboard.EntryMap, context.User.Username)
 
-						result, _ := whiteboard.ProcessCommand("title Olivia Newton John", context)
+						result := whiteboard.ProcessCommand("title Olivia Newton John", context)
 
 						errorMsg := THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"
 
