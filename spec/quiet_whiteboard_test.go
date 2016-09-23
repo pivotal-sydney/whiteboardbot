@@ -193,9 +193,11 @@ var _ = Describe("QuietWhiteboard", func() {
 
 			Context("when there is no entry", func() {
 				It("returns an error", func() {
+					expectedEntry := InvalidEntry{Error: MISSING_ENTRY}
+
 					result := whiteboard.ProcessCommand("date 3000-05-13", context)
 
-					Expect(result).To(Equal(CommandResult{Entry: InvalidEntry{Error: MISSING_ENTRY}}))
+					Expect(result.Entry).To(Equal(expectedEntry))
 				})
 			})
 
@@ -495,19 +497,23 @@ var _ = Describe("QuietWhiteboard", func() {
 
 				Context("when the new name is the empty string", func() {
 					It("returns an error message", func() {
-						entry := whiteboard.ProcessCommand("name     ", context)
+						expectedEntry := InvalidEntry{Error: MISSING_INPUT}
 
-						Expect(entry.Entry.String()).To(Equal(MISSING_INPUT))
+						result := whiteboard.ProcessCommand("name     ", context)
+
+						Expect(result.Entry).To(Equal(expectedEntry))
 					})
 				})
 
 				Context("no entry in store", func() {
 					It("returns an error message", func() {
+						expectedEntry := InvalidEntry{Error: MISSING_ENTRY}
+
 						delete(whiteboard.EntryMap, context.User.Username)
 
 						result := whiteboard.ProcessCommand("name Olivia Newton John", context)
 
-						Expect(result.Entry.String()).To(Equal(MISSING_ENTRY))
+						Expect(result.Entry).To(Equal(expectedEntry))
 					})
 				})
 			})
@@ -539,19 +545,23 @@ var _ = Describe("QuietWhiteboard", func() {
 
 				Context("when the new title is the empty string", func() {
 					It("returns an error message", func() {
-						entry := whiteboard.ProcessCommand("title", context)
+						expectedEntry := InvalidEntry{Error: MISSING_INPUT}
 
-						Expect(entry.Entry.String()).To(Equal(MISSING_INPUT))
+						result := whiteboard.ProcessCommand("title", context)
+
+						Expect(result.Entry).To(Equal(expectedEntry))
 					})
 				})
 
 				Context("no entry in store", func() {
 					It("returns an error message", func() {
+						expectedEntry := InvalidEntry{Error: MISSING_ENTRY}
+
 						delete(whiteboard.EntryMap, context.User.Username)
 
 						result := whiteboard.ProcessCommand("title Olivia Newton John", context)
 
-						Expect(result.Entry.String()).To(Equal(MISSING_ENTRY))
+						Expect(result.Entry).To(Equal(expectedEntry))
 					})
 				})
 			})
