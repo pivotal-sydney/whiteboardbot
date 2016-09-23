@@ -8,6 +8,7 @@ deployment:
       - 'go get github.com/tools/godep'
       - 'godep restore'
       - 'godep update ./...'
+      - 'sed "s/\[your-app-name\]/$WHITEBOARDBOT_CF_APP_NAME/" manifest.yml.example > manifest.yml'
       - 'curl -L "https://cli.run.pivotal.io/stable?release=linux64-binary&source=github" | tar -zx'
       - './cf login -u $CF_USERNAME -p $CF_PASSWORD -a "https://api.run.pivotal.io" -o $CF_ORG -s $CF_SPACE'
-      - './cf push whiteboardbot -b "https://github.com/cloudfoundry/go-buildpack.git" -i 1 -m 64M -c "whiteboardbot"'
+      - './cf push'
