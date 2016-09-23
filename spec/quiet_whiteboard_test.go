@@ -469,14 +469,55 @@ var _ = Describe("QuietWhiteboard", func() {
 					It("doesn't create a post", AssertNoArgumentWontCreatePost())
 				})
 			})
+		})
+
+		Context("updating entries", func() {
+			var (
+				originalEntry   Entry
+				originalEntryId string
+				command         string
+				newValue        string
+			)
+
+			AssertTitleUpdated := func() func() {
+				return func() {
+					whiteboard.ProcessCommand(command+" "+newValue, context)
+
+					entry := whiteboard.EntryMap[context.User.Username].GetEntry()
+					entryId := entry.Id
+					title := entry.Title
+
+					Expect(title).To(Equal(newValue))
+					Expect(entryId).To(Equal(originalEntryId))
+				}
+			}
+
+			AssertNoTitleErrorMessage := func() func() {
+				return func() {
+					expectedEntry := InvalidEntry{Error: MISSING_INPUT}
+
+					result := whiteboard.ProcessCommand(command+"     ", context)
+
+					Expect(result.Entry).To(Equal(expectedEntry))
+				}
+			}
+
+			AssertNoEntryErrorMessage := func() func() {
+				return func() {
+					expectedEntry := InvalidEntry{Error: MISSING_ENTRY}
+
+					delete(whiteboard.EntryMap, context.User.Username)
+
+					result := whiteboard.ProcessCommand(command+" "+newValue, context)
+
+					Expect(result.Entry).To(Equal(expectedEntry))
+				}
+			}
 
 			Context("name", func() {
-				var (
-					originalEntry   Entry
-					originalEntryId string
-				)
-
 				BeforeEach(func() {
+					command = "name"
+					newValue = "Olivia Newton John"
 					originalEntryId = "abc123"
 					originalEntryType := NewFace(clock, context.User.Author, "Oliver Newton John", sydneyStandup)
 					originalEntryType.GetEntry().Id = originalEntryId
@@ -484,47 +525,21 @@ var _ = Describe("QuietWhiteboard", func() {
 					originalEntry = *whiteboard.EntryMap[context.User.Username].GetEntry()
 				})
 
-				It("updates the name on a new face", func() {
-					whiteboard.ProcessCommand("name Olivia Newton John", context)
-
-					entry := whiteboard.EntryMap[context.User.Username].GetEntry()
-					entryId := entry.Id
-					title := entry.Title
-
-					Expect(title).To(Equal("Olivia Newton John"))
-					Expect(entryId).To(Equal(originalEntryId))
-				})
+				It("updates the name on a new face", AssertTitleUpdated())
 
 				Context("when the new name is the empty string", func() {
-					It("returns an error message", func() {
-						expectedEntry := InvalidEntry{Error: MISSING_INPUT}
-
-						result := whiteboard.ProcessCommand("name     ", context)
-
-						Expect(result.Entry).To(Equal(expectedEntry))
-					})
+					It("returns an error message", AssertNoTitleErrorMessage())
 				})
 
 				Context("no entry in store", func() {
-					It("returns an error message", func() {
-						expectedEntry := InvalidEntry{Error: MISSING_ENTRY}
-
-						delete(whiteboard.EntryMap, context.User.Username)
-
-						result := whiteboard.ProcessCommand("name Olivia Newton John", context)
-
-						Expect(result.Entry).To(Equal(expectedEntry))
-					})
+					It("returns an error message", AssertNoEntryErrorMessage())
 				})
 			})
 
 			Context("title", func() {
-				var (
-					originalEntry   Entry
-					originalEntryId string
-				)
-
 				BeforeEach(func() {
+					command = "title"
+					newValue = "Saturday Night Live"
 					originalEntryId = "abc123"
 					originalEntryType := NewEvent(clock, context.User.Author, "Saturday Night Fever", sydneyStandup)
 					originalEntryType.GetEntry().Id = originalEntryId
@@ -532,37 +547,14 @@ var _ = Describe("QuietWhiteboard", func() {
 					originalEntry = *whiteboard.EntryMap[context.User.Username].GetEntry()
 				})
 
-				It("updates the title on an entry", func() {
-					whiteboard.ProcessCommand("title Saturday Night Live", context)
-
-					entry := whiteboard.EntryMap[context.User.Username].GetEntry()
-					entryId := entry.Id
-					title := entry.Title
-
-					Expect(title).To(Equal("Saturday Night Live"))
-					Expect(entryId).To(Equal(originalEntryId))
-				})
+				It("updates the title on an entry", AssertTitleUpdated())
 
 				Context("when the new title is the empty string", func() {
-					It("returns an error message", func() {
-						expectedEntry := InvalidEntry{Error: MISSING_INPUT}
-
-						result := whiteboard.ProcessCommand("title", context)
-
-						Expect(result.Entry).To(Equal(expectedEntry))
-					})
+					It("returns an error message", AssertNoTitleErrorMessage())
 				})
 
 				Context("no entry in store", func() {
-					It("returns an error message", func() {
-						expectedEntry := InvalidEntry{Error: MISSING_ENTRY}
-
-						delete(whiteboard.EntryMap, context.User.Username)
-
-						result := whiteboard.ProcessCommand("title Olivia Newton John", context)
-
-						Expect(result.Entry).To(Equal(expectedEntry))
-					})
+					It("returns an error message", AssertNoEntryErrorMessage())
 				})
 			})
 		})
