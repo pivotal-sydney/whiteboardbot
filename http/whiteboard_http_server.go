@@ -20,9 +20,8 @@ type WhiteboardHttpServer struct {
 }
 
 func (server WhiteboardHttpServer) Run() {
-	restClient := &RealRestClient{}
-	gateway := WhiteboardGateway{RestClient: restClient}
-	whiteboard := NewQuietWhiteboard(restClient, gateway, server.Store, &RealClock{})
+	gateway := WhiteboardGateway{RestClient: &RealRestClient{}}
+	whiteboard := NewQuietWhiteboard(gateway, server.Store, &RealClock{})
 	server.startHttpServer(whiteboard)
 }
 

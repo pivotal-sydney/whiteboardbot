@@ -17,7 +17,6 @@ type EntryFactory func(clock Clock, author, title string, standup Standup) Entry
 
 type QuietWhiteboardApp struct {
 	Clock      Clock
-	RestClient RestClient
 	Repository StandupRepository
 	Store      Store
 	CommandMap map[string]CommandHandler
@@ -28,10 +27,9 @@ type CommandResult struct {
 	Entry fmt.Stringer
 }
 
-func NewQuietWhiteboard(restClient RestClient, gateway StandupRepository, store Store, clock Clock) (whiteboard QuietWhiteboardApp) {
+func NewQuietWhiteboard(gateway StandupRepository, store Store, clock Clock) (whiteboard QuietWhiteboardApp) {
 	whiteboard = QuietWhiteboardApp{
 		Clock:      clock,
-		RestClient: restClient,
 		Repository: gateway,
 		Store:      store,
 		CommandMap: make(map[string]CommandHandler),
