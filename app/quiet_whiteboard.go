@@ -81,8 +81,8 @@ func (whiteboard QuietWhiteboardApp) handleUsageCommand(_ string, _ SlackContext
 func (whiteboard QuietWhiteboardApp) handleRegistrationCommand(standupId string, context SlackContext) (command CommandResult) {
 	command = CommandResult{}
 
-	standup, ok := whiteboard.RestClient.GetStandup(standupId)
-	if !ok {
+	standup, err := whiteboard.Repository.FindStandup(standupId)
+	if err != nil {
 		command = CommandResult{Entry: InvalidEntry{Error: "Standup not found!"}}
 		return
 	}

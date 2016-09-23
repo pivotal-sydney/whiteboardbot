@@ -7,12 +7,27 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
 	. "github.com/pivotal-sydney/whiteboardbot/model"
+	"strconv"
 )
 
 type MockWhiteboardGateway struct {
+	StandupMap      map[int]Standup
 	SaveEntryCalled bool
 	EntrySaved      EntryType
 	failSaveEntry   bool
+}
+
+func (gateway *MockWhiteboardGateway) FindStandup(standupId string) (standup Standup, err error) {
+	var ok bool
+	id, _ := strconv.Atoi(standupId)
+
+	standup, ok = gateway.StandupMap[id]
+
+	if !ok {
+		err = errors.New("Standup not found!")
+	}
+
+	return
 }
 
 func (gateway *MockWhiteboardGateway) SaveEntry(entryType EntryType) (PostResult, error) {
@@ -29,6 +44,13 @@ func (gateway *MockWhiteboardGateway) SetSaveEntryError() {
 	gateway.failSaveEntry = true
 }
 
+func (gateway *MockWhiteboardGateway) SetStandup(standup Standup) {
+	if gateway.StandupMap == nil {
+		gateway.StandupMap = make(map[int]Standup)
+	}
+	gateway.StandupMap[standup.Id] = standup
+}
+
 var _ = Describe("QuietWhiteboard", func() {
 
 	var (
@@ -37,7 +59,6 @@ var _ = Describe("QuietWhiteboard", func() {
 		sydneyStandup Standup
 		context       SlackContext
 		clock         MockClock
-		restClient    MockRestClient
 		gateway       MockWhiteboardGateway
 	)
 
@@ -49,12 +70,13 @@ var _ = Describe("QuietWhiteboard", func() {
 		context = SlackContext{User: user, Channel: channel}
 
 		clock = MockClock{}
-		restClient = MockRestClient{}
-		restClient.SetStandup(sydneyStandup)
 
 		store = MockStore{}
+
 		gateway = MockWhiteboardGateway{}
-		whiteboard = NewQuietWhiteboard(&restClient, &gateway, &store, &clock)
+		gateway.SetStandup(sydneyStandup)
+
+		whiteboard = NewQuietWhiteboard(&MockRestClient{}, &gateway, &store, &clock)
 	})
 
 	Describe("Receives command", func() {
@@ -84,8 +106,11 @@ var _ = Describe("QuietWhiteboard", func() {
 
 			Context("when standup does not exist", func() {
 				It("returns a message that the standup isn't found", func() {
+					expectedEntry := InvalidEntry{Error: "Standup not found!"}
+
 					result := whiteboard.ProcessCommand("register 123", context)
-					Expect(result.Entry.String()).To(Equal("Standup not found!"))
+
+					Expect(result.Entry).To(Equal(expectedEntry))
 				})
 
 				It("does not store anything in the store", func() {
@@ -335,8 +360,7 @@ var _ = Describe("QuietWhiteboard", func() {
 				return func() {
 					whiteboard.ProcessCommand(command, context)
 
-					Expect(restClient.Request).To(Equal(WhiteboardRequest{}))
-					Expect(restClient.PostCalledCount).To(BeZero())
+					Expect(gateway.SaveEntryCalled).To(BeFalse())
 				}
 			}
 
