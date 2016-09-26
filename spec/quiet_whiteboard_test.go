@@ -56,6 +56,11 @@ func (gateway *MockWhiteboardGateway) SetStandup(standup Standup) {
 func (gateway *MockWhiteboardGateway) GetStandupItems(standupId string) (standupItems StandupItems, err error) {
 	if gateway.failGetStandupItems {
 		err = errors.New("Error retrieving standup items.")
+	} else {
+		standupItems = StandupItems{Interestings: []Entry{
+			{Title: "Interesting 1", Author: "Alice", Date: "2015-01-02"},
+			{Title: "Interesting 2", Author: "Bob", Date: "2015-01-12"},
+		}}
 	}
 	return standupItems, err
 }
@@ -622,11 +627,34 @@ var _ = Describe("QuietWhiteboard", func() {
 
 		Context("present", func() {
 			It("fetches standup items", func() {
-				expectedEntry := TextEntry{Text: StandupItems{}.String()}
+				standupText := ">>>— — —\n \n \n \nNEW FACES\n\n\n \n \n \nHELPS\n\n\n \n \n \nINTERESTINGS\n\n*Interesting 1*\n[Alice]\n02 Jan 2015\n \n*Interesting 2*\n[Bob]\n12 Jan 2015\n \n \n \nEVENTS\n\n\n \n \n \n— — —\n:clap:"
+				expectedEntry := TextEntry{Text: standupText}
 
 				result := whiteboard.ProcessCommand("present", context)
 
 				Expect(result.Entry).To(Equal(expectedEntry))
+			})
+
+			Context("when a number of days is specified", func() {
+				It("pass that number of days on to filter the items", func() {
+					standupText := ">>>— — —\n \n \n \nNEW FACES\n\n\n \n \n \nHELPS\n\n\n \n \n \nINTERESTINGS\n\n*Interesting 1*\n[Alice]\n02 Jan 2015\n \n \n \nEVENTS\n\n\n \n \n \n— — —\n:clap:"
+					expectedEntry := TextEntry{Text: standupText}
+
+					result := whiteboard.ProcessCommand("present 5", context)
+
+					Expect(result.Entry).To(Equal(expectedEntry))
+				})
+			})
+
+			Context("when a number of days does not parse", func() {
+				It("pass that number of days on to filter the items", func() {
+					standupText := ">>>— — —\n \n \n \nNEW FACES\n\n\n \n \n \nHELPS\n\n\n \n \n \nINTERESTINGS\n\n*Interesting 1*\n[Alice]\n02 Jan 2015\n \n*Interesting 2*\n[Bob]\n12 Jan 2015\n \n \n \nEVENTS\n\n\n \n \n \n— — —\n:clap:"
+					expectedEntry := TextEntry{Text: standupText}
+
+					result := whiteboard.ProcessCommand("present forever", context)
+
+					Expect(result.Entry).To(Equal(expectedEntry))
+				})
 			})
 
 			Context("when the standup is not registered", func() {

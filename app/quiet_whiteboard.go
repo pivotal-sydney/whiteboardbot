@@ -108,6 +108,11 @@ func (whiteboard QuietWhiteboardApp) handlePresentCommand(numDays string, contex
 		return CommandResult{InvalidEntry{Error: err.Error()}}
 	}
 
+	numberOfDays, _ := strconv.Atoi(numDays)
+	if numberOfDays > 0 {
+		standupItems = standupItems.Filter(numberOfDays, whiteboard.Clock, context.User.TimeZone)
+	}
+
 	return CommandResult{Entry: TextEntry{Text: standupItems.String()}}
 }
 
