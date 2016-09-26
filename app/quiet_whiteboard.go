@@ -206,7 +206,11 @@ func (whiteboard QuietWhiteboardApp) handleCreateCommand(input string, context S
 		return CommandResult{Entry: InvalidEntry{Error: err.Error()}}
 	}
 
-	standup, _ := whiteboard.Store.GetStandup(context.Channel.ChannelId)
+	standup, ok := whiteboard.Store.GetStandup(context.Channel.ChannelId)
+	if !ok {
+		return CommandResult{Entry: InvalidEntry{Error: MISSING_STANDUP}}
+	}
+
 	entryType := factory(whiteboard.Clock, context.User.Author, input, standup)
 	whiteboard.EntryMap[context.User.Username] = entryType
 	postResult, err := whiteboard.Repository.SaveEntry(entryType)

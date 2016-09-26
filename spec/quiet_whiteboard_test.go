@@ -387,6 +387,18 @@ var _ = Describe("QuietWhiteboard", func() {
 				}
 			}
 
+			AssertErrorMessageWhenStandupNotRegistered := func() func() {
+				return func() {
+					delete(store.StoreMap, context.Channel.ChannelId)
+
+					result := whiteboard.ProcessCommand(command+" "+title, context)
+
+					expectedEntry := InvalidEntry{Error: MISSING_STANDUP}
+
+					Expect(result.Entry).To(Equal(expectedEntry))
+				}
+			}
+
 			Context("faces", func() {
 				BeforeEach(func() {
 					command = "faces"
@@ -417,6 +429,10 @@ var _ = Describe("QuietWhiteboard", func() {
 					It("doesn't store anything in the entry map", AssertNoArgumentWontStoreInEntryMap())
 
 					It("doesn't create a post", AssertNoArgumentWontCreatePost())
+				})
+
+				Context("when the standup is not registered", func() {
+					It("returns an error message", AssertErrorMessageWhenStandupNotRegistered())
 				})
 			})
 
@@ -452,6 +468,10 @@ var _ = Describe("QuietWhiteboard", func() {
 
 					It("doesn't create a post", AssertNoArgumentWontCreatePost())
 				})
+
+				Context("when the standup is not registered", func() {
+					It("returns an error message", AssertErrorMessageWhenStandupNotRegistered())
+				})
 			})
 
 			Context("interestings", func() {
@@ -486,6 +506,10 @@ var _ = Describe("QuietWhiteboard", func() {
 
 					It("doesn't create a post", AssertNoArgumentWontCreatePost())
 				})
+
+				Context("when the standup is not registered", func() {
+					It("returns an error message", AssertErrorMessageWhenStandupNotRegistered())
+				})
 			})
 
 			Context("events", func() {
@@ -519,6 +543,10 @@ var _ = Describe("QuietWhiteboard", func() {
 					It("doesn't store anything in the entry map", AssertNoArgumentWontStoreInEntryMap())
 
 					It("doesn't create a post", AssertNoArgumentWontCreatePost())
+				})
+
+				Context("when the standup is not registered", func() {
+					It("returns an error message", AssertErrorMessageWhenStandupNotRegistered())
 				})
 			})
 		})
