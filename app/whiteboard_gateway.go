@@ -8,6 +8,7 @@ import (
 type StandupRepository interface {
 	FindStandup(string) (Standup, error)
 	SaveEntry(EntryType) (PostResult, error)
+	GetStandupItems(string) (StandupItems, error)
 }
 
 type PostResult struct {
@@ -34,4 +35,8 @@ func (gateway WhiteboardGateway) SaveEntry(entryType EntryType) (PostResult, err
 	}
 
 	return PostResult{itemId}, nil
+}
+
+func (gateway WhiteboardGateway) GetStandupItems(standupId string) (StandupItems, error) {
+	return StandupItems{}, nil
 }

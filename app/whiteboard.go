@@ -183,6 +183,7 @@ func (whiteboard WhiteboardApp) handlePresentCommand(numDays string, ev *slack.M
 	if !ok {
 		return
 	}
+
 	items, ok := whiteboard.RestClient.GetStandupItems(standup.Id)
 	if !ok || items.Empty() {
 		whiteboard.SlackClient.PostMessage("Hey, there's no entries in today's standup yet, why not add some?", ev.Channel, THUMBS_DOWN)

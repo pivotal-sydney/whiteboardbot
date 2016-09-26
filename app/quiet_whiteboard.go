@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	. "github.com/pivotal-sydney/whiteboardbot/model"
+	"strconv"
 	"time"
 )
 
@@ -50,6 +51,7 @@ func (whiteboard QuietWhiteboardApp) init() {
 	whiteboard.registerCommand("date", whiteboard.handleDateCommand)
 	whiteboard.registerCommand("name", whiteboard.handleUpdateCommand)
 	whiteboard.registerCommand("title", whiteboard.handleUpdateCommand)
+	whiteboard.registerCommand("present", whiteboard.handlePresentCommand)
 }
 
 func (whiteboard QuietWhiteboardApp) ProcessCommand(input string, context SlackContext) CommandResult {
@@ -91,6 +93,22 @@ func (whiteboard QuietWhiteboardApp) handleRegistrationCommand(standupId string,
 
 	command.Entry = TextEntry{Text: text}
 	return
+}
+
+func (whiteboard QuietWhiteboardApp) handlePresentCommand(numDays string, context SlackContext) (command CommandResult) {
+	standup, ok := whiteboard.Store.GetStandup(context.Channel.ChannelId)
+	if !ok {
+		return CommandResult{Entry: InvalidEntry{Error: MISSING_STANDUP}}
+	}
+
+	standupId := strconv.Itoa(standup.Id)
+
+	standupItems, err := whiteboard.Repository.GetStandupItems(standupId)
+	if err != nil {
+		return CommandResult{InvalidEntry{Error: err.Error()}}
+	}
+
+	return CommandResult{Entry: TextEntry{Text: standupItems.String()}}
 }
 
 func (whiteboard QuietWhiteboardApp) handleFacesCommand(input string, context SlackContext) CommandResult {

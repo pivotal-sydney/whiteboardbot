@@ -11,10 +11,12 @@ import (
 )
 
 type MockWhiteboardGateway struct {
-	StandupMap      map[int]Standup
-	SaveEntryCalled bool
-	EntrySaved      EntryType
-	failSaveEntry   bool
+	StandupMap          map[int]Standup
+	SaveEntryCalled     bool
+	EntrySaved          EntryType
+	GetStandupId        string
+	failSaveEntry       bool
+	failGetStandupItems bool
 }
 
 func (gateway *MockWhiteboardGateway) FindStandup(standupId string) (standup Standup, err error) {
@@ -51,6 +53,17 @@ func (gateway *MockWhiteboardGateway) SetStandup(standup Standup) {
 	gateway.StandupMap[standup.Id] = standup
 }
 
+func (gateway *MockWhiteboardGateway) GetStandupItems(standupId string) (standupItems StandupItems, err error) {
+	if gateway.failGetStandupItems {
+		err = errors.New("Error retrieving standup items.")
+	}
+	return standupItems, err
+}
+
+func (gateway *MockWhiteboardGateway) SetGetStandupItemsError() {
+	gateway.failGetStandupItems = true
+}
+
 var _ = Describe("QuietWhiteboard", func() {
 
 	var (
@@ -72,6 +85,7 @@ var _ = Describe("QuietWhiteboard", func() {
 		clock = MockClock{}
 
 		store = MockStore{}
+		store.SetStandup(context.Channel.ChannelId, sydneyStandup)
 
 		gateway = MockWhiteboardGateway{}
 		gateway.SetStandup(sydneyStandup)
@@ -88,6 +102,10 @@ var _ = Describe("QuietWhiteboard", func() {
 		})
 
 		Context("register", func() {
+			BeforeEach(func() {
+				store.StoreMap = make(map[string]string)
+			})
+
 			It("stores the standup in the store", func() {
 				expectedStandupJson, _ := json.Marshal(sydneyStandup)
 				expectedStandupString := string(expectedStandupJson)
@@ -374,8 +392,6 @@ var _ = Describe("QuietWhiteboard", func() {
 					expectedEntry = *NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
 					expectedEntry.Id = "1"
 					expectedEntryType = Face{Entry: &expectedEntry}
-
-					whiteboard.Store.SetStandup(context.Channel.ChannelId, sydneyStandup)
 				})
 
 				It("contains a help entry in the result", AssertContainsEntryInResult())
@@ -410,8 +426,6 @@ var _ = Describe("QuietWhiteboard", func() {
 					expectedEntry = *NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
 					expectedEntry.Id = "1"
 					expectedEntryType = Help{Entry: &expectedEntry}
-
-					whiteboard.Store.SetStandup(context.Channel.ChannelId, sydneyStandup)
 				})
 
 				It("contains a help entry in the result", AssertContainsEntryInResult())
@@ -446,8 +460,6 @@ var _ = Describe("QuietWhiteboard", func() {
 					expectedEntry = *NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
 					expectedEntry.Id = "1"
 					expectedEntryType = Interesting{Entry: &expectedEntry}
-
-					whiteboard.Store.SetStandup(context.Channel.ChannelId, sydneyStandup)
 				})
 
 				It("contains a help entry in the result", AssertContainsEntryInResult())
@@ -482,8 +494,6 @@ var _ = Describe("QuietWhiteboard", func() {
 					expectedEntry = *NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
 					expectedEntry.Id = "1"
 					expectedEntryType = Event{Entry: &expectedEntry}
-
-					whiteboard.Store.SetStandup(context.Channel.ChannelId, sydneyStandup)
 				})
 
 				It("contains a help entry in the result", AssertContainsEntryInResult())
@@ -606,6 +616,40 @@ var _ = Describe("QuietWhiteboard", func() {
 
 				Context("no entry in store", func() {
 					It("returns an error message", AssertNoEntryErrorMessage())
+				})
+			})
+		})
+
+		Context("present", func() {
+			It("fetches standup items", func() {
+				expectedEntry := TextEntry{Text: StandupItems{}.String()}
+
+				result := whiteboard.ProcessCommand("present", context)
+
+				Expect(result.Entry).To(Equal(expectedEntry))
+			})
+
+			Context("when the standup is not registered", func() {
+				It("returns an error message", func() {
+					delete(store.StoreMap, context.Channel.ChannelId)
+
+					result := whiteboard.ProcessCommand("present", context)
+
+					expectedEntry := InvalidEntry{Error: MISSING_STANDUP}
+
+					Expect(result.Entry).To(Equal(expectedEntry))
+				})
+			})
+
+			Context("when retrieving the standup items fails", func() {
+				It("returns an error message", func() {
+					gateway.SetGetStandupItemsError()
+
+					result := whiteboard.ProcessCommand("present", context)
+
+					expectedEntry := InvalidEntry{Error: "Error retrieving standup items."}
+
+					Expect(result.Entry).To(Equal(expectedEntry))
 				})
 			})
 		})
