@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
-	. "github.com/pivotal-sydney/whiteboardbot/model"
 	"io"
 	"net/http"
 	"os"
@@ -19,9 +18,7 @@ type WhiteboardHttpServer struct {
 	SlackClient SlackClient
 }
 
-func (server WhiteboardHttpServer) Run() {
-	gateway := WhiteboardGateway{RestClient: &RealRestClient{}}
-	whiteboard := NewQuietWhiteboard(gateway, server.Store, &RealClock{})
+func (server WhiteboardHttpServer) Run(whiteboard QuietWhiteboardApp) {
 	server.startHttpServer(whiteboard)
 }
 

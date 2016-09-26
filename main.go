@@ -5,6 +5,7 @@ import (
 	"github.com/nlopes/slack"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
 	. "github.com/pivotal-sydney/whiteboardbot/http"
+	. "github.com/pivotal-sydney/whiteboardbot/model"
 	"os"
 	"os/signal"
 	"syscall"
@@ -34,7 +35,10 @@ func main() {
 	store := RealStore{Pool: redisConnectionPool}
 	slackClient := makeSlackClient()
 
-	WhiteboardHttpServer{Store: &store, SlackClient: slackClient}.Run()
+	gateway := WhiteboardGateway{RestClient: &RealRestClient{}}
+	server := WhiteboardHttpServer{Store: &store, SlackClient: slackClient}
+	whiteboard := NewQuietWhiteboard(gateway, server.Store, &RealClock{})
+	server.Run(whiteboard)
 }
 
 func makeSlackClient() SlackClient {
