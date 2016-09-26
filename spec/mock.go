@@ -74,18 +74,27 @@ func (clock MockClock) Now() time.Time {
 }
 
 type MockRestClient struct {
-	PostCalledCount int
-	Request         model.WhiteboardRequest
-	StandupItems    model.StandupItems
-	StandupMap      map[int]model.Standup
-	failPost        bool
-	postItemId      string
+	PostCalledCount     int
+	Request             model.WhiteboardRequest
+	StandupItems        model.StandupItems
+	StandupMap          map[int]model.Standup
+	failPost            bool
+	postItemId          string
+	failGetStandupItems bool
 }
 
 func (client MockRestClient) GetStandupItems(standupId int) (items model.StandupItems, ok bool) {
-	items = client.StandupItems
-	ok = true
+	if client.failGetStandupItems {
+		ok = false
+	} else {
+		items = client.StandupItems
+		ok = true
+	}
 	return
+}
+
+func (client *MockRestClient) SetGetStandupItemsError() {
+	client.failGetStandupItems = true
 }
 
 func (client *MockRestClient) Post(request model.WhiteboardRequest) (itemId string, ok bool) {

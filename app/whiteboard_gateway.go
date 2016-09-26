@@ -3,6 +3,7 @@ package app
 import (
 	"errors"
 	. "github.com/pivotal-sydney/whiteboardbot/model"
+	"strconv"
 )
 
 type StandupRepository interface {
@@ -37,6 +38,17 @@ func (gateway WhiteboardGateway) SaveEntry(entryType EntryType) (PostResult, err
 	return PostResult{itemId}, nil
 }
 
-func (gateway WhiteboardGateway) GetStandupItems(standupId string) (StandupItems, error) {
-	return StandupItems{}, nil
+func (gateway WhiteboardGateway) GetStandupItems(standupId string) (standupItems StandupItems, err error) {
+	standupIdInt, err := strconv.Atoi(standupId)
+	if err != nil {
+		err = errors.New(MISSING_STANDUP)
+		return
+	}
+
+	standupItems, ok := gateway.RestClient.GetStandupItems(standupIdInt)
+	if !ok {
+		err = errors.New("Failed fetching standup items")
+	}
+
+	return
 }
