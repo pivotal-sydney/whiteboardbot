@@ -4,20 +4,48 @@ import (
 	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/pivotal-sydney/whiteboardbot/model"
 	. "github.com/pivotal-sydney/whiteboardbot/model"
+	"github.com/pivotal-sydney/whiteboardbot/spec"
 )
 
 var _ = Describe("StandupItems", func() {
 
-	var items StandupItems
+	var (
+		items StandupItems
+		clock spec.MockClock
+	)
 
 	BeforeEach(func() {
-		items = model.StandupItems{}
-		items.Faces = []model.Entry{{Title: "Dariusz", Date: "2015-12-03", Author: "Andrew"}, {Title: "Andrew", Date: "2015-12-03", Author: "Dariusz"}}
-		items.Interestings = []model.Entry{{Title: "Something interesting", Body: "link", Author: "Mik", Date: "2015-12-03"}, {Title: "Something else interesting", Body: "link", Author: "Mik", Date: "2016-12-03"}}
-		items.Events = []model.Entry{{Title: "Another meetup", Body: "link", Author: "Dariusz", Date: "2015-12-03"}, {Title: "Another bloody meetup", Body: "link", Author: "Dariusz", Date: "2025-12-03"}}
-		items.Helps = []model.Entry{{Title: "Help me!", Author: "Lawrence", Date: "2015-12-03"}, {Title: "Help me again!", Author: "Lawrence", Date: "2016-12-03"}}
+		items = StandupItems{}
+
+		clock = spec.MockClock{}
+		today := clock.Now()
+		tomorrow := today.AddDate(0, 0, 1)
+		dayAfterTomorrow := tomorrow.AddDate(0, 0, 1)
+
+		todayStr := today.Format("2006-01-02")
+		tomorrowStr := tomorrow.Format("2006-01-02")
+		dayAfterTomorrowStr := dayAfterTomorrow.Format("2006-01-02")
+
+		items.Faces = []Entry{
+			{Title: "Dariusz", Date: todayStr, Author: "Andrew"},
+			{Title: "Andrew", Date: tomorrowStr, Author: "Dariusz"},
+		}
+
+		items.Interestings = []Entry{
+			{Title: "Something interesting", Body: "link", Author: "Mik", Date: todayStr},
+			{Title: "Something else interesting", Body: "link", Author: "Mik", Date: "Dinner on Friday?"},
+		}
+
+		items.Events = []Entry{
+			{Title: "Another meetup", Body: "link", Author: "Dariusz", Date: tomorrowStr},
+			{Title: "Another bloody meetup", Body: "link", Author: "Dariusz", Date: dayAfterTomorrowStr},
+		}
+
+		items.Helps = []Entry{
+			{Title: "Help me!", Author: "Lawrence", Date: todayStr},
+			{Title: "Help me again!", Author: "Lawrence", Date: todayStr},
+		}
 	})
 
 	Describe("convert standup items to string", func() {
@@ -52,6 +80,42 @@ var _ = Describe("StandupItems", func() {
 		It("should print events in presentation mode", func() {
 			itemsString := items.EventsString()
 			Expect(itemsString).To(Equal("EVENTS\n\n" + Event{&items.Events[0]}.String() + "\n \n" + Event{&items.Events[1]}.String()))
+		})
+	})
+
+	Describe("Filter", func() {
+		It("lists all items", func() {
+			todaysItems := items.Filter(1, clock, "Australia/Sydney")
+
+			Expect(todaysItems.Faces).To(Equal(items.Faces[:1]))
+			Expect(todaysItems.Helps).To(Equal(items.Helps))
+			Expect(todaysItems.Interestings).To(Equal(items.Interestings))
+			Expect(todaysItems.Events).To(BeEmpty())
+
+			tomorrowsItems := items.Filter(2, clock, "Australia/Sydney")
+
+			Expect(tomorrowsItems.Faces).To(Equal(items.Faces))
+			Expect(tomorrowsItems.Helps).To(Equal(items.Helps))
+			Expect(tomorrowsItems.Interestings).To(Equal(items.Interestings))
+			Expect(tomorrowsItems.Events).To(Equal(items.Events[:1]))
+
+			allItems := items.Filter(3, clock, "Australia/Sydney")
+
+			Expect(allItems.Faces).To(Equal(items.Faces))
+			Expect(allItems.Helps).To(Equal(items.Helps))
+			Expect(allItems.Interestings).To(Equal(items.Interestings))
+			Expect(allItems.Events).To(Equal(items.Events))
+		})
+
+		Context("when the user's time zone is invalid", func() {
+			It("uses the system time zone", func() {
+				newItems := items.Filter(1, clock, "bork bork bork")
+
+				Expect(newItems.Faces).To(Equal(items.Faces[:1]))
+				Expect(newItems.Helps).To(Equal(items.Helps))
+				Expect(newItems.Interestings).To(Equal(items.Interestings))
+				Expect(newItems.Events).To(BeEmpty())
+			})
 		})
 	})
 })
