@@ -6,35 +6,12 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
 	. "github.com/pivotal-sydney/whiteboardbot/http"
-	. "github.com/pivotal-sydney/whiteboardbot/model"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"os"
 	"strconv"
 )
-
-type MockStringer struct{}
-
-func (MockStringer) String() string {
-	return "This is a mock message"
-}
-
-type MockQuietWhiteboard struct {
-	HandleInputCalled bool
-	HandleInputArgs   struct {
-		Text    string
-		Context SlackContext
-	}
-}
-
-func (mqw *MockQuietWhiteboard) ProcessCommand(input string, context SlackContext) CommandResult {
-	mqw.HandleInputCalled = true
-	mqw.HandleInputArgs.Text = input
-	mqw.HandleInputArgs.Context = context
-
-	return CommandResult{Entry: &MockStringer{}}
-}
 
 func makeRequest(params map[string]string) *http.Request {
 	data := url.Values{}
