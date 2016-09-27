@@ -6,6 +6,7 @@ import (
 	. "github.com/pivotal-sydney/whiteboardbot/app"
 	. "github.com/pivotal-sydney/whiteboardbot/http"
 	. "github.com/pivotal-sydney/whiteboardbot/model"
+	. "github.com/pivotal-sydney/whiteboardbot/slack"
 	"os"
 	"os/signal"
 	"syscall"
@@ -33,18 +34,23 @@ func cleanup() {
 
 func main() {
 	store := RealStore{Pool: redisConnectionPool}
-	slackClient := makeSlackClient()
+
+	rtm := makeSlackRTM()
+	slackClient := Slack{SlackRtm: rtm}
 
 	gateway := WhiteboardGateway{RestClient: &RealRestClient{}}
 	whiteboard := NewQuietWhiteboard(gateway, &store, &RealClock{})
-	server := WhiteboardHttpServer{SlackClient: slackClient, Whiteboard: whiteboard}
-	server.Run()
+
+	httpServer := WhiteboardHttpServer{SlackClient: &slackClient, Whiteboard: whiteboard}
+	httpServer.Run()
+
+	slackBotServer := SlackBotServer{SlackClient: &slackClient, Whiteboard: whiteboard}
+	slackBotServer.Run(rtm)
 }
 
-func makeSlackClient() SlackClient {
+func makeSlackRTM() (rtm *slack.RTM) {
 	api := slack.New(os.Getenv("WB_BOT_API_TOKEN"))
-	rtm := api.NewRTM()
+	rtm = api.NewRTM()
 	go rtm.ManageConnection()
-
-	return &Slack{SlackRtm: rtm}
+	return
 }
