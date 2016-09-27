@@ -72,11 +72,11 @@ func (slackClient *MockSlackClient) AddSlackUser(userId string, user SlackUser) 
 	slackClient.SlackUserMap[userId] = user
 }
 
-func (slackClient *MockSlackClient) GetChannelDetails(channel string) (slackChannel SlackChannel) {
+func (slackClient *MockSlackClient) GetChannelDetails(channelId string) (slackChannel SlackChannel) {
 	slackClient.initSlackChannelMap()
-	slackChannel, ok := slackClient.SlackChannelMap[channel]
+	slackChannel, ok := slackClient.SlackChannelMap[channelId]
 	if !ok {
-		slackChannel.Id = channel
+		slackChannel.Id = channelId
 		slackChannel.Name = "unknown"
 	}
 
@@ -85,7 +85,6 @@ func (slackClient *MockSlackClient) GetChannelDetails(channel string) (slackChan
 
 func (slackClient *MockSlackClient) initSlackChannelMap() {
 	if slackClient.SlackChannelMap == nil {
-
 		channel1 := SlackChannel{Id: "CChannelId", Name: "channel-name"}
 		channel2 := SlackChannel{Id: "CChannelId2", Name: "channel-name-two"}
 
@@ -94,6 +93,11 @@ func (slackClient *MockSlackClient) initSlackChannelMap() {
 			channel2.Id: channel2,
 		}
 	}
+}
+
+func (slackClient *MockSlackClient) AddSlackChannel(channelId string, channel SlackChannel) {
+	slackClient.initSlackChannelMap()
+	slackClient.SlackChannelMap[channelId] = channel
 }
 
 type MockClock struct{}
