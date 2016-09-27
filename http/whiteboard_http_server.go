@@ -15,14 +15,15 @@ const (
 
 type WhiteboardHttpServer struct {
 	SlackClient SlackClient
+	Whiteboard  QuietWhiteboard
 }
 
-func (server WhiteboardHttpServer) Run(whiteboard QuietWhiteboardApp) {
-	server.startHttpServer(whiteboard)
+func (server WhiteboardHttpServer) Run() {
+	server.startHttpServer()
 }
 
-func (server WhiteboardHttpServer) startHttpServer(wb QuietWhiteboardApp) {
-	http.HandleFunc("/", server.NewHandleRequest(wb))
+func (server WhiteboardHttpServer) startHttpServer() {
+	http.HandleFunc("/", server.NewHandleRequest())
 
 	if err := http.ListenAndServe(":"+server.getHealthCheckPort(), nil); err != nil {
 		fmt.Printf("ListenAndServe: %v\n", err)
@@ -37,7 +38,7 @@ func (server WhiteboardHttpServer) getHealthCheckPort() (port string) {
 	return
 }
 
-func (server WhiteboardHttpServer) NewHandleRequest(wb QuietWhiteboard) http.HandlerFunc {
+func (server WhiteboardHttpServer) NewHandleRequest() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		req.ParseForm()
 
@@ -52,7 +53,7 @@ func (server WhiteboardHttpServer) NewHandleRequest(wb QuietWhiteboard) http.Han
 
 		context := server.extractSlackContext(req)
 
-		result := wb.ProcessCommand(cmdArgs, context)
+		result := server.Whiteboard.ProcessCommand(cmdArgs, context)
 
 		resultJson, err := jsonify(result.Entry)
 		if err != nil {

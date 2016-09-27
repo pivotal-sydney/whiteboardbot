@@ -55,10 +55,10 @@ var _ = Describe("WhiteboardHttpServer", func() {
 		slackClient := MockSlackClient{}
 
 		writer = httptest.NewRecorder()
-		whiteboardServer := WhiteboardHttpServer{SlackClient: &slackClient}
-
 		mockWhiteBoard = MockQuietWhiteboard{}
-		handlerFunc = whiteboardServer.NewHandleRequest(&mockWhiteBoard)
+		whiteboardServer := WhiteboardHttpServer{SlackClient: &slackClient, Whiteboard: &mockWhiteBoard}
+
+		handlerFunc = whiteboardServer.NewHandleRequest()
 	})
 
 	AfterEach(func() {
