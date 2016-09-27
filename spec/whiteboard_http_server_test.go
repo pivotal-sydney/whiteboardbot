@@ -43,6 +43,7 @@ var _ = Describe("WhiteboardHttpServer", func() {
 		params = map[string]string{
 			"token":        "123",
 			"user_name":    "aleung",
+			"user_id":      "C987",
 			"channel_id":   "C456",
 			"channel_name": "sydney-standup",
 		}
@@ -53,6 +54,7 @@ var _ = Describe("WhiteboardHttpServer", func() {
 		os.Setenv("SLACK_TOKEN", "123")
 
 		slackClient := MockSlackClient{}
+		slackClient.AddSlackUser("C987", slackUser)
 
 		writer = httptest.NewRecorder()
 		mockWhiteBoard = MockQuietWhiteboard{}

@@ -14,6 +14,7 @@ type MockSlackClient struct {
 	Message           string
 	Entry             *model.Entry
 	Status            string
+	SlackUserMap      map[string]SlackUser
 }
 
 func (slackClient *MockSlackClient) PostMessage(message string, channel string, status string) {
@@ -34,26 +35,44 @@ func (slackClient *MockSlackClient) PostEntry(entry *model.Entry, channel string
 }
 
 func (slackClient *MockSlackClient) GetUserDetails(user string) (slackUser SlackUser) {
-	slackUser.Username = user
-
-	if slackUser.Username == "UUserId" {
-		slackUser.Username = "user-name"
+	slackClient.initSlackUserMap()
+	slackUser, ok := slackClient.SlackUserMap[user]
+	if !ok {
+		slackUser.Username = user
+		slackUser.Author = user
+		slackUser.TimeZone = "America/Los_Angeles"
 	}
-
-	if slackUser.Username == "UUserId2" {
-		slackUser.Username = "user-name-two"
-	}
-
-	if slackUser.Username == "" {
-		slackUser.Username = "aleung"
-	}
-	slackUser.Author = "Andrew Leung"
-	slackUser.TimeZone = "Australia/Sydney"
 	return
 }
 
-func (slackClient *MockSlackClient) GetChannelDetails(channel string) (slackChannel *slack.Channel) {
+func (slackClient *MockSlackClient) initSlackUserMap() {
+	if slackClient.SlackUserMap == nil {
+		slackClient.SlackUserMap = map[string]SlackUser{
+			"U987": {
+				Username: "aleung",
+				Author:   "Andrew Leung",
+				TimeZone: "Australia/Sydney",
+			},
+			"UUserId": {
+				Username: "user-name",
+				Author:   "Andrew Leung",
+				TimeZone: "Australia/Sydney",
+			},
+			"UUserId2": {
+				Username: "user-name-two",
+				Author:   "Andrew Leung",
+				TimeZone: "Australia/Sydney",
+			},
+		}
+	}
+}
 
+func (slackClient *MockSlackClient) AddSlackUser(userId string, user SlackUser) {
+	slackClient.initSlackUserMap()
+	slackClient.SlackUserMap[userId] = user
+}
+
+func (slackClient *MockSlackClient) GetChannelDetails(channel string) (slackChannel *slack.Channel) {
 	slackChannel = &slack.Channel{}
 
 	if channel == "CChannelId" {

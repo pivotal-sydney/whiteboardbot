@@ -23,7 +23,7 @@ var _ = Describe("Upload Integration", func() {
 		file.Permalink = "http://upload/link"
 		file.InitialComment = Comment{Comment: "Body of the event"}
 		file.Title = "wb i My Title"
-		uploadEvent = MessageEvent{Msg: Msg{Upload: true, File: file, Channel: "whiteboard-sydney"}}
+		uploadEvent = MessageEvent{Msg: Msg{User: "U987", Upload: true, File: file, Channel: "whiteboard-sydney"}}
 	})
 
 	Describe("when uploading an image", func() {

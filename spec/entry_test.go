@@ -270,10 +270,12 @@ var _ = Describe("Entry Integration", func() {
 		)
 
 		BeforeEach(func() {
-			newEventAndrew = createMessageEventWithUser("wb f face", "aleung")
-			newEventDariusz = createMessageEventWithUser("wb i interesting", "dlorenc")
-			setNameAndrew = createMessageEventWithUser("wb n Andrew Leung", "aleung")
-			setNameDariusz = createMessageEventWithUser("wb t Dariusz Lorenc", "dlorenc")
+			andrewUserId := "U987"
+			dariuszUserId := "U333"
+			newEventAndrew = createMessageEventWithUser("wb f face", andrewUserId)
+			newEventDariusz = createMessageEventWithUser("wb i interesting", dariuszUserId)
+			setNameAndrew = createMessageEventWithUser("wb n Andrew Leung", andrewUserId)
+			setNameDariusz = createMessageEventWithUser("wb t Dariusz Lorenc", dariuszUserId)
 		})
 
 		Describe("sending commands", func() {

@@ -8,7 +8,7 @@ import (
 )
 
 func createMessageEvent(text string) MessageEvent {
-	return createMessageEventWithUser(text, "aleung")
+	return createMessageEventWithUser(text, "U987")
 }
 
 func createMessageEventWithUser(text string, user string) MessageEvent {
