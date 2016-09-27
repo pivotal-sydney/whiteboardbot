@@ -55,7 +55,7 @@ func (whiteboard QuietWhiteboardApp) init() {
 }
 
 func (whiteboard QuietWhiteboardApp) ProcessCommand(input string, context SlackContext) CommandResult {
-	command, input := readNextCommand(input)
+	command, input := ReadNextCommand(input)
 	return whiteboard.handleCommand(command, input, context)
 }
 

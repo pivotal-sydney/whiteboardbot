@@ -50,7 +50,7 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 	input := getInputString(ev)
 	input = whiteboard.replaceIdsWithNames(input)
 
-	command, input := readNextCommand(input)
+	command, input := ReadNextCommand(input)
 	if !matches(command, "/wb") && !matches(command, "wb") {
 		return
 	}
@@ -58,7 +58,7 @@ func (whiteboard WhiteboardApp) ParseMessageEvent(ev *slack.MessageEvent) {
 }
 
 func (whiteboard WhiteboardApp) HandleInput(input string, ev *slack.MessageEvent) {
-	command, input := readNextCommand(input)
+	command, input := ReadNextCommand(input)
 	whiteboard.handleCommand(command, input, ev)
 }
 
@@ -219,7 +219,7 @@ func (whiteboard WhiteboardApp) handleDefault(_ string, ev *slack.MessageEvent) 
 	if !ok {
 		return
 	}
-	_, userInput := readNextCommand(getInputString(ev))
+	_, userInput := ReadNextCommand(getInputString(ev))
 
 	whiteboard.SlackClient.PostMessage(fmt.Sprintf("%v no you %v", slackUser.Username, userInput), ev.Channel, "")
 }
