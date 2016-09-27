@@ -14,7 +14,6 @@ const (
 )
 
 type WhiteboardHttpServer struct {
-	Store       Store
 	SlackClient SlackClient
 }
 

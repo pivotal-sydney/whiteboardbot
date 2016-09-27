@@ -52,11 +52,10 @@ var _ = Describe("WhiteboardHttpServer", func() {
 
 		os.Setenv("SLACK_TOKEN", "123")
 
-		store := MockStore{}
 		slackClient := MockSlackClient{}
 
 		writer = httptest.NewRecorder()
-		whiteboardServer := WhiteboardHttpServer{Store: &store, SlackClient: &slackClient}
+		whiteboardServer := WhiteboardHttpServer{SlackClient: &slackClient}
 
 		mockWhiteBoard = MockQuietWhiteboard{}
 		handlerFunc = whiteboardServer.NewHandleRequest(&mockWhiteBoard)

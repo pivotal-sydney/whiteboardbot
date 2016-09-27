@@ -36,8 +36,8 @@ func main() {
 	slackClient := makeSlackClient()
 
 	gateway := WhiteboardGateway{RestClient: &RealRestClient{}}
-	server := WhiteboardHttpServer{Store: &store, SlackClient: slackClient}
-	whiteboard := NewQuietWhiteboard(gateway, server.Store, &RealClock{})
+	whiteboard := NewQuietWhiteboard(gateway, store, &RealClock{})
+	server := WhiteboardHttpServer{SlackClient: slackClient}
 	server.Run(whiteboard)
 }
 
