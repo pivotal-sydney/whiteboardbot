@@ -19,10 +19,6 @@ type WhiteboardHttpServer struct {
 }
 
 func (server WhiteboardHttpServer) Run() {
-	server.startHttpServer()
-}
-
-func (server WhiteboardHttpServer) startHttpServer() {
 	http.HandleFunc("/", server.NewHandleRequest())
 
 	if err := http.ListenAndServe(":"+server.getHealthCheckPort(), nil); err != nil {
