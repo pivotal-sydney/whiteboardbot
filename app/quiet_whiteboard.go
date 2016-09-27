@@ -87,7 +87,7 @@ func (whiteboard QuietWhiteboardApp) handleRegistrationCommand(standupId string,
 		return
 	}
 
-	whiteboard.Store.SetStandup(context.Channel.ChannelId, standup)
+	whiteboard.Store.SetStandup(context.Channel.Id, standup)
 
 	text := fmt.Sprintf("Standup %v has been registered! You can now start creating Whiteboard entries!", standup.Title)
 
@@ -96,7 +96,7 @@ func (whiteboard QuietWhiteboardApp) handleRegistrationCommand(standupId string,
 }
 
 func (whiteboard QuietWhiteboardApp) handlePresentCommand(numDays string, context SlackContext) (command CommandResult) {
-	standup, ok := whiteboard.Store.GetStandup(context.Channel.ChannelId)
+	standup, ok := whiteboard.Store.GetStandup(context.Channel.Id)
 	if !ok {
 		return CommandResult{Entry: InvalidEntry{Error: MISSING_STANDUP}}
 	}
@@ -206,7 +206,7 @@ func (whiteboard QuietWhiteboardApp) handleCreateCommand(input string, context S
 		return CommandResult{Entry: InvalidEntry{Error: err.Error()}}
 	}
 
-	standup, ok := whiteboard.Store.GetStandup(context.Channel.ChannelId)
+	standup, ok := whiteboard.Store.GetStandup(context.Channel.Id)
 	if !ok {
 		return CommandResult{Entry: InvalidEntry{Error: MISSING_STANDUP}}
 	}

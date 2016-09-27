@@ -84,13 +84,13 @@ var _ = Describe("QuietWhiteboard", func() {
 		sydneyStandup = Standup{Id: 1, TimeZone: "Australia/Sydney", Title: "Sydney"}
 
 		user := SlackUser{Username: "aleung", Author: "Andrew Leung"}
-		channel := SlackChannel{ChannelId: "C456", ChannelName: "sydney-standup"}
+		channel := SlackChannel{Id: "C456", Name: "sydney-standup"}
 		context = SlackContext{User: user, Channel: channel}
 
 		clock = MockClock{}
 
 		store = MockStore{}
-		store.SetStandup(context.Channel.ChannelId, sydneyStandup)
+		store.SetStandup(context.Channel.Id, sydneyStandup)
 
 		gateway = MockWhiteboardGateway{}
 		gateway.SetStandup(sydneyStandup)
@@ -389,7 +389,7 @@ var _ = Describe("QuietWhiteboard", func() {
 
 			AssertErrorMessageWhenStandupNotRegistered := func() func() {
 				return func() {
-					delete(store.StoreMap, context.Channel.ChannelId)
+					delete(store.StoreMap, context.Channel.Id)
 
 					result := whiteboard.ProcessCommand(command+" "+title, context)
 
@@ -687,7 +687,7 @@ var _ = Describe("QuietWhiteboard", func() {
 
 			Context("when the standup is not registered", func() {
 				It("returns an error message", func() {
-					delete(store.StoreMap, context.Channel.ChannelId)
+					delete(store.StoreMap, context.Channel.Id)
 
 					result := whiteboard.ProcessCommand("present", context)
 

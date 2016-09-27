@@ -297,7 +297,7 @@ func (whiteboard WhiteboardApp) replaceChannelIdsWithNames(input string) string 
 	for _, id := range channelIds {
 		channelId := id[1]
 		slackChannel := whiteboard.SlackClient.GetChannelDetails(channelId)
-		channelName := "#" + slackChannel.ChannelName
+		channelName := "#" + slackChannel.Name
 		input = strings.Replace(input, id[0], channelName, -1)
 	}
 

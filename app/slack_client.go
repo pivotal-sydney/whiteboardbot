@@ -17,8 +17,8 @@ type SlackUser struct {
 }
 
 type SlackChannel struct {
-	ChannelId   string
-	ChannelName string
+	Id   string
+	Name string
 }
 
 type SlackContext struct {
@@ -83,7 +83,7 @@ func (slackClient *Slack) GetChannelDetails(channel string) SlackChannel {
 		slackChannel.ID = channel
 		slackChannel.Name = "unknown"
 	}
-	return SlackChannel{ChannelId: slackChannel.ID, ChannelName: slackChannel.Name}
+	return SlackChannel{Id: slackChannel.ID, Name: slackChannel.Name}
 }
 
 func handleMissingEntry(slackClient SlackClient, channel string) {

@@ -49,7 +49,7 @@ var _ = Describe("WhiteboardHttpServer", func() {
 		}
 
 		slackUser = SlackUser{Username: "aleung", Author: "Andrew Leung", TimeZone: "Australia/Sydney"}
-		slackChannel = SlackChannel{ChannelId: "C456", ChannelName: "sydney-standup"}
+		slackChannel = SlackChannel{Id: "C456", Name: "sydney-standup"}
 
 		os.Setenv("SLACK_TOKEN", "123")
 

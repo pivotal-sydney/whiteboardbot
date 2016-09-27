@@ -76,8 +76,8 @@ func (slackClient *MockSlackClient) GetChannelDetails(channel string) (slackChan
 	slackClient.initSlackChannelMap()
 	slackChannel, ok := slackClient.SlackChannelMap[channel]
 	if !ok {
-		slackChannel.ChannelId = channel
-		slackChannel.ChannelName = "unknown"
+		slackChannel.Id = channel
+		slackChannel.Name = "unknown"
 	}
 
 	return
@@ -86,12 +86,12 @@ func (slackClient *MockSlackClient) GetChannelDetails(channel string) (slackChan
 func (slackClient *MockSlackClient) initSlackChannelMap() {
 	if slackClient.SlackChannelMap == nil {
 
-		channel1 := SlackChannel{ChannelId: "CChannelId", ChannelName: "channel-name"}
-		channel2 := SlackChannel{ChannelId: "CChannelId2", ChannelName: "channel-name-two"}
+		channel1 := SlackChannel{Id: "CChannelId", Name: "channel-name"}
+		channel2 := SlackChannel{Id: "CChannelId2", Name: "channel-name-two"}
 
 		slackClient.SlackChannelMap = map[string]SlackChannel{
-			channel1.ChannelId: channel1,
-			channel2.ChannelId: channel2,
+			channel1.Id: channel1,
+			channel2.Id: channel2,
 		}
 	}
 }
