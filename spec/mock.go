@@ -12,6 +12,7 @@ type MockSlackClient struct {
 	PostMessageCalled bool
 	Message           string
 	Entry             *model.Entry
+	ChannelId         string
 	Status            string
 	SlackUserMap      map[string]SlackUser
 	SlackChannelMap   map[string]SlackChannel
@@ -21,17 +22,20 @@ func (slackClient *MockSlackClient) PostMessage(message string, channel string, 
 	slackClient.PostMessageCalled = true
 	slackClient.Message = message
 	slackClient.Status = status
+	slackClient.ChannelId = channel
 }
 
 func (slackClient *MockSlackClient) PostMessageWithMarkdown(message string, channel string, status string) {
 	slackClient.PostMessageCalled = true
 	slackClient.Message = message
 	slackClient.Status = status
+	slackClient.ChannelId = channel
 }
 
 func (slackClient *MockSlackClient) PostEntry(entry *model.Entry, channel string, status string) {
 	slackClient.Entry = entry
 	slackClient.Status = status
+	slackClient.ChannelId = channel
 }
 
 func (slackClient *MockSlackClient) GetUserDetails(user string) (slackUser SlackUser) {

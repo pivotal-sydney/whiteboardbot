@@ -11,7 +11,11 @@ type SlackBotServer struct {
 }
 
 func (server SlackBotServer) ProcessMessage(ev *slack.MessageEvent) {
-	_, input := ReadNextCommand(ev.Msg.Text)
+	command, input := ReadNextCommand(ev.Msg.Text)
+
+	if command != "wb" {
+		return
+	}
 
 	slackChannel := server.SlackClient.GetChannelDetails(ev.Msg.Channel)
 	slackUser := server.SlackClient.GetUserDetails(ev.Msg.User)
@@ -21,5 +25,7 @@ func (server SlackBotServer) ProcessMessage(ev *slack.MessageEvent) {
 		User:    slackUser,
 	}
 
-	server.Whiteboard.ProcessCommand(input, context)
+	result := server.Whiteboard.ProcessCommand(input, context)
+	server.SlackClient.PostMessage(result.Entry.String(), slackChannel.Id, THUMBS_UP)
+
 }
