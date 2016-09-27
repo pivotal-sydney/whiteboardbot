@@ -2,7 +2,6 @@ package spec
 
 import (
 	"encoding/json"
-	"github.com/nlopes/slack"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
 	"github.com/pivotal-sydney/whiteboardbot/model"
 	"strconv"
@@ -15,6 +14,7 @@ type MockSlackClient struct {
 	Entry             *model.Entry
 	Status            string
 	SlackUserMap      map[string]SlackUser
+	SlackChannelMap   map[string]SlackChannel
 }
 
 func (slackClient *MockSlackClient) PostMessage(message string, channel string, status string) {
@@ -72,18 +72,28 @@ func (slackClient *MockSlackClient) AddSlackUser(userId string, user SlackUser) 
 	slackClient.SlackUserMap[userId] = user
 }
 
-func (slackClient *MockSlackClient) GetChannelDetails(channel string) (slackChannel *slack.Channel) {
-	slackChannel = &slack.Channel{}
-
-	if channel == "CChannelId" {
-		slackChannel.Name = "channel-name"
-	} else if channel == "CChannelId2" {
-		slackChannel.Name = "channel-name-two"
-	} else {
-		slackChannel.Name = "unknown"
+func (slackClient *MockSlackClient) GetChannelDetails(channel string) (slackChannel SlackChannel) {
+	slackClient.initSlackChannelMap()
+	slackChannel, ok := slackClient.SlackChannelMap[channel]
+	if !ok {
+		slackChannel.ChannelId = channel
+		slackChannel.ChannelName = "unknown"
 	}
 
 	return
+}
+
+func (slackClient *MockSlackClient) initSlackChannelMap() {
+	if slackClient.SlackChannelMap == nil {
+
+		channel1 := SlackChannel{ChannelId: "CChannelId", ChannelName: "channel-name"}
+		channel2 := SlackChannel{ChannelId: "CChannelId2", ChannelName: "channel-name-two"}
+
+		slackClient.SlackChannelMap = map[string]SlackChannel{
+			channel1.ChannelId: channel1,
+			channel2.ChannelId: channel2,
+		}
+	}
 }
 
 type MockClock struct{}
