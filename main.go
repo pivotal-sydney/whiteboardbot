@@ -42,7 +42,7 @@ func main() {
 	whiteboard := NewQuietWhiteboard(gateway, &store, &RealClock{})
 
 	httpServer := WhiteboardHttpServer{SlackClient: &slackClient, Whiteboard: whiteboard}
-	httpServer.Run()
+	go httpServer.Run()
 
 	slackBotServer := SlackBotServer{SlackClient: &slackClient, Whiteboard: whiteboard}
 	slackBotServer.Run(rtm)
