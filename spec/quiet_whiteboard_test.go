@@ -406,10 +406,15 @@ var _ = Describe("QuietWhiteboard", func() {
 					expectedEntryItemKind = "New face"
 					title = "Nicholas Cage"
 					author = context.User.Author
-					entry := *NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
+					entry := NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
 					entry.Id = "1"
-					expectedEntryType = Face{Entry: &entry}
-					expectedResult = EntryCommandResult{Entry: entry}
+					expectedEntryType = Face{Entry: entry}
+					expectedResult = EntryCommandResult{
+						Title:    "NEW FACE",
+						Status:   THUMBS_UP,
+						HelpText: "",
+						Entry:    entry,
+					}
 				})
 
 				It("contains a new face entry in the result", AssertContainsEntryInResult())
@@ -438,17 +443,21 @@ var _ = Describe("QuietWhiteboard", func() {
 			})
 
 			Context("helps", func() {
-
 				BeforeEach(func() {
 					command = "helps"
 					commitString = "Create Item"
 					expectedEntryItemKind = "Help"
 					title = "Good wicker furniture shop recommendations?"
 					author = context.User.Author
-					entry := *NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
+					entry := NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
 					entry.Id = "1"
-					expectedEntryType = Help{Entry: &entry}
-					expectedResult = EntryCommandResult{Entry: entry}
+					expectedEntryType = Help{Entry: entry}
+					expectedResult = EntryCommandResult{
+						Title:    "HELP",
+						Status:   THUMBS_UP,
+						HelpText: "_Now go update the details. Need help?_ `wb ?`",
+						Entry:    entry,
+					}
 				})
 
 				It("contains a help entry in the result", AssertContainsEntryInResult())
@@ -477,17 +486,21 @@ var _ = Describe("QuietWhiteboard", func() {
 			})
 
 			Context("interestings", func() {
-
 				BeforeEach(func() {
 					command = "interestings"
 					commitString = "Create Item"
 					expectedEntryItemKind = "Interesting"
 					title = "Nicholas Cage did a remake of The Wicker Man!"
 					author = context.User.Author
-					entry := *NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
+					entry := NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
 					entry.Id = "1"
-					expectedEntryType = Interesting{Entry: &entry}
-					expectedResult = EntryCommandResult{Entry: entry}
+					expectedEntryType = Interesting{Entry: entry}
+					expectedResult = EntryCommandResult{
+						Title:    "INTERESTING",
+						Status:   THUMBS_UP,
+						HelpText: "_Now go update the details. Need help?_ `wb ?`",
+						Entry:    entry,
+					}
 				})
 
 				It("contains an interesting entry in the result", AssertContainsEntryInResult())
@@ -516,17 +529,21 @@ var _ = Describe("QuietWhiteboard", func() {
 			})
 
 			Context("events", func() {
-
 				BeforeEach(func() {
 					command = "events"
 					commitString = "Create Item"
 					expectedEntryItemKind = "Event"
 					title = "Movie Screening for The Wicker Man!"
 					author = context.User.Author
-					entry := *NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
+					entry := NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
 					entry.Id = "1"
-					expectedEntryType = Event{Entry: &entry}
-					expectedResult = EntryCommandResult{Entry: entry}
+					expectedEntryType = Event{Entry: entry}
+					expectedResult = EntryCommandResult{
+						Title:    "EVENT",
+						Status:   THUMBS_UP,
+						HelpText: "_Now go update the details. Need help?_ `wb ?`",
+						Entry:    entry,
+					}
 				})
 
 				It("contains an event entry in the result", AssertContainsEntryInResult())

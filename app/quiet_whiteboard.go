@@ -5,6 +5,7 @@ import (
 	"fmt"
 	. "github.com/pivotal-sydney/whiteboardbot/model"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -27,7 +28,10 @@ type QuietWhiteboardApp struct {
 type CommandResultInterface fmt.Stringer
 
 type EntryCommandResult struct {
-	Entry fmt.Stringer
+	Title    string
+	Status   string
+	HelpText string
+	Entry    fmt.Stringer
 }
 
 type MessageCommandResult struct {
@@ -210,7 +214,6 @@ func (whiteboard QuietWhiteboardApp) handleUpdateCommand(input string, context S
 }
 
 func (whiteboard QuietWhiteboardApp) handleCreateCommand(input string, context SlackContext, factory EntryFactory) CommandResultInterface {
-	var entry fmt.Stringer
 
 	if err := handleEmptyInput(input); err != nil {
 		return MessageCommandResult{Text: err.Error()}
@@ -228,8 +231,24 @@ func (whiteboard QuietWhiteboardApp) handleCreateCommand(input string, context S
 		return MessageCommandResult{Text: err.Error()}
 	}
 	entryType.GetEntry().Id = postResult.ItemId
-	entry = *entryType.GetEntry()
-	return EntryCommandResult{Entry: entry}
+
+	return makeEntryCommandResult(entryType)
+}
+
+func makeEntryCommandResult(entryType EntryType) EntryCommandResult {
+	entry := entryType.GetEntry()
+	itemKind := entry.ItemKind
+	helpText := ""
+	if itemKind != "New face" {
+		helpText = NEW_ENTRY_HELP_TEXT
+	}
+
+	return EntryCommandResult{
+		Title:    strings.ToUpper(itemKind),
+		Status:   THUMBS_UP,
+		HelpText: helpText,
+		Entry:    entry,
+	}
 }
 
 func handleEmptyInput(input string) (err error) {
