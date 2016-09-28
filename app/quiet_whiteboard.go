@@ -177,7 +177,7 @@ func (whiteboard QuietWhiteboardApp) handleBodyCommand(input string, context Sla
 		if _, err := whiteboard.Repository.SaveEntry(entryType); err != nil {
 			return MessageCommandResult{Text: err.Error()}
 		}
-		return EntryCommandResult{Entry: entry}
+		return makeEntryCommandResult(entryType, false)
 	} else {
 		return MessageCommandResult{Text: MISSING_ENTRY, Status: THUMBS_DOWN}
 	}

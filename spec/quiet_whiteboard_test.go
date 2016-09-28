@@ -228,10 +228,17 @@ var _ = Describe("QuietWhiteboard", func() {
 				entryType := whiteboard.EntryMap[context.User.Username]
 				Expect(entryType.GetEntry().Body).To(BeEmpty())
 
-				whiteboard.ProcessCommand("body And the movie was terrible!", context)
+				result := whiteboard.ProcessCommand("body And the movie was terrible!", context)
 				entryType = whiteboard.EntryMap[context.User.Username]
 
 				Expect(entryType.GetEntry().Body).To(Equal("And the movie was terrible!"))
+
+				expectedResult := EntryCommandResult{
+					Title:  "INTERESTING",
+					Status: THUMBS_UP,
+					Entry:  entryType.GetEntry(),
+				}
+				Expect(result).To(Equal(expectedResult))
 			})
 
 			It("creates a post", func() {
