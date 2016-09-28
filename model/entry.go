@@ -36,7 +36,7 @@ type TextEntry struct {
 }
 
 type InvalidEntry struct {
-	Error string
+	Text string
 }
 
 func NewEntry(clock Clock, author, title string, standup Standup, itemKind string) *Entry {
@@ -92,7 +92,7 @@ func (entry TextEntry) String() string {
 }
 
 func (entry InvalidEntry) String() string {
-	return entry.Error
+	return entry.Text
 }
 
 func slackUnescape(escaped string) string {
