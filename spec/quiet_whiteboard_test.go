@@ -69,6 +69,40 @@ func (gateway *MockWhiteboardGateway) SetGetStandupItemsError() {
 	gateway.failGetStandupItems = true
 }
 
+var _ = Describe("EntryCommandResult", func() {
+	Describe("String", func() {
+		It("prints the status, help text, title and entry string", func() {
+			entry := NewEntry(&MockClock{}, "Ernest Hemingway", "Peace and War", Standup{}, "Book")
+			entryCommandResult := EntryCommandResult{
+				Title:    "Good Book",
+				Status:   "SUCCESS!",
+				HelpText: "Here's a little help",
+				Entry:    entry,
+			}
+
+			expectedString := "SUCCESS!Good Book\nHere's a little help\n" + entry.String()
+
+			Expect(entryCommandResult.String()).To(Equal(expectedString))
+		})
+
+		Context("when the help text is empty", func() {
+			It("skips the help text", func() {
+				entry := NewEntry(&MockClock{}, "Ernest Hemingway", "Peace and War", Standup{}, "Book")
+				entryCommandResult := EntryCommandResult{
+					Title:    "Good Book",
+					Status:   "SUCCESS!",
+					HelpText: "",
+					Entry:    entry,
+				}
+
+				expectedString := "SUCCESS!Good Book\n" + entry.String()
+
+				Expect(entryCommandResult.String()).To(Equal(expectedString))
+			})
+		})
+	})
+})
+
 var _ = Describe("QuietWhiteboard", func() {
 
 	var (

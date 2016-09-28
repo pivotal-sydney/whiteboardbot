@@ -43,7 +43,12 @@ func (mcr MessageCommandResult) String() string {
 }
 
 func (r EntryCommandResult) String() string {
-	return r.Entry.String()
+	helpText := ""
+	if r.HelpText != "" {
+		helpText = r.HelpText + "\n"
+	}
+
+	return fmt.Sprintf("%s%s\n%s%s", r.Status, r.Title, helpText, r.Entry.String())
 }
 
 func NewQuietWhiteboard(gateway StandupRepository, store Store, clock Clock) (whiteboard QuietWhiteboardApp) {
