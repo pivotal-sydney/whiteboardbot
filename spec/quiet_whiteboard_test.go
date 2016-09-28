@@ -310,16 +310,16 @@ var _ = Describe("QuietWhiteboard", func() {
 				author                string
 				command               string
 				commitString          string
-				expectedEntry         Entry
 				expectedEntryType     EntryType
 				expectedEntryItemKind string
+				expectedResult        EntryCommandResult
 			)
 
 			AssertContainsEntryInResult := func() func() {
 				return func() {
 					result := whiteboard.ProcessCommand(command+" "+title, context)
 
-					Expect(result).To(Equal(expectedEntry))
+					Expect(result).To(Equal(expectedResult))
 				}
 			}
 
@@ -406,14 +406,15 @@ var _ = Describe("QuietWhiteboard", func() {
 					expectedEntryItemKind = "New face"
 					title = "Nicholas Cage"
 					author = context.User.Author
-					expectedEntry = *NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
-					expectedEntry.Id = "1"
-					expectedEntryType = Face{Entry: &expectedEntry}
+					entry := *NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
+					entry.Id = "1"
+					expectedEntryType = Face{Entry: &entry}
+					expectedResult = EntryCommandResult{Entry: entry}
 				})
 
-				PIt("contains a help entry in the result", AssertContainsEntryInResult())
+				It("contains a new face entry in the result", AssertContainsEntryInResult())
 
-				It("stores the help entry in the entry map", AssertEntryStoredInEntryMap())
+				It("stores the new face entry in the entry map", AssertEntryStoredInEntryMap())
 
 				It("assigns an Id to the entry", AssertEntryHasAnId())
 
@@ -444,12 +445,13 @@ var _ = Describe("QuietWhiteboard", func() {
 					expectedEntryItemKind = "Help"
 					title = "Good wicker furniture shop recommendations?"
 					author = context.User.Author
-					expectedEntry = *NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
-					expectedEntry.Id = "1"
-					expectedEntryType = Help{Entry: &expectedEntry}
+					entry := *NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
+					entry.Id = "1"
+					expectedEntryType = Help{Entry: &entry}
+					expectedResult = EntryCommandResult{Entry: entry}
 				})
 
-				PIt("contains a help entry in the result", AssertContainsEntryInResult())
+				It("contains a help entry in the result", AssertContainsEntryInResult())
 
 				It("stores the help entry in the entry map", AssertEntryStoredInEntryMap())
 
@@ -482,14 +484,15 @@ var _ = Describe("QuietWhiteboard", func() {
 					expectedEntryItemKind = "Interesting"
 					title = "Nicholas Cage did a remake of The Wicker Man!"
 					author = context.User.Author
-					expectedEntry = *NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
-					expectedEntry.Id = "1"
-					expectedEntryType = Interesting{Entry: &expectedEntry}
+					entry := *NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
+					entry.Id = "1"
+					expectedEntryType = Interesting{Entry: &entry}
+					expectedResult = EntryCommandResult{Entry: entry}
 				})
 
-				PIt("contains a help entry in the result", AssertContainsEntryInResult())
+				It("contains an interesting entry in the result", AssertContainsEntryInResult())
 
-				It("stores the help entry in the entry map", AssertEntryStoredInEntryMap())
+				It("stores the interesting entry in the entry map", AssertEntryStoredInEntryMap())
 
 				It("assigns an Id to the entry", AssertEntryHasAnId())
 
@@ -520,14 +523,15 @@ var _ = Describe("QuietWhiteboard", func() {
 					expectedEntryItemKind = "Event"
 					title = "Movie Screening for The Wicker Man!"
 					author = context.User.Author
-					expectedEntry = *NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
-					expectedEntry.Id = "1"
-					expectedEntryType = Event{Entry: &expectedEntry}
+					entry := *NewEntry(clock, author, title, sydneyStandup, expectedEntryItemKind)
+					entry.Id = "1"
+					expectedEntryType = Event{Entry: &entry}
+					expectedResult = EntryCommandResult{Entry: entry}
 				})
 
-				PIt("contains a help entry in the result", AssertContainsEntryInResult())
+				It("contains an event entry in the result", AssertContainsEntryInResult())
 
-				It("stores the help entry in the entry map", AssertEntryStoredInEntryMap())
+				It("stores the event entry in the entry map", AssertEntryStoredInEntryMap())
 
 				It("assigns an Id to the entry", AssertEntryHasAnId())
 
