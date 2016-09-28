@@ -574,22 +574,26 @@ var _ = Describe("QuietWhiteboard", func() {
 
 		Context("updating entries", func() {
 			var (
-				originalEntry   Entry
-				originalEntryId string
-				command         string
-				newValue        string
+				command           string
+				newValue          string
+				expectedEntryType EntryType
+				expectedResult    EntryCommandResult
 			)
 
 			AssertTitleUpdated := func() func() {
 				return func() {
+					result := whiteboard.ProcessCommand(command+" "+newValue, context)
+
+					Expect(result).To(Equal(expectedResult))
+				}
+			}
+
+			AssertEntrySaved := func() func() {
+				return func() {
 					whiteboard.ProcessCommand(command+" "+newValue, context)
 
-					entry := whiteboard.EntryMap[context.User.Username].GetEntry()
-					entryId := entry.Id
-					title := entry.Title
-
-					Expect(title).To(Equal(newValue))
-					Expect(entryId).To(Equal(originalEntryId))
+					Expect(gateway.SaveEntryCalled).To(BeTrue())
+					Expect(gateway.EntrySaved).To(Equal(expectedEntryType))
 				}
 			}
 
@@ -630,14 +634,25 @@ var _ = Describe("QuietWhiteboard", func() {
 				BeforeEach(func() {
 					command = "name"
 					newValue = "Olivia Newton John"
-					originalEntryId = "abc123"
+					originalEntryId := "abc123"
 					originalEntryType := NewFace(clock, context.User.Author, "Oliver Newton John", sydneyStandup)
 					originalEntryType.GetEntry().Id = originalEntryId
 					whiteboard.EntryMap[context.User.Username] = originalEntryType
-					originalEntry = *whiteboard.EntryMap[context.User.Username].GetEntry()
+
+					expectedEntryType = NewFace(clock, context.User.Author, newValue, sydneyStandup)
+					newEntry := expectedEntryType.GetEntry()
+					newEntry.Id = originalEntryId
+					expectedResult = EntryCommandResult{
+						Title:    "NEW FACE",
+						Status:   THUMBS_UP,
+						HelpText: "",
+						Entry:    newEntry,
+					}
 				})
 
 				It("updates the name on a new face", AssertTitleUpdated())
+
+				It("updates whiteboard with the new name", AssertEntrySaved())
 
 				Context("when the new name is the empty string", func() {
 					It("returns an error message", AssertNoTitleErrorMessage())
@@ -655,14 +670,25 @@ var _ = Describe("QuietWhiteboard", func() {
 				BeforeEach(func() {
 					command = "title"
 					newValue = "Saturday Night Live"
-					originalEntryId = "abc123"
+					originalEntryId := "abc123"
 					originalEntryType := NewEvent(clock, context.User.Author, "Saturday Night Fever", sydneyStandup)
 					originalEntryType.GetEntry().Id = originalEntryId
 					whiteboard.EntryMap[context.User.Username] = originalEntryType
-					originalEntry = *whiteboard.EntryMap[context.User.Username].GetEntry()
+
+					expectedEntryType = NewEvent(clock, context.User.Author, newValue, sydneyStandup)
+					newEntry := expectedEntryType.GetEntry()
+					newEntry.Id = originalEntryId
+					expectedResult = EntryCommandResult{
+						Title:    "EVENT",
+						Status:   THUMBS_UP,
+						HelpText: "",
+						Entry:    newEntry,
+					}
 				})
 
 				It("updates the title on an entry", AssertTitleUpdated())
+
+				It("updates whiteboard with the new title", AssertEntrySaved())
 
 				Context("when the new title is the empty string", func() {
 					It("returns an error message", AssertNoTitleErrorMessage())

@@ -207,7 +207,7 @@ func (whiteboard QuietWhiteboardApp) handleUpdateCommand(input string, context S
 			return MessageCommandResult{Text: err.Error()}
 		}
 
-		return EntryCommandResult{Entry: entryType}
+		return makeEntryCommandResult(entryType, false)
 	} else {
 		return MessageCommandResult{Text: MISSING_ENTRY}
 	}
@@ -232,14 +232,14 @@ func (whiteboard QuietWhiteboardApp) handleCreateCommand(input string, context S
 	}
 	entryType.GetEntry().Id = postResult.ItemId
 
-	return makeEntryCommandResult(entryType)
+	return makeEntryCommandResult(entryType, true)
 }
 
-func makeEntryCommandResult(entryType EntryType) EntryCommandResult {
+func makeEntryCommandResult(entryType EntryType, newEntry bool) EntryCommandResult {
 	entry := entryType.GetEntry()
 	itemKind := entry.ItemKind
 	helpText := ""
-	if itemKind != "New face" {
+	if itemKind != "New face" && newEntry {
 		helpText = NEW_ENTRY_HELP_TEXT
 	}
 
