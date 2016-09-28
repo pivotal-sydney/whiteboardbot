@@ -28,6 +28,10 @@ type CommandResult struct {
 	Entry fmt.Stringer
 }
 
+func (r CommandResult) String() string {
+	return r.Entry.String()
+}
+
 func NewQuietWhiteboard(gateway StandupRepository, store Store, clock Clock) (whiteboard QuietWhiteboardApp) {
 	whiteboard = QuietWhiteboardApp{
 		Clock:      clock,

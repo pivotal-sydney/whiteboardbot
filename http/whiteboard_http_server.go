@@ -51,7 +51,7 @@ func (server WhiteboardHttpServer) NewHandleRequest() http.HandlerFunc {
 
 		result := server.Whiteboard.ProcessCommand(cmdArgs, context)
 
-		resultJson, err := jsonify(result.Entry)
+		resultJson, err := jsonify(result)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

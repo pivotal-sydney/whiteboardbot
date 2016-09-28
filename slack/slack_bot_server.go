@@ -27,7 +27,7 @@ func (server SlackBotServer) ProcessMessage(ev *slack.MessageEvent) {
 	}
 
 	result := server.Whiteboard.ProcessCommand(input, context)
-	server.SlackClient.PostMessage(result.Entry.String(), slackChannel.Id, THUMBS_UP)
+	server.SlackClient.PostMessage(result.String(), slackChannel.Id, THUMBS_UP)
 }
 
 func (server SlackBotServer) Run(rtm *slack.RTM) {
