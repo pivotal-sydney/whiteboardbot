@@ -29,8 +29,7 @@ var _ = Describe("Faces Integration", func() {
 	Describe("with faces keyword without title", func() {
 		It("should respond missing title", func() {
 			whiteboard.ParseMessageEvent(&newFaceEvent)
-			Expect(slackClient.Message).To(Equal("Hey, next time add a title along with your entry!\nLike this: `wb i My title`\nNeed help? Try `wb ?`"))
-			Expect(slackClient.Status).To(Equal(THUMBS_DOWN))
+			Expect(slackClient.Message).To(Equal(THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb i My title`\nNeed help? Try `wb ?`"))
 		})
 	})
 
@@ -80,11 +79,9 @@ var _ = Describe("Faces Integration", func() {
 				It("should respond with random insult", func() {
 					setNameEvent.Text = "wb body no body"
 					whiteboard.ParseMessageEvent(&setNameEvent)
-					Expect(slackClient.Message).To(Equal("Face does not have a body! Stupid."))
-					Expect(slackClient.Status).To(Equal(THUMBS_DOWN))
+					Expect(slackClient.Message).To(Equal(THUMBS_DOWN + "Face does not have a body! Stupid."))
 					whiteboard.ParseMessageEvent(&setNameEvent)
-					Expect(slackClient.Message).To(Equal("Face does not have a body! You idiot."))
-					Expect(slackClient.Status).To(Equal(THUMBS_DOWN))
+					Expect(slackClient.Message).To(Equal(THUMBS_DOWN + "Face does not have a body! You idiot."))
 				})
 			})
 		})

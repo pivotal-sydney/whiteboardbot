@@ -47,7 +47,6 @@ var _ = Describe("SlackBotServer", func() {
 
 				Expect(mockSlackClient.PostMessageCalled).To(BeTrue())
 				Expect(mockSlackClient.Message).To(Equal("This is a mock message"))
-				Expect(mockSlackClient.Status).To(Equal(THUMBS_UP))
 				Expect(mockSlackClient.ChannelId).To(Equal("C456"))
 			})
 		})

@@ -113,7 +113,7 @@ func (whiteboard WhiteboardApp) handleCreateCommand(title string, ev *slack.Mess
 func (whiteboard WhiteboardApp) handleUpdateNameTitleCommand(title string, ev *slack.MessageEvent) {
 	whiteboard.handleUpdateCommand(title, ev, func(entryType EntryType, title string) (finished bool) {
 		if len(title) == 0 {
-			whiteboard.SlackClient.PostMessage("Oi! The title/name can't be empty!", ev.Channel, THUMBS_DOWN)
+			whiteboard.SlackClient.PostMessage(THUMBS_DOWN+"Oi! The title/name can't be empty!", ev.Channel)
 			finished = true
 		} else {
 			entryType.GetEntry().Title = title
@@ -128,7 +128,7 @@ func (whiteboard WhiteboardApp) handleUpdateBodyCommand(body string, ev *slack.M
 		default:
 			entryType.GetEntry().Body = body
 		case Face:
-			whiteboard.SlackClient.PostMessage("Face does not have a body! "+randomInsult(), ev.Channel, THUMBS_DOWN)
+			whiteboard.SlackClient.PostMessage(THUMBS_DOWN+"Face does not have a body! "+randomInsult(), ev.Channel)
 			finished = true
 		}
 		return
@@ -171,11 +171,11 @@ func (whiteboard WhiteboardApp) handleRegistrationCommand(standupId string, ev *
 		return
 	}
 	whiteboard.Store.SetStandup(ev.Channel, standup)
-	whiteboard.SlackClient.PostMessage(fmt.Sprintf("Standup %v has been registered! You can now start creating Whiteboard entries!", standup.Title), ev.Channel, THUMBS_UP)
+	whiteboard.SlackClient.PostMessage(fmt.Sprintf("%sStandup %v has been registered! You can now start creating Whiteboard entries!", THUMBS_UP, standup.Title), ev.Channel)
 }
 
 func (whiteboard WhiteboardApp) handleUsageCommand(_ string, ev *slack.MessageEvent) {
-	whiteboard.SlackClient.PostMessageWithMarkdown(USAGE, ev.Channel, "")
+	whiteboard.SlackClient.PostMessageWithMarkdown(USAGE, ev.Channel)
 }
 
 func (whiteboard WhiteboardApp) handlePresentCommand(numDays string, ev *slack.MessageEvent) {
@@ -186,7 +186,7 @@ func (whiteboard WhiteboardApp) handlePresentCommand(numDays string, ev *slack.M
 
 	items, ok := whiteboard.RestClient.GetStandupItems(standup.Id)
 	if !ok || items.Empty() {
-		whiteboard.SlackClient.PostMessage("Hey, there's no entries in today's standup yet, why not add some?", ev.Channel, THUMBS_DOWN)
+		whiteboard.SlackClient.PostMessage(THUMBS_DOWN+"Hey, there's no entries in today's standup yet, why not add some?", ev.Channel)
 		return
 	}
 
@@ -199,7 +199,7 @@ func (whiteboard WhiteboardApp) handlePresentCommand(numDays string, ev *slack.M
 			items.Interestings = whiteboard.FilterOutOld(items.Interestings, numDaysInt, slackUser.TimeZone)
 		}
 	}
-	whiteboard.SlackClient.PostMessage(items.String(), ev.Channel, "")
+	whiteboard.SlackClient.PostMessage(items.String(), ev.Channel)
 }
 
 func (whiteboard WhiteboardApp) getEntryDetails(ev *slack.MessageEvent) (standup Standup, slackUser SlackUser, entryType EntryType, ok bool) {
@@ -221,7 +221,7 @@ func (whiteboard WhiteboardApp) handleDefault(_ string, ev *slack.MessageEvent) 
 	}
 	_, userInput := ReadNextCommand(getInputString(ev))
 
-	whiteboard.SlackClient.PostMessage(fmt.Sprintf("%v no you %v", slackUser.Username, userInput), ev.Channel, "")
+	whiteboard.SlackClient.PostMessage(fmt.Sprintf("%v no you %v", slackUser.Username, userInput), ev.Channel)
 }
 
 func (whiteboard WhiteboardApp) validateAndPost(entryType EntryType, ev *slack.MessageEvent) {
@@ -241,7 +241,7 @@ func (whiteboard WhiteboardApp) validateAndPost(entryType EntryType, ev *slack.M
 }
 
 func (whiteboard WhiteboardApp) handleMissingTitle(channel string) {
-	whiteboard.SlackClient.PostMessageWithMarkdown("Hey, next time add a title along with your entry!\nLike this: `wb i My title`\nNeed help? Try `wb ?`", channel, THUMBS_DOWN)
+	whiteboard.SlackClient.PostMessageWithMarkdown(THUMBS_DOWN+"Hey, next time add a title along with your entry!\nLike this: `wb i My title`\nNeed help? Try `wb ?`", channel)
 }
 
 func getInputString(ev *slack.MessageEvent) string {

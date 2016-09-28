@@ -27,28 +27,27 @@ type SlackContext struct {
 }
 
 type SlackClient interface {
-	PostMessage(message string, channel string, status string)
-	PostMessageWithMarkdown(message string, channel string, status string)
+	PostMessage(message string, channel string)
+	PostMessageWithMarkdown(message string, channel string)
 	PostEntry(entry *model.Entry, channel string, status string)
 	GetUserDetails(user string) (slackUser SlackUser)
 	GetChannelDetails(channel string) (slackChannel SlackChannel)
 }
 
-func (slackClient *Slack) PostMessage(message string, channel string, status string) {
-	slackClient.postMessage(message, channel, status, slack.PostMessageParameters{})
+func (slackClient *Slack) PostMessage(message string, channel string) {
+	slackClient.postMessage(message, channel, slack.PostMessageParameters{})
 }
 
-func (slackClient *Slack) PostMessageWithMarkdown(message string, channel string, status string) {
-	slackClient.postMessage(message, channel, status, slack.PostMessageParameters{Markdown: true})
+func (slackClient *Slack) PostMessageWithMarkdown(message string, channel string) {
+	slackClient.postMessage(message, channel, slack.PostMessageParameters{Markdown: true})
 }
 
 func (slackClient *Slack) PostEntry(entry *model.Entry, channel string, status string) {
 	message := entry.String()
-	slackClient.PostMessage(message, channel, status)
+	slackClient.PostMessage(status+message, channel)
 }
 
-func (slackClient *Slack) postMessage(message string, channel string, status string, params slack.PostMessageParameters) {
-	message = status + message
+func (slackClient *Slack) postMessage(message string, channel string, params slack.PostMessageParameters) {
 	fmt.Printf("Posting message to slack:\n%v\n", message)
 	params.AsUser = true
 	slackClient.SlackRtm.PostMessage(channel, message, params)
@@ -87,15 +86,15 @@ func (slackClient *Slack) GetChannelDetails(channel string) SlackChannel {
 }
 
 func handleMissingEntry(slackClient SlackClient, channel string) {
-	slackClient.PostMessageWithMarkdown("Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!", channel, THUMBS_DOWN)
+	slackClient.PostMessageWithMarkdown(THUMBS_DOWN+"Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!", channel)
 }
 
 func handleNotRegistered(slackClient SlackClient, channel string) {
-	slackClient.PostMessage("You haven't registered your standup yet. wb r <id> first!", channel, THUMBS_DOWN)
+	slackClient.PostMessage(THUMBS_DOWN+"You haven't registered your standup yet. wb r <id> first!", channel)
 	return
 }
 
 func handleStandupNotFound(slackClient SlackClient, standupId string, channel string) {
-	slackClient.PostMessage(fmt.Sprintf("I couldn't find a standup with id: %v", standupId), channel, THUMBS_DOWN)
+	slackClient.PostMessage(fmt.Sprintf("%sI couldn't find a standup with id: %v", THUMBS_DOWN, standupId), channel)
 	return
 }

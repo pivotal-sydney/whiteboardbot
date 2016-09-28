@@ -39,24 +39,21 @@ var _ = Describe("Entry Integration", func() {
 	Describe("with interesting keyword without title", func() {
 		It("should respond missing title", func() {
 			whiteboard.ParseMessageEvent(&newInterestingEvent)
-			Expect(slackClient.Message).To(Equal("Hey, next time add a title along with your entry!\nLike this: `wb i My title`\nNeed help? Try `wb ?`"))
-			Expect(slackClient.Status).To(Equal(THUMBS_DOWN))
+			Expect(slackClient.Message).To(Equal(THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb i My title`\nNeed help? Try `wb ?`"))
 		})
 	})
 
 	Describe("with event keyword without title", func() {
 		It("should respond missing title", func() {
 			whiteboard.ParseMessageEvent(&newEventEvent)
-			Expect(slackClient.Message).To(Equal("Hey, next time add a title along with your entry!\nLike this: `wb i My title`\nNeed help? Try `wb ?`"))
-			Expect(slackClient.Status).To(Equal(THUMBS_DOWN))
+			Expect(slackClient.Message).To(Equal(THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb i My title`\nNeed help? Try `wb ?`"))
 		})
 	})
 
 	Describe("with help keyword without title", func() {
 		It("should respond missing title", func() {
 			whiteboard.ParseMessageEvent(&newHelpEvent)
-			Expect(slackClient.Message).To(Equal("Hey, next time add a title along with your entry!\nLike this: `wb i My title`\nNeed help? Try `wb ?`"))
-			Expect(slackClient.Status).To(Equal(THUMBS_DOWN))
+			Expect(slackClient.Message).To(Equal(THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `wb i My title`\nNeed help? Try `wb ?`"))
 		})
 	})
 
@@ -171,8 +168,7 @@ var _ = Describe("Entry Integration", func() {
 					setTitleEvent.Text = "wb title "
 					whiteboard.ParseMessageEvent(&setTitleEvent)
 					Expect(restClient.PostCalledCount).To(Equal(1))
-					Expect(slackClient.Message).To(Equal("Oi! The title/name can't be empty!"))
-					Expect(slackClient.Status).To(Equal(THUMBS_DOWN))
+					Expect(slackClient.Message).To(Equal(THUMBS_DOWN + "Oi! The title/name can't be empty!"))
 				})
 
 				It("should not update existing interesting entry in the whiteboard when incorrect keyword", func() {
@@ -196,8 +192,7 @@ var _ = Describe("Entry Integration", func() {
 		Describe("with no entry started", func() {
 			It("should give a hint on how to start entry", func() {
 				whiteboard.ParseMessageEvent(&setTitleEvent)
-				Expect(slackClient.Message).To(Equal("Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"))
-				Expect(slackClient.Status).To(Equal(THUMBS_DOWN))
+				Expect(slackClient.Message).To(Equal(THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"))
 			})
 		})
 	})
@@ -227,8 +222,7 @@ var _ = Describe("Entry Integration", func() {
 		Describe("with no entry started", func() {
 			It("should give a hint on how to start entry", func() {
 				whiteboard.ParseMessageEvent(&setDateEvent)
-				Expect(slackClient.Message).To(Equal("Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"))
-				Expect(slackClient.Status).To(Equal(THUMBS_DOWN))
+				Expect(slackClient.Message).To(Equal(THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"))
 			})
 		})
 	})
@@ -257,8 +251,7 @@ var _ = Describe("Entry Integration", func() {
 		Describe("with no entry started", func() {
 			It("should give a hint on how to start entry", func() {
 				whiteboard.ParseMessageEvent(&setBodyEvent)
-				Expect(slackClient.Message).To(Equal("Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"))
-				Expect(slackClient.Status).To(Equal(THUMBS_DOWN))
+				Expect(slackClient.Message).To(Equal(THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!"))
 			})
 		})
 	})
