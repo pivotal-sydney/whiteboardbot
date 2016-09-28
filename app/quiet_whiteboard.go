@@ -35,11 +35,17 @@ type EntryCommandResult struct {
 }
 
 type MessageCommandResult struct {
-	Text string
+	Text   string
+	Status string
 }
 
-func (mcr MessageCommandResult) String() string {
-	return mcr.Text
+func (r MessageCommandResult) String() string {
+	status := ""
+	if r.Status != "" {
+		status = r.Status
+	}
+
+	return fmt.Sprintf("%s%s", status, r.Text)
 }
 
 func (r EntryCommandResult) String() string {

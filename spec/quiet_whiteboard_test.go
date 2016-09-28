@@ -103,6 +103,30 @@ var _ = Describe("EntryCommandResult", func() {
 	})
 })
 
+var _ = Describe("MessageCommandResult", func() {
+	Describe("String", func() {
+		It("prints the status and text", func() {
+			messageCommandResult := MessageCommandResult{
+				Status: "SUCCESS!",
+				Text:   "Some text",
+			}
+
+			Expect(messageCommandResult.String()).To(Equal("SUCCESS!Some text"))
+		})
+
+		Context("when status is empty", func() {
+			It("skips the status text", func() {
+				messageCommandResult := MessageCommandResult{
+					Status: "",
+					Text:   "Some text",
+				}
+
+				Expect(messageCommandResult.String()).To(Equal("Some text"))
+			})
+		})
+	})
+})
+
 var _ = Describe("QuietWhiteboard", func() {
 
 	var (
