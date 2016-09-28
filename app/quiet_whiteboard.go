@@ -26,7 +26,7 @@ type QuietWhiteboardApp struct {
 
 type CommandResultInterface fmt.Stringer
 
-type CommandResult struct {
+type EntryCommandResult struct {
 	Entry fmt.Stringer
 }
 
@@ -38,7 +38,7 @@ func (mcr MessageCommandResult) String() string {
 	return mcr.Text
 }
 
-func (r CommandResult) String() string {
+func (r EntryCommandResult) String() string {
 	return r.Entry.String()
 }
 
@@ -162,7 +162,7 @@ func (whiteboard QuietWhiteboardApp) handleBodyCommand(input string, context Sla
 		if _, err := whiteboard.Repository.SaveEntry(entryType); err != nil {
 			return MessageCommandResult{Text: err.Error()}
 		}
-		return CommandResult{Entry: entry}
+		return EntryCommandResult{Entry: entry}
 	} else {
 		return MessageCommandResult{Text: MISSING_ENTRY}
 	}
@@ -181,7 +181,7 @@ func (whiteboard QuietWhiteboardApp) handleDateCommand(input string, context Sla
 				return MessageCommandResult{Text: err.Error()}
 			}
 
-			return CommandResult{Entry: entryType.GetEntry()}
+			return EntryCommandResult{Entry: entryType.GetEntry()}
 		} else {
 			return MessageCommandResult{Text: MISSING_ENTRY}
 		}
@@ -203,7 +203,7 @@ func (whiteboard QuietWhiteboardApp) handleUpdateCommand(input string, context S
 			return MessageCommandResult{Text: err.Error()}
 		}
 
-		return CommandResult{Entry: entryType}
+		return EntryCommandResult{Entry: entryType}
 	} else {
 		return MessageCommandResult{Text: MISSING_ENTRY}
 	}
@@ -229,8 +229,7 @@ func (whiteboard QuietWhiteboardApp) handleCreateCommand(input string, context S
 	}
 	entryType.GetEntry().Id = postResult.ItemId
 	entry = *entryType.GetEntry()
-	return CommandResult{Entry: entry}
-
+	return EntryCommandResult{Entry: entry}
 }
 
 func handleEmptyInput(input string) (err error) {
