@@ -181,13 +181,19 @@ var _ = Describe("QuietWhiteboard", func() {
 			})
 
 			It("returns a message with the registered standup", func() {
-				expected := MessageCommandResult{Text: "Standup Sydney has been registered! You can now start creating Whiteboard entries!"}
+				expected := MessageCommandResult{
+					Text:   "Standup Sydney has been registered! You can now start creating Whiteboard entries!",
+					Status: THUMBS_UP,
+				}
 				Expect(whiteboard.ProcessCommand("register 1", context)).To(Equal(expected))
 			})
 
 			Context("when standup does not exist", func() {
 				It("returns a message that the standup isn't found", func() {
-					expectedResult := MessageCommandResult{Text: "Standup not found!"}
+					expectedResult := MessageCommandResult{
+						Text:   "Standup not found!",
+						Status: THUMBS_DOWN,
+					}
 
 					result := whiteboard.ProcessCommand("register 123", context)
 
@@ -239,7 +245,7 @@ var _ = Describe("QuietWhiteboard", func() {
 				It("returns an error", func() {
 					delete(whiteboard.EntryMap, context.User.Username)
 
-					expectedResult := MessageCommandResult{Text: MISSING_ENTRY}
+					expectedResult := MessageCommandResult{Text: MISSING_ENTRY, Status: THUMBS_DOWN}
 
 					result := whiteboard.ProcessCommand("body And the movie was terrible!", context)
 
@@ -250,8 +256,10 @@ var _ = Describe("QuietWhiteboard", func() {
 			Context("when entry type is a New Face", func() {
 				It("returns an error", func() {
 					whiteboard.ProcessCommand("faces Nicholas Cage", context)
-					errorMsg := ":-1:\nHey, new faces should not have a body!"
-					expectedResult := MessageCommandResult{Text: errorMsg}
+					expectedResult := MessageCommandResult{
+						Text:   "Hey, new faces should not have a body!",
+						Status: THUMBS_DOWN,
+					}
 
 					result := whiteboard.ProcessCommand("body And John Travolta!", context)
 
@@ -262,7 +270,7 @@ var _ = Describe("QuietWhiteboard", func() {
 			Context("when given no arguments", func() {
 				It("returns an error", func() {
 					whiteboard.ProcessCommand("interestings Nicholas Cage did a remake of The Wicker Man!", context)
-					expectedResult := MessageCommandResult{Text: MISSING_INPUT}
+					expectedResult := MessageCommandResult{Text: MISSING_INPUT, Status: THUMBS_DOWN}
 
 					result := whiteboard.ProcessCommand("body", context)
 
@@ -320,7 +328,7 @@ var _ = Describe("QuietWhiteboard", func() {
 				It("returns an error", func() {
 					delete(whiteboard.EntryMap, context.User.Username)
 
-					expectedResult := MessageCommandResult{Text: MISSING_ENTRY}
+					expectedResult := MessageCommandResult{Text: MISSING_ENTRY, Status: THUMBS_DOWN}
 
 					result := whiteboard.ProcessCommand("date 3000-05-13", context)
 
@@ -330,7 +338,7 @@ var _ = Describe("QuietWhiteboard", func() {
 
 			Context("when given no arguments", func() {
 				It("returns an error", func() {
-					expectedResult := MessageCommandResult{Text: MISSING_INPUT}
+					expectedResult := MessageCommandResult{Text: MISSING_INPUT, Status: THUMBS_DOWN}
 
 					result := whiteboard.ProcessCommand("date", context)
 
@@ -340,8 +348,8 @@ var _ = Describe("QuietWhiteboard", func() {
 
 			Context("when the date format is wrong", func() {
 				It("returns an error", func() {
-					errorMsg := THUMBS_DOWN + "Date not set, use YYYY-MM-DD as date format\n"
-					expectedResult := MessageCommandResult{Text: errorMsg}
+					errorMsg := "Date not set, use YYYY-MM-DD as date format\n"
+					expectedResult := MessageCommandResult{Text: errorMsg, Status: THUMBS_DOWN}
 					whiteboard.ProcessCommand("interestings Nicholas Cage did a remake of The Wicker Man!", context)
 
 					result := whiteboard.ProcessCommand("date LOLWUT", context)
@@ -421,7 +429,7 @@ var _ = Describe("QuietWhiteboard", func() {
 
 			AssertNoArgumentErrorMessage := func() func() {
 				return func() {
-					expectedResult := MessageCommandResult{Text: MISSING_INPUT}
+					expectedResult := MessageCommandResult{Text: MISSING_INPUT, Status: THUMBS_DOWN}
 
 					result := whiteboard.ProcessCommand(command, context)
 
@@ -451,7 +459,7 @@ var _ = Describe("QuietWhiteboard", func() {
 
 					result := whiteboard.ProcessCommand(command+" "+title, context)
 
-					expectedResult := MessageCommandResult{Text: MISSING_STANDUP}
+					expectedResult := MessageCommandResult{Text: MISSING_STANDUP, Status: THUMBS_DOWN}
 
 					Expect(result).To(Equal(expectedResult))
 				}
@@ -657,7 +665,7 @@ var _ = Describe("QuietWhiteboard", func() {
 
 			AssertNoTitleErrorMessage := func() func() {
 				return func() {
-					expectedResult := MessageCommandResult{Text: MISSING_INPUT}
+					expectedResult := MessageCommandResult{Text: MISSING_INPUT, Status: THUMBS_DOWN}
 
 					result := whiteboard.ProcessCommand(command+"     ", context)
 
@@ -667,7 +675,7 @@ var _ = Describe("QuietWhiteboard", func() {
 
 			AssertNoEntryErrorMessage := func() func() {
 				return func() {
-					expectedResult := MessageCommandResult{Text: MISSING_ENTRY}
+					expectedResult := MessageCommandResult{Text: MISSING_ENTRY, Status: THUMBS_DOWN}
 
 					delete(whiteboard.EntryMap, context.User.Username)
 
@@ -796,7 +804,10 @@ var _ = Describe("QuietWhiteboard", func() {
 
 					result := whiteboard.ProcessCommand("present", context)
 
-					expectedResult := MessageCommandResult{Text: MISSING_STANDUP}
+					expectedResult := MessageCommandResult{
+						Text:   MISSING_STANDUP,
+						Status: THUMBS_DOWN,
+					}
 
 					Expect(result).To(Equal(expectedResult))
 				})
@@ -808,7 +819,10 @@ var _ = Describe("QuietWhiteboard", func() {
 
 					result := whiteboard.ProcessCommand("present", context)
 
-					expectedResult := MessageCommandResult{Text: "Error retrieving standup items."}
+					expectedResult := MessageCommandResult{
+						Text:   "Error retrieving standup items.",
+						Status: THUMBS_DOWN,
+					}
 
 					Expect(result).To(Equal(expectedResult))
 				})

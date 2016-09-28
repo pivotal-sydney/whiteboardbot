@@ -29,6 +29,6 @@ const (
 
 	NEW_ENTRY_HELP_TEXT = "_Now go update the details. Need help?_ `wb ?`"
 	MISSING_STANDUP     = "You haven't registered your standup yet. `/wb r <id>` first!"
-	MISSING_ENTRY       = THUMBS_DOWN + "Hey, you forgot to start new entry. Start with one of `/wb <command> [title]` first!\nNeed help? Try `/wb ?`"
-	MISSING_INPUT       = THUMBS_DOWN + "Hey, next time add a title along with your entry!\nLike this: `/wb <command> My title`\nNeed help? Try `/wb ?`"
+	MISSING_ENTRY       = "Hey, you forgot to start new entry. Start with one of `/wb <command> [title]` first!\nNeed help? Try `/wb ?`"
+	MISSING_INPUT       = "Hey, next time add a title along with your entry!\nLike this: `/wb <command> My title`\nNeed help? Try `/wb ?`"
 )

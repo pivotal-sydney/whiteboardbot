@@ -110,27 +110,27 @@ func (whiteboard QuietWhiteboardApp) handleUsageCommand(_ string, _ SlackContext
 func (whiteboard QuietWhiteboardApp) handleRegistrationCommand(standupId string, context SlackContext) CommandResult {
 	standup, err := whiteboard.Repository.FindStandup(standupId)
 	if err != nil {
-		return MessageCommandResult{Text: "Standup not found!"}
+		return MessageCommandResult{Status: THUMBS_DOWN, Text: "Standup not found!"}
 	}
 
 	whiteboard.Store.SetStandup(context.Channel.Id, standup)
 
 	text := fmt.Sprintf("Standup %v has been registered! You can now start creating Whiteboard entries!", standup.Title)
 
-	return MessageCommandResult{Text: text}
+	return MessageCommandResult{Status: THUMBS_UP, Text: text}
 }
 
 func (whiteboard QuietWhiteboardApp) handlePresentCommand(numDays string, context SlackContext) CommandResult {
 	standup, ok := whiteboard.Store.GetStandup(context.Channel.Id)
 	if !ok {
-		return MessageCommandResult{Text: MISSING_STANDUP}
+		return MessageCommandResult{Status: THUMBS_DOWN, Text: MISSING_STANDUP}
 	}
 
 	standupId := strconv.Itoa(standup.Id)
 
 	standupItems, err := whiteboard.Repository.GetStandupItems(standupId)
 	if err != nil {
-		return MessageCommandResult{Text: err.Error()}
+		return MessageCommandResult{Text: err.Error(), Status: THUMBS_DOWN}
 	}
 
 	numberOfDays, _ := strconv.Atoi(numDays)
@@ -159,7 +159,7 @@ func (whiteboard QuietWhiteboardApp) handleEventsCommand(input string, context S
 
 func (whiteboard QuietWhiteboardApp) handleBodyCommand(input string, context SlackContext) CommandResult {
 	if err := handleEmptyInput(input); err != nil {
-		return MessageCommandResult{Text: err.Error()}
+		return MessageCommandResult{Text: err.Error(), Status: THUMBS_DOWN}
 	}
 
 	username := context.User.Username
@@ -168,8 +168,8 @@ func (whiteboard QuietWhiteboardApp) handleBodyCommand(input string, context Sla
 		entry := entryType.GetEntry()
 
 		if entry.ItemKind == "New face" {
-			errorMsg := ":-1:\nHey, new faces should not have a body!"
-			return MessageCommandResult{Text: errorMsg}
+			errorMsg := "Hey, new faces should not have a body!"
+			return MessageCommandResult{Text: errorMsg, Status: THUMBS_DOWN}
 		}
 
 		entryType.GetEntry().Body = input
@@ -179,13 +179,13 @@ func (whiteboard QuietWhiteboardApp) handleBodyCommand(input string, context Sla
 		}
 		return EntryCommandResult{Entry: entry}
 	} else {
-		return MessageCommandResult{Text: MISSING_ENTRY}
+		return MessageCommandResult{Text: MISSING_ENTRY, Status: THUMBS_DOWN}
 	}
 }
 
 func (whiteboard QuietWhiteboardApp) handleDateCommand(input string, context SlackContext) CommandResult {
 	if err := handleEmptyInput(input); err != nil {
-		return MessageCommandResult{Text: err.Error()}
+		return MessageCommandResult{Text: err.Error(), Status: THUMBS_DOWN}
 	}
 
 	if parsedDate, err := time.Parse(DATE_FORMAT, input); err == nil {
@@ -198,17 +198,17 @@ func (whiteboard QuietWhiteboardApp) handleDateCommand(input string, context Sla
 
 			return EntryCommandResult{Entry: entryType.GetEntry()}
 		} else {
-			return MessageCommandResult{Text: MISSING_ENTRY}
+			return MessageCommandResult{Text: MISSING_ENTRY, Status: THUMBS_DOWN}
 		}
 	} else {
-		errorMsg := THUMBS_DOWN + "Date not set, use YYYY-MM-DD as date format\n"
-		return MessageCommandResult{Text: errorMsg}
+		errorMsg := "Date not set, use YYYY-MM-DD as date format\n"
+		return MessageCommandResult{Text: errorMsg, Status: THUMBS_DOWN}
 	}
 }
 
 func (whiteboard QuietWhiteboardApp) handleUpdateCommand(input string, context SlackContext) CommandResult {
 	if err := handleEmptyInput(input); err != nil {
-		return MessageCommandResult{Text: err.Error()}
+		return MessageCommandResult{Text: err.Error(), Status: THUMBS_DOWN}
 	}
 
 	if entryType, ok := whiteboard.EntryMap[context.User.Username]; ok {
@@ -220,19 +220,19 @@ func (whiteboard QuietWhiteboardApp) handleUpdateCommand(input string, context S
 
 		return makeEntryCommandResult(entryType, false)
 	} else {
-		return MessageCommandResult{Text: MISSING_ENTRY}
+		return MessageCommandResult{Text: MISSING_ENTRY, Status: THUMBS_DOWN}
 	}
 }
 
 func (whiteboard QuietWhiteboardApp) handleCreateCommand(input string, context SlackContext, factory EntryFactory) CommandResult {
 
 	if err := handleEmptyInput(input); err != nil {
-		return MessageCommandResult{Text: err.Error()}
+		return MessageCommandResult{Text: err.Error(), Status: THUMBS_DOWN}
 	}
 
 	standup, ok := whiteboard.Store.GetStandup(context.Channel.Id)
 	if !ok {
-		return MessageCommandResult{Text: MISSING_STANDUP}
+		return MessageCommandResult{Text: MISSING_STANDUP, Status: THUMBS_DOWN}
 	}
 
 	entryType := factory(whiteboard.Clock, context.User.Author, input, standup)
