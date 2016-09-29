@@ -109,15 +109,6 @@ var _ = Describe("Entry Integration", func() {
 		})
 	})
 
-	Describe("with interesting keyword and title containing slack-escaped characters", func() {
-		It("should create a new interesting entry with correct title", func() {
-			newInterestingWithTitleEvent.Text = "wb i useful &amp; &lt;interesting&gt;"
-			whiteboard.ParseMessageEvent(&newInterestingWithTitleEvent)
-			Expect(slackClient.Entry.Title).To(Equal("useful &amp; &lt;interesting&gt;"))
-			Expect(restClient.Request.Item.Title).To(Equal("useful & <interesting>"))
-		})
-	})
-
 	Describe("with interesting keyword and title containing slack user IDs", func() {
 		It("should create a new interesting entry with user names", func() {
 			newInterestingWithTitleEvent.Text = "wb i <@UUserId> likes <@UUserId2>"
@@ -155,13 +146,6 @@ var _ = Describe("Entry Integration", func() {
 					Expect(restClient.Request.Item.StandupId).To(Equal(1))
 					Expect(restClient.Request.Id).To(Equal("1"))
 					Expect(slackClient.Status).To(Equal(THUMBS_UP + "INTERESTING\n"))
-				})
-
-				It("should update interesting entry with unescaped characters in title", func() {
-					setTitleEvent.Text = "wb t useful &amp; &lt;interesting&gt;"
-					whiteboard.ParseMessageEvent(&setTitleEvent)
-					Expect(slackClient.Entry.Title).To(Equal("useful &amp; &lt;interesting&gt;"))
-					Expect(restClient.Request.Item.Title).To(Equal("useful & <interesting>"))
 				})
 
 				It("should not allow to change title to empty", func() {
@@ -238,13 +222,6 @@ var _ = Describe("Entry Integration", func() {
 					whiteboard.ParseMessageEvent(&setBodyEvent)
 					Expect(slackClient.Entry.Body).To(Equal("more info"))
 					Expect(slackClient.Status).To(Equal(THUMBS_UP + "INTERESTING\n"))
-				})
-
-				It("should set the of the entry with unescaped title", func() {
-					setBodyEvent.Text = "wb b useful &amp; &lt;interesting&gt;"
-					whiteboard.ParseMessageEvent(&setBodyEvent)
-					Expect(slackClient.Entry.Body).To(Equal("useful &amp; &lt;interesting&gt;"))
-					Expect(restClient.Request.Item.Description).To(Equal("useful & <interesting>"))
 				})
 			})
 		})
