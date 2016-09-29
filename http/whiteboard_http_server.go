@@ -15,7 +15,7 @@ const (
 
 type WhiteboardHttpServer struct {
 	SlackClient SlackClient
-	Whiteboard  QuietWhiteboard
+	Whiteboard  Whiteboard
 }
 
 func (server WhiteboardHttpServer) Run() {

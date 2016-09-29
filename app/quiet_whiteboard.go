@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-type QuietWhiteboard interface {
+type Whiteboard interface {
 	ProcessCommand(string, SlackContext) CommandResult
 }
 
@@ -17,7 +17,7 @@ type CommandHandler func(input string, context SlackContext) CommandResult
 
 type EntryFactory func(clock Clock, author, title string, standup Standup) EntryType
 
-type QuietWhiteboardApp struct {
+type WhiteboardApp struct {
 	Clock      Clock
 	Repository StandupRepository
 	Store      Store
@@ -57,8 +57,8 @@ func (r EntryCommandResult) String() string {
 	return fmt.Sprintf("%s%s\n%s%s", r.Status, r.Title, helpText, r.Entry.String())
 }
 
-func NewQuietWhiteboard(gateway StandupRepository, store Store, clock Clock) (whiteboard QuietWhiteboardApp) {
-	whiteboard = QuietWhiteboardApp{
+func NewQuietWhiteboard(gateway StandupRepository, store Store, clock Clock) (whiteboard WhiteboardApp) {
+	whiteboard = WhiteboardApp{
 		Clock:      clock,
 		Repository: gateway,
 		Store:      store,
@@ -69,7 +69,7 @@ func NewQuietWhiteboard(gateway StandupRepository, store Store, clock Clock) (wh
 	return
 }
 
-func (whiteboard QuietWhiteboardApp) init() {
+func (whiteboard WhiteboardApp) init() {
 	whiteboard.registerCommand("?", whiteboard.handleUsageCommand)
 	whiteboard.registerCommand("register", whiteboard.handleRegistrationCommand)
 	whiteboard.registerCommand("faces", whiteboard.handleFacesCommand)
@@ -83,12 +83,12 @@ func (whiteboard QuietWhiteboardApp) init() {
 	whiteboard.registerCommand("present", whiteboard.handlePresentCommand)
 }
 
-func (whiteboard QuietWhiteboardApp) ProcessCommand(input string, context SlackContext) CommandResult {
+func (whiteboard WhiteboardApp) ProcessCommand(input string, context SlackContext) CommandResult {
 	command, input := ReadNextCommand(input)
 	return whiteboard.handleCommand(command, input, context)
 }
 
-func (whiteboard QuietWhiteboardApp) handleCommand(command, input string, context SlackContext) CommandResult {
+func (whiteboard WhiteboardApp) handleCommand(command, input string, context SlackContext) CommandResult {
 	for key := range whiteboard.CommandMap {
 		if matches(command, key) {
 			callback := whiteboard.CommandMap[key]
@@ -99,15 +99,15 @@ func (whiteboard QuietWhiteboardApp) handleCommand(command, input string, contex
 	return MessageCommandResult{Text: "Ooops"}
 }
 
-func (whiteboard QuietWhiteboardApp) registerCommand(command string, callback CommandHandler) {
+func (whiteboard WhiteboardApp) registerCommand(command string, callback CommandHandler) {
 	whiteboard.CommandMap[command] = callback
 }
 
-func (whiteboard QuietWhiteboardApp) handleUsageCommand(_ string, _ SlackContext) CommandResult {
+func (whiteboard WhiteboardApp) handleUsageCommand(_ string, _ SlackContext) CommandResult {
 	return MessageCommandResult{Text: USAGE}
 }
 
-func (whiteboard QuietWhiteboardApp) handleRegistrationCommand(standupId string, context SlackContext) CommandResult {
+func (whiteboard WhiteboardApp) handleRegistrationCommand(standupId string, context SlackContext) CommandResult {
 	standup, err := whiteboard.Repository.FindStandup(standupId)
 	if err != nil {
 		return MessageCommandResult{Status: THUMBS_DOWN, Text: "Standup not found!"}
@@ -120,7 +120,7 @@ func (whiteboard QuietWhiteboardApp) handleRegistrationCommand(standupId string,
 	return MessageCommandResult{Status: THUMBS_UP, Text: text}
 }
 
-func (whiteboard QuietWhiteboardApp) handlePresentCommand(numDays string, context SlackContext) CommandResult {
+func (whiteboard WhiteboardApp) handlePresentCommand(numDays string, context SlackContext) CommandResult {
 	standup, ok := whiteboard.Store.GetStandup(context.Channel.Id)
 	if !ok {
 		return MessageCommandResult{Status: THUMBS_DOWN, Text: MISSING_STANDUP}
@@ -141,23 +141,23 @@ func (whiteboard QuietWhiteboardApp) handlePresentCommand(numDays string, contex
 	return MessageCommandResult{Text: standupItems.String()}
 }
 
-func (whiteboard QuietWhiteboardApp) handleFacesCommand(input string, context SlackContext) CommandResult {
+func (whiteboard WhiteboardApp) handleFacesCommand(input string, context SlackContext) CommandResult {
 	return whiteboard.handleCreateCommand(input, context, NewFace)
 }
 
-func (whiteboard QuietWhiteboardApp) handleHelpsCommand(input string, context SlackContext) CommandResult {
+func (whiteboard WhiteboardApp) handleHelpsCommand(input string, context SlackContext) CommandResult {
 	return whiteboard.handleCreateCommand(input, context, NewHelp)
 }
 
-func (whiteboard QuietWhiteboardApp) handleInterestingsCommand(input string, context SlackContext) CommandResult {
+func (whiteboard WhiteboardApp) handleInterestingsCommand(input string, context SlackContext) CommandResult {
 	return whiteboard.handleCreateCommand(input, context, NewInteresting)
 }
 
-func (whiteboard QuietWhiteboardApp) handleEventsCommand(input string, context SlackContext) CommandResult {
+func (whiteboard WhiteboardApp) handleEventsCommand(input string, context SlackContext) CommandResult {
 	return whiteboard.handleCreateCommand(input, context, NewEvent)
 }
 
-func (whiteboard QuietWhiteboardApp) handleBodyCommand(input string, context SlackContext) CommandResult {
+func (whiteboard WhiteboardApp) handleBodyCommand(input string, context SlackContext) CommandResult {
 	if err := handleEmptyInput(input); err != nil {
 		return MessageCommandResult{Text: err.Error(), Status: THUMBS_DOWN}
 	}
@@ -183,7 +183,7 @@ func (whiteboard QuietWhiteboardApp) handleBodyCommand(input string, context Sla
 	}
 }
 
-func (whiteboard QuietWhiteboardApp) handleDateCommand(input string, context SlackContext) CommandResult {
+func (whiteboard WhiteboardApp) handleDateCommand(input string, context SlackContext) CommandResult {
 	if err := handleEmptyInput(input); err != nil {
 		return MessageCommandResult{Text: err.Error(), Status: THUMBS_DOWN}
 	}
@@ -206,7 +206,7 @@ func (whiteboard QuietWhiteboardApp) handleDateCommand(input string, context Sla
 	}
 }
 
-func (whiteboard QuietWhiteboardApp) handleUpdateCommand(input string, context SlackContext) CommandResult {
+func (whiteboard WhiteboardApp) handleUpdateCommand(input string, context SlackContext) CommandResult {
 	if err := handleEmptyInput(input); err != nil {
 		return MessageCommandResult{Text: err.Error(), Status: THUMBS_DOWN}
 	}
@@ -224,7 +224,7 @@ func (whiteboard QuietWhiteboardApp) handleUpdateCommand(input string, context S
 	}
 }
 
-func (whiteboard QuietWhiteboardApp) handleCreateCommand(input string, context SlackContext, factory EntryFactory) CommandResult {
+func (whiteboard WhiteboardApp) handleCreateCommand(input string, context SlackContext, factory EntryFactory) CommandResult {
 
 	if err := handleEmptyInput(input); err != nil {
 		return MessageCommandResult{Text: err.Error(), Status: THUMBS_DOWN}

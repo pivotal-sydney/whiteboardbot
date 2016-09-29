@@ -10,7 +10,7 @@ import (
 
 type SlackBotServer struct {
 	SlackClient SlackClient
-	Whiteboard  QuietWhiteboard
+	Whiteboard  Whiteboard
 }
 
 func (server SlackBotServer) ProcessMessage(ev *slack.MessageEvent) {

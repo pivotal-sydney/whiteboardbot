@@ -69,7 +69,7 @@ var _ = Describe("MessageCommandResult", func() {
 var _ = Describe("QuietWhiteboard", func() {
 
 	var (
-		whiteboard    QuietWhiteboardApp
+		whiteboard    WhiteboardApp
 		store         MockStore
 		sydneyStandup Standup
 		context       SlackContext
