@@ -19,7 +19,7 @@ var _ = Describe("EntryCommandResult", func() {
 				Entry:    entry,
 			}
 
-			expectedString := "SUCCESS!Good Book\nHere's a little help\n" + entry.String()
+			expectedString := "SUCCESS!\nGood Book\nHere's a little help\n" + entry.String()
 
 			Expect(entryCommandResult.String()).To(Equal(expectedString))
 		})
@@ -34,7 +34,7 @@ var _ = Describe("EntryCommandResult", func() {
 					Entry:    entry,
 				}
 
-				expectedString := "SUCCESS!Good Book\n" + entry.String()
+				expectedString := "SUCCESS!\nGood Book\n" + entry.String()
 
 				Expect(entryCommandResult.String()).To(Equal(expectedString))
 			})
@@ -50,7 +50,7 @@ var _ = Describe("MessageCommandResult", func() {
 				Text:   "Some text",
 			}
 
-			Expect(messageCommandResult.String()).To(Equal("SUCCESS!Some text"))
+			Expect(messageCommandResult.String()).To(Equal("SUCCESS!\nSome text"))
 		})
 
 		Context("when status is empty", func() {

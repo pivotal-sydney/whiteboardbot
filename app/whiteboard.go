@@ -42,7 +42,7 @@ type MessageCommandResult struct {
 func (r MessageCommandResult) String() string {
 	status := ""
 	if r.Status != "" {
-		status = r.Status
+		status = r.Status + "\n"
 	}
 
 	return fmt.Sprintf("%s%s", status, r.Text)
@@ -54,7 +54,7 @@ func (r EntryCommandResult) String() string {
 		helpText = r.HelpText + "\n"
 	}
 
-	return fmt.Sprintf("%s%s\n%s%s", r.Status, r.Title, helpText, r.Entry.String())
+	return fmt.Sprintf("%s\n%s\n%s%s", r.Status, r.Title, helpText, r.Entry.String())
 }
 
 func NewQuietWhiteboard(gateway StandupRepository, store Store, clock Clock) (whiteboard WhiteboardApp) {

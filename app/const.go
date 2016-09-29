@@ -1,8 +1,8 @@
 package app
 
 const (
-	THUMBS_UP   = ":+1:\n"
-	THUMBS_DOWN = ":-1:\n"
+	THUMBS_UP   = ":+1:"
+	THUMBS_DOWN = ":-1:"
 	USAGE       = "*Usage*:\n" +
 		"        `/wb [command] [text...]`\n" +
 		"    where commands include:\n" +
