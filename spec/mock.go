@@ -200,7 +200,7 @@ func (store *MockStore) SetStandup(channel string, standup model.Standup) {
 	store.Set(channel, string(standupJson))
 }
 
-type MockQuietWhiteboard struct {
+type MockWhiteboard struct {
 	HandleInputCalled bool
 	HandleInputArgs   struct {
 		Text    string
@@ -208,10 +208,10 @@ type MockQuietWhiteboard struct {
 	}
 }
 
-func (mqw *MockQuietWhiteboard) ProcessCommand(input string, context SlackContext) CommandResult {
-	mqw.HandleInputCalled = true
-	mqw.HandleInputArgs.Text = input
-	mqw.HandleInputArgs.Context = context
+func (w *MockWhiteboard) ProcessCommand(input string, context SlackContext) CommandResult {
+	w.HandleInputCalled = true
+	w.HandleInputArgs.Text = input
+	w.HandleInputArgs.Context = context
 
 	return &MessageCommandResult{Text: "This is a mock message"}
 }

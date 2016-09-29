@@ -57,7 +57,7 @@ func (r EntryCommandResult) String() string {
 	return fmt.Sprintf("%s\n%s\n%s%s", r.Status, r.Title, helpText, r.Entry.String())
 }
 
-func NewQuietWhiteboard(gateway StandupRepository, store Store, clock Clock) (whiteboard WhiteboardApp) {
+func NewWhiteboard(gateway StandupRepository, store Store, clock Clock) (whiteboard WhiteboardApp) {
 	whiteboard = WhiteboardApp{
 		Clock:      clock,
 		Repository: gateway,

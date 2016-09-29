@@ -30,7 +30,7 @@ var _ = Describe("WhiteboardHttpServer", func() {
 	var (
 		token          string
 		writer         *httptest.ResponseRecorder
-		mockWhiteBoard MockQuietWhiteboard
+		mockWhiteBoard MockWhiteboard
 		handlerFunc    http.HandlerFunc
 		params         map[string]string
 		slackUser      SlackUser
@@ -57,7 +57,7 @@ var _ = Describe("WhiteboardHttpServer", func() {
 		slackClient.AddSlackUser("C987", slackUser)
 
 		writer = httptest.NewRecorder()
-		mockWhiteBoard = MockQuietWhiteboard{}
+		mockWhiteBoard = MockWhiteboard{}
 		whiteboardServer := WhiteboardHttpServer{SlackClient: &slackClient, Whiteboard: &mockWhiteBoard}
 
 		handlerFunc = whiteboardServer.NewHandleRequest()
@@ -68,7 +68,7 @@ var _ = Describe("WhiteboardHttpServer", func() {
 	}, 0)
 
 	Describe("HandleRequest", func() {
-		It("invokes QuietWhiteboard.HandleInput with payload text with the right arguments", func() {
+		It("invokes Whiteboard.HandleInput with payload text with the right arguments", func() {
 			params["text"] = "makeCoffee two sugars no milk"
 			request := makeRequest(params)
 
@@ -81,7 +81,7 @@ var _ = Describe("WhiteboardHttpServer", func() {
 			Expect(mockWhiteBoard.HandleInputArgs.Context).To(Equal(expectedContext))
 		})
 
-		It("returns the JSON representation of the QuietWhiteboard response", func() {
+		It("returns the JSON representation of the Whiteboard response", func() {
 			request := makeRequest(params)
 
 			handlerFunc.ServeHTTP(writer, request)
@@ -123,7 +123,7 @@ var _ = Describe("WhiteboardHttpServer", func() {
 				os.Unsetenv("SLACK_TOKEN")
 			})
 
-			It("does not invoke QuietWhiteboard.HandleInput", AssertDoesNotInvokeHandleInput())
+			It("does not invoke Whiteboard.HandleInput", AssertDoesNotInvokeHandleInput())
 			It("returns a 403 Forbidden", AssertReturns403Forbidden())
 			It("returns an error message'", AssertReturnsErrorMessage())
 		})
@@ -133,7 +133,7 @@ var _ = Describe("WhiteboardHttpServer", func() {
 				params["token"] = "invalid"
 			})
 
-			It("does not invoke QuietWhiteboard.HandleInput", AssertDoesNotInvokeHandleInput())
+			It("does not invoke Whiteboard.HandleInput", AssertDoesNotInvokeHandleInput())
 			It("returns a 403 Forbidden", AssertReturns403Forbidden())
 			It("returns an error message'", AssertReturnsErrorMessage())
 		})

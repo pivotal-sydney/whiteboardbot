@@ -10,7 +10,7 @@ import (
 
 var _ = Describe("SlackBotServer", func() {
 	var (
-		mockWhiteBoard  MockQuietWhiteboard
+		mockWhiteBoard  MockWhiteboard
 		mockSlackClient MockSlackClient
 		server          SlackBotServer
 		slackUser       SlackUser
@@ -24,7 +24,7 @@ var _ = Describe("SlackBotServer", func() {
 		mockSlackClient = MockSlackClient{}
 		mockSlackClient.AddSlackUser("U123", slackUser)
 		mockSlackClient.AddSlackChannel("C456", slackChannel)
-		mockWhiteBoard = MockQuietWhiteboard{}
+		mockWhiteBoard = MockWhiteboard{}
 		server = SlackBotServer{Whiteboard: &mockWhiteBoard, SlackClient: &mockSlackClient}
 	})
 

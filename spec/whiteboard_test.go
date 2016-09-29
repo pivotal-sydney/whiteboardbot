@@ -66,7 +66,7 @@ var _ = Describe("MessageCommandResult", func() {
 	})
 })
 
-var _ = Describe("QuietWhiteboard", func() {
+var _ = Describe("Whiteboard", func() {
 
 	var (
 		whiteboard    WhiteboardApp
@@ -92,7 +92,7 @@ var _ = Describe("QuietWhiteboard", func() {
 		gateway = MockWhiteboardGateway{}
 		gateway.SetStandup(sydneyStandup)
 
-		whiteboard = NewQuietWhiteboard(&gateway, &store, &clock)
+		whiteboard = NewWhiteboard(&gateway, &store, &clock)
 	})
 
 	Describe("Receives command", func() {
