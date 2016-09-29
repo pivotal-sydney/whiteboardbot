@@ -13,7 +13,6 @@ type MockSlackClient struct {
 	PostMessageCalled bool
 	Message           string
 	Entry             *model.Entry
-	Status            string
 	ChannelId         string
 	SlackUserMap      map[string]SlackUser
 	SlackChannelMap   map[string]SlackChannel
