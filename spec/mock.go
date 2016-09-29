@@ -31,12 +31,6 @@ func (slackClient *MockSlackClient) PostMessageWithMarkdown(message string, chan
 	slackClient.ChannelId = channel
 }
 
-func (slackClient *MockSlackClient) PostEntry(entry *model.Entry, channel string, status string) {
-	slackClient.Entry = entry
-	slackClient.Status = status
-	slackClient.ChannelId = channel
-}
-
 func (slackClient *MockSlackClient) GetUserDetails(user string) (slackUser SlackUser) {
 	slackClient.initSlackUserMap()
 	slackUser, ok := slackClient.SlackUserMap[user]

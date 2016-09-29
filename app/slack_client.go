@@ -3,7 +3,6 @@ package app
 import (
 	"fmt"
 	"github.com/nlopes/slack"
-	"github.com/pivotal-sydney/whiteboardbot/model"
 )
 
 type Slack struct {
@@ -29,7 +28,6 @@ type SlackContext struct {
 type SlackClient interface {
 	PostMessage(message string, channel string)
 	PostMessageWithMarkdown(message string, channel string)
-	PostEntry(entry *model.Entry, channel string, status string)
 	GetUserDetails(user string) (slackUser SlackUser)
 	GetChannelDetails(channel string) (slackChannel SlackChannel)
 }
@@ -40,11 +38,6 @@ func (slackClient *Slack) PostMessage(message string, channel string) {
 
 func (slackClient *Slack) PostMessageWithMarkdown(message string, channel string) {
 	slackClient.postMessage(message, channel, slack.PostMessageParameters{Markdown: true})
-}
-
-func (slackClient *Slack) PostEntry(entry *model.Entry, channel string, status string) {
-	message := entry.String()
-	slackClient.PostMessage(status+message, channel)
 }
 
 func (slackClient *Slack) postMessage(message string, channel string, params slack.PostMessageParameters) {
