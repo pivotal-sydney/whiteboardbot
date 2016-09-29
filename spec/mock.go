@@ -2,6 +2,7 @@ package spec
 
 import (
 	"encoding/json"
+	"errors"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
 	"github.com/pivotal-sydney/whiteboardbot/model"
 	"strconv"
@@ -219,4 +220,63 @@ func (mqw *MockQuietWhiteboard) ProcessCommand(input string, context SlackContex
 	mqw.HandleInputArgs.Context = context
 
 	return &MessageCommandResult{Text: "This is a mock message"}
+}
+
+type MockWhiteboardGateway struct {
+	StandupMap          map[int]model.Standup
+	SaveEntryCalled     bool
+	EntrySaved          model.EntryType
+	GetStandupId        string
+	failSaveEntry       bool
+	failGetStandupItems bool
+}
+
+func (gateway *MockWhiteboardGateway) FindStandup(standupId string) (standup model.Standup, err error) {
+	var ok bool
+	id, _ := strconv.Atoi(standupId)
+
+	standup, ok = gateway.StandupMap[id]
+
+	if !ok {
+		err = errors.New("Standup not found!")
+	}
+
+	return
+}
+
+func (gateway *MockWhiteboardGateway) SaveEntry(entryType model.EntryType) (PostResult, error) {
+	if gateway.failSaveEntry {
+		return PostResult{}, errors.New("Problem creating post.")
+	}
+	gateway.SaveEntryCalled = true
+	gateway.EntrySaved = entryType
+
+	return PostResult{ItemId: "1"}, nil
+}
+
+func (gateway *MockWhiteboardGateway) SetSaveEntryError() {
+	gateway.failSaveEntry = true
+}
+
+func (gateway *MockWhiteboardGateway) SetStandup(standup model.Standup) {
+	if gateway.StandupMap == nil {
+		gateway.StandupMap = make(map[int]model.Standup)
+	}
+	gateway.StandupMap[standup.Id] = standup
+}
+
+func (gateway *MockWhiteboardGateway) GetStandupItems(standupId string) (standupItems model.StandupItems, err error) {
+	if gateway.failGetStandupItems {
+		err = errors.New("Error retrieving standup items.")
+	} else {
+		standupItems = model.StandupItems{Interestings: []model.Entry{
+			{Title: "Interesting 1", Author: "Alice", Date: "2015-01-02"},
+			{Title: "Interesting 2", Author: "Bob", Date: "2015-01-12"},
+		}}
+	}
+	return standupItems, err
+}
+
+func (gateway *MockWhiteboardGateway) SetGetStandupItemsError() {
+	gateway.failGetStandupItems = true
 }

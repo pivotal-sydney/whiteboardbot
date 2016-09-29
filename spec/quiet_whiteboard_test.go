@@ -2,72 +2,11 @@ package spec
 
 import (
 	"encoding/json"
-	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
 	. "github.com/pivotal-sydney/whiteboardbot/model"
-	"strconv"
 )
-
-type MockWhiteboardGateway struct {
-	StandupMap          map[int]Standup
-	SaveEntryCalled     bool
-	EntrySaved          EntryType
-	GetStandupId        string
-	failSaveEntry       bool
-	failGetStandupItems bool
-}
-
-func (gateway *MockWhiteboardGateway) FindStandup(standupId string) (standup Standup, err error) {
-	var ok bool
-	id, _ := strconv.Atoi(standupId)
-
-	standup, ok = gateway.StandupMap[id]
-
-	if !ok {
-		err = errors.New("Standup not found!")
-	}
-
-	return
-}
-
-func (gateway *MockWhiteboardGateway) SaveEntry(entryType EntryType) (PostResult, error) {
-	if gateway.failSaveEntry {
-		return PostResult{}, errors.New("Problem creating post.")
-	}
-	gateway.SaveEntryCalled = true
-	gateway.EntrySaved = entryType
-
-	return PostResult{ItemId: "1"}, nil
-}
-
-func (gateway *MockWhiteboardGateway) SetSaveEntryError() {
-	gateway.failSaveEntry = true
-}
-
-func (gateway *MockWhiteboardGateway) SetStandup(standup Standup) {
-	if gateway.StandupMap == nil {
-		gateway.StandupMap = make(map[int]Standup)
-	}
-	gateway.StandupMap[standup.Id] = standup
-}
-
-func (gateway *MockWhiteboardGateway) GetStandupItems(standupId string) (standupItems StandupItems, err error) {
-	if gateway.failGetStandupItems {
-		err = errors.New("Error retrieving standup items.")
-	} else {
-		standupItems = StandupItems{Interestings: []Entry{
-			{Title: "Interesting 1", Author: "Alice", Date: "2015-01-02"},
-			{Title: "Interesting 2", Author: "Bob", Date: "2015-01-12"},
-		}}
-	}
-	return standupItems, err
-}
-
-func (gateway *MockWhiteboardGateway) SetGetStandupItemsError() {
-	gateway.failGetStandupItems = true
-}
 
 var _ = Describe("EntryCommandResult", func() {
 	Describe("String", func() {
