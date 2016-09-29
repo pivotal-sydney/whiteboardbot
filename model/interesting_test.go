@@ -12,7 +12,7 @@ var _ = Describe("Interesting", func() {
 
 	var (
 		interesting Interesting
-		clock spec.MockClock
+		clock       spec.MockClock
 	)
 
 	BeforeEach(func() {

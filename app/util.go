@@ -1,9 +1,9 @@
 package app
+
 import (
-	"strings"
-	"regexp"
 	"math/rand"
-	. "github.com/pivotal-sydney/whiteboardbot/model"
+	"regexp"
+	"strings"
 )
 
 var insults = [...]string{"Stupid.", "You idiot.", "You fool."}
@@ -20,19 +20,15 @@ func randomInsult() string {
 	return insults[rand.Intn(len(insults))]
 }
 
-func readNextCommand(input string) (keyword string, newInput string) {
+func ReadNextCommand(input string) (keyword string, newInput string) {
+	keyword = strings.ToLower(input)
+
 	re := regexp.MustCompile("\\s+")
 	loc := re.FindStringIndex(input)
 	if loc != nil {
 		keyword = strings.ToLower(input[:loc[0]])
 		newInput = input[loc[1]:]
-	} else {
-		keyword = strings.ToLower(input)
-		newInput = ""
 	}
-	return
-}
 
-func missingEntry(entryType EntryType) bool {
-	return entryType == nil
+	return
 }

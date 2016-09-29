@@ -4,3 +4,10 @@ applications:
     instances: 1
     buildpack: https://github.com/cloudfoundry/go-buildpack.git
     command: whiteboardbot
+    env:
+      SLACK_TOKEN: [your-slack-token-for-slash-command-payloads]
+      WB_HOST_URL: [whiteboard-url]
+      WB_AUTH_TOKEN: [whiteboard-rails-authentication-token]
+      WB_BOT_API_TOKEN: [your-slack-bot-api-token]
+      WB_DB_HOST: [redis-ip-address-with-port]
+      WB_DB_PASSWORD: [redis-password]

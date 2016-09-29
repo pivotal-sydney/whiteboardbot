@@ -1,8 +1,8 @@
 package app
+
 import (
 	"fmt"
 	"github.com/nlopes/slack"
-	"github.com/pivotal-sydney/whiteboardbot/model"
 )
 
 type Slack struct {
@@ -11,33 +11,36 @@ type Slack struct {
 
 type SlackUser struct {
 	Username string
-	Author string
+	Author   string
 	TimeZone string
 }
 
+type SlackChannel struct {
+	Id   string
+	Name string
+}
+
+type SlackContext struct {
+	User    SlackUser
+	Channel SlackChannel
+}
+
 type SlackClient interface {
-	PostMessage(message string, channel string, status string)
-	PostMessageWithMarkdown(message string, channel string, status string)
-	PostEntry(entry *model.Entry, channel string, status string)
+	PostMessage(message string, channel string)
+	PostMessageWithMarkdown(message string, channel string)
 	GetUserDetails(user string) (slackUser SlackUser)
-	GetChannelDetails(channel string) (slackChannel *slack.Channel)
+	GetChannelDetails(channel string) (slackChannel SlackChannel)
 }
 
-func (slackClient *Slack) PostMessage(message string, channel string, status string) {
-	slackClient.postMessage(message, channel, status, slack.PostMessageParameters{})
+func (slackClient *Slack) PostMessage(message string, channel string) {
+	slackClient.postMessage(message, channel, slack.PostMessageParameters{})
 }
 
-func (slackClient *Slack) PostMessageWithMarkdown(message string, channel string, status string) {
-	slackClient.postMessage(message, channel, status, slack.PostMessageParameters{Markdown: true})
+func (slackClient *Slack) PostMessageWithMarkdown(message string, channel string) {
+	slackClient.postMessage(message, channel, slack.PostMessageParameters{Markdown: true})
 }
 
-func (slackClient *Slack) PostEntry(entry *model.Entry, channel string, status string) {
-	message := entry.String()
-	slackClient.PostMessage(message, channel, status)
-}
-
-func (slackClient *Slack) postMessage(message string, channel string, status string, params slack.PostMessageParameters) {
-	message = status + message
+func (slackClient *Slack) postMessage(message string, channel string, params slack.PostMessageParameters) {
 	fmt.Printf("Posting message to slack:\n%v\n", message)
 	params.AsUser = true
 	slackClient.SlackRtm.PostMessage(channel, message, params)
@@ -65,26 +68,26 @@ func GetAuthor(user *slack.User) (realName string) {
 	return
 }
 
-func (slackClient *Slack) GetChannelDetails(channel string) *slack.Channel {
+func (slackClient *Slack) GetChannelDetails(channel string) SlackChannel {
 	slackChannel, err := slackClient.SlackRtm.GetChannelInfo(channel)
 	if err != nil {
 		slackChannel = &slack.Channel{}
 		slackChannel.ID = channel
 		slackChannel.Name = "unknown"
 	}
-	return slackChannel
+	return SlackChannel{Id: slackChannel.ID, Name: slackChannel.Name}
 }
 
 func handleMissingEntry(slackClient SlackClient, channel string) {
-	slackClient.PostMessageWithMarkdown("Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!", channel, THUMBS_DOWN)
+	slackClient.PostMessageWithMarkdown(THUMBS_DOWN+"Hey, you forgot to start new entry. Start with one of `wb [face interesting help event] [title]` first!", channel)
 }
 
 func handleNotRegistered(slackClient SlackClient, channel string) {
-	slackClient.PostMessage("You haven't registered your standup yet. wb r <id> first!", channel, THUMBS_DOWN)
+	slackClient.PostMessage(THUMBS_DOWN+"You haven't registered your standup yet. wb r <id> first!", channel)
 	return
 }
 
 func handleStandupNotFound(slackClient SlackClient, standupId string, channel string) {
-	slackClient.PostMessage(fmt.Sprintf("I couldn't find a standup with id: %v", standupId), channel, THUMBS_DOWN)
+	slackClient.PostMessage(fmt.Sprintf("%sI couldn't find a standup with id: %v", THUMBS_DOWN, standupId), channel)
 	return
 }

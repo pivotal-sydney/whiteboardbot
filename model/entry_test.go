@@ -50,4 +50,20 @@ var _ = Describe("Entry", func() {
 			Expect(entry.Validate()).To(BeTrue())
 		})
 	})
+
+	Describe("MakeCreateRequest", func() {
+		It("unescapes HTML entities", func() {
+			entry.Body = "useful &amp; &lt;interesting&gt;"
+			request := entry.MakeCreateRequest()
+			Expect(request.Item.Description).To(Equal("useful & <interesting>"))
+		})
+	})
+
+	Describe("MakeUpdateRequest", func() {
+		It("unescapes HTML entities", func() {
+			entry.Body = "useful &amp; &lt;interesting&gt;"
+			request := entry.MakeUpdateRequest()
+			Expect(request.Item.Description).To(Equal("useful & <interesting>"))
+		})
+	})
 })

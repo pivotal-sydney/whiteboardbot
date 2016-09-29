@@ -2,7 +2,7 @@ package model
 
 type Face struct{ *Entry }
 
-func NewFace(clock Clock, author, title string, standup Standup) interface{} {
+func NewFace(clock Clock, author, title string, standup Standup) EntryType {
 	return Face{NewEntry(clock, author, title, standup, "New face")}
 }
 

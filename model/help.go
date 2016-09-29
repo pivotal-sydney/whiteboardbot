@@ -2,7 +2,7 @@ package model
 
 type Help struct{ *Entry }
 
-func NewHelp(clock Clock, author, title string, standup Standup) interface{} {
+func NewHelp(clock Clock, author, title string, standup Standup) EntryType {
 	return Help{NewEntry(clock, author, title, standup, "Help")}
 }
 

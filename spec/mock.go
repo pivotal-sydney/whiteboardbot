@@ -1,70 +1,99 @@
 package spec
 
 import (
-	"github.com/pivotal-sydney/whiteboardbot/model"
-	"time"
-	"strconv"
 	"encoding/json"
+	"errors"
 	. "github.com/pivotal-sydney/whiteboardbot/app"
-	"github.com/nlopes/slack"
+	"github.com/pivotal-sydney/whiteboardbot/model"
+	"strconv"
+	"time"
 )
 
 type MockSlackClient struct {
 	PostMessageCalled bool
 	Message           string
-	Entry 		      *model.Entry
-	Status 			  string
+	Entry             *model.Entry
+	ChannelId         string
+	SlackUserMap      map[string]SlackUser
+	SlackChannelMap   map[string]SlackChannel
 }
 
-func (slackClient *MockSlackClient) PostMessage(message string, channel string, status string) {
+func (slackClient *MockSlackClient) PostMessage(message string, channel string) {
 	slackClient.PostMessageCalled = true
 	slackClient.Message = message
-	slackClient.Status = status
+	slackClient.ChannelId = channel
 }
 
-func (slackClient *MockSlackClient) PostMessageWithMarkdown(message string, channel string, status string) {
+func (slackClient *MockSlackClient) PostMessageWithMarkdown(message string, channel string) {
 	slackClient.PostMessageCalled = true
 	slackClient.Message = message
-	slackClient.Status = status
-}
-
-func (slackClient *MockSlackClient) PostEntry(entry *model.Entry, channel string, status string) {
-	slackClient.Entry = entry
-	slackClient.Status = status
+	slackClient.ChannelId = channel
 }
 
 func (slackClient *MockSlackClient) GetUserDetails(user string) (slackUser SlackUser) {
-	slackUser.Username = user
-
-	if slackUser.Username == "UUserId" {
-		slackUser.Username = "user-name"
+	slackClient.initSlackUserMap()
+	slackUser, ok := slackClient.SlackUserMap[user]
+	if !ok {
+		slackUser.Username = user
+		slackUser.Author = user
+		slackUser.TimeZone = "America/Los_Angeles"
 	}
-
-	if slackUser.Username == "UUserId2" {
-		slackUser.Username = "user-name-two"
-	}
-
-	if slackUser.Username == "" {
-		slackUser.Username = "aleung"
-	}
-	slackUser.Author = "Andrew Leung"
-	slackUser.TimeZone = "Australia/Sydney"
 	return
 }
 
-func (slackClient *MockSlackClient) GetChannelDetails(channel string) (slackChannel *slack.Channel) {
+func (slackClient *MockSlackClient) initSlackUserMap() {
+	if slackClient.SlackUserMap == nil {
+		slackClient.SlackUserMap = map[string]SlackUser{
+			"U987": {
+				Username: "aleung",
+				Author:   "Andrew Leung",
+				TimeZone: "Australia/Sydney",
+			},
+			"UUserId": {
+				Username: "user-name",
+				Author:   "Andrew Leung",
+				TimeZone: "Australia/Sydney",
+			},
+			"UUserId2": {
+				Username: "user-name-two",
+				Author:   "Andrew Leung",
+				TimeZone: "Australia/Sydney",
+			},
+		}
+	}
+}
 
-	slackChannel = &slack.Channel{}
+func (slackClient *MockSlackClient) AddSlackUser(userId string, user SlackUser) {
+	slackClient.initSlackUserMap()
+	slackClient.SlackUserMap[userId] = user
+}
 
-	if channel == "CChannelId" {
-		slackChannel.Name = "channel-name"
-	} else if channel == "CChannelId2" {
-		slackChannel.Name = "channel-name-two"
-	} else {
+func (slackClient *MockSlackClient) GetChannelDetails(channelId string) (slackChannel SlackChannel) {
+	slackClient.initSlackChannelMap()
+	slackChannel, ok := slackClient.SlackChannelMap[channelId]
+	if !ok {
+		slackChannel.Id = channelId
 		slackChannel.Name = "unknown"
 	}
 
 	return
+}
+
+func (slackClient *MockSlackClient) initSlackChannelMap() {
+	if slackClient.SlackChannelMap == nil {
+		channel1 := SlackChannel{Id: "CChannelId", Name: "channel-name"}
+		channel2 := SlackChannel{Id: "CChannelId2", Name: "channel-name-two"}
+
+		slackClient.SlackChannelMap = map[string]SlackChannel{
+			channel1.Id: channel1,
+			channel2.Id: channel2,
+		}
+	}
+}
+
+func (slackClient *MockSlackClient) AddSlackChannel(channelId string, channel SlackChannel) {
+	slackClient.initSlackChannelMap()
+	slackClient.SlackChannelMap[channelId] = channel
 }
 
 type MockClock struct{}
@@ -74,31 +103,67 @@ func (clock MockClock) Now() time.Time {
 }
 
 type MockRestClient struct {
-	PostCalledCount int
-	Request         model.WhiteboardRequest
-	StandupItems    model.StandupItems
+	PostCalledCount     int
+	Request             model.WhiteboardRequest
+	StandupItems        model.StandupItems
+	StandupMap          map[int]model.Standup
+	failPost            bool
+	postItemId          string
+	failGetStandupItems bool
 }
 
 func (client MockRestClient) GetStandupItems(standupId int) (items model.StandupItems, ok bool) {
-	items = client.StandupItems
-	ok = true
+	if client.failGetStandupItems {
+		ok = false
+	} else {
+		items = client.StandupItems
+		ok = true
+	}
 	return
+}
+
+func (client *MockRestClient) SetGetStandupItemsError() {
+	client.failGetStandupItems = true
 }
 
 func (client *MockRestClient) Post(request model.WhiteboardRequest) (itemId string, ok bool) {
 	client.PostCalledCount++
-	client.Request = request
-	ok = true
-	itemId = "1"
+	if !client.failPost {
+		client.Request = request
+		ok = true
+		itemId = client.getNextId()
+	}
 	return
 }
 
-func (*MockRestClient) GetStandup(standupId string) (standup model.Standup, ok bool) {
+func (client *MockRestClient) getNextId() (id string) {
+	id = client.postItemId
+	if id == "" {
+		id = "1"
+	}
+
+	client.postItemId += client.postItemId
+	return
+}
+
+func (client *MockRestClient) SetPostError() {
+	client.failPost = true
+}
+
+func (client *MockRestClient) SetPostItemId(id string) {
+	client.postItemId = id
+}
+
+func (client *MockRestClient) SetStandup(standup model.Standup) {
+	if client.StandupMap == nil {
+		client.StandupMap = make(map[int]model.Standup)
+	}
+	client.StandupMap[standup.Id] = standup
+}
+
+func (client *MockRestClient) GetStandup(standupId string) (standup model.Standup, ok bool) {
 	id, _ := strconv.Atoi(standupId)
-	standup.Id = id
-	standup.TimeZone = "Australia/Sydney"
-	standup.Title = "Sydney"
-	ok = true
+	standup, ok = client.StandupMap[id]
 	return
 }
 
@@ -132,4 +197,79 @@ func (store *MockStore) GetStandup(channel string) (standup model.Standup, ok bo
 func (store *MockStore) SetStandup(channel string, standup model.Standup) {
 	standupJson, _ := json.Marshal(standup)
 	store.Set(channel, string(standupJson))
+}
+
+type MockWhiteboard struct {
+	HandleInputCalled bool
+	HandleInputArgs   struct {
+		Text    string
+		Context SlackContext
+	}
+}
+
+func (w *MockWhiteboard) ProcessCommand(input string, context SlackContext) CommandResult {
+	w.HandleInputCalled = true
+	w.HandleInputArgs.Text = input
+	w.HandleInputArgs.Context = context
+
+	return &MessageCommandResult{Text: "This is a mock message"}
+}
+
+type MockWhiteboardGateway struct {
+	StandupMap          map[int]model.Standup
+	SaveEntryCalled     bool
+	EntrySaved          model.EntryType
+	GetStandupId        string
+	failSaveEntry       bool
+	failGetStandupItems bool
+}
+
+func (gateway *MockWhiteboardGateway) FindStandup(standupId string) (standup model.Standup, err error) {
+	var ok bool
+	id, _ := strconv.Atoi(standupId)
+
+	standup, ok = gateway.StandupMap[id]
+
+	if !ok {
+		err = errors.New("Standup not found!")
+	}
+
+	return
+}
+
+func (gateway *MockWhiteboardGateway) SaveEntry(entryType model.EntryType) (PostResult, error) {
+	if gateway.failSaveEntry {
+		return PostResult{}, errors.New("Problem creating post.")
+	}
+	gateway.SaveEntryCalled = true
+	gateway.EntrySaved = entryType
+
+	return PostResult{ItemId: "1"}, nil
+}
+
+func (gateway *MockWhiteboardGateway) SetSaveEntryError() {
+	gateway.failSaveEntry = true
+}
+
+func (gateway *MockWhiteboardGateway) SetStandup(standup model.Standup) {
+	if gateway.StandupMap == nil {
+		gateway.StandupMap = make(map[int]model.Standup)
+	}
+	gateway.StandupMap[standup.Id] = standup
+}
+
+func (gateway *MockWhiteboardGateway) GetStandupItems(standupId string) (standupItems model.StandupItems, err error) {
+	if gateway.failGetStandupItems {
+		err = errors.New("Error retrieving standup items.")
+	} else {
+		standupItems = model.StandupItems{Interestings: []model.Entry{
+			{Title: "Interesting 1", Author: "Alice", Date: "2015-01-02"},
+			{Title: "Interesting 2", Author: "Bob", Date: "2015-01-12"},
+		}}
+	}
+	return standupItems, err
+}
+
+func (gateway *MockWhiteboardGateway) SetGetStandupItemsError() {
+	gateway.failGetStandupItems = true
 }
