@@ -196,7 +196,7 @@ func (whiteboard WhiteboardApp) handleDateCommand(input string, context SlackCon
 				return MessageCommandResult{Text: err.Error()}
 			}
 
-			return EntryCommandResult{Entry: entryType.GetEntry()}
+			return makeEntryCommandResult(entryType, false)
 		} else {
 			return MessageCommandResult{Text: MISSING_ENTRY, Status: THUMBS_DOWN}
 		}
