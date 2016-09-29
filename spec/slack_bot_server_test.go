@@ -49,6 +49,18 @@ var _ = Describe("SlackBotServer", func() {
 				Expect(mockSlackClient.Message).To(Equal("This is a mock message"))
 				Expect(mockSlackClient.ChannelId).To(Equal("C456"))
 			})
+
+			It("replaces user IDs with usernames", func() {
+				messageEvent := makeMessageEvent("C456", "U123", "wb i <@UUserId> likes <@UUserId2>")
+				server.ProcessMessage(&messageEvent)
+				Expect(mockWhiteBoard.HandleInputArgs.Text).To(Equal("i @user-name likes @user-name-two"))
+			})
+
+			It("replaces channel IDs with channel names", func() {
+				messageEvent := makeMessageEvent("C456", "U123", "wb i <#CChannelId> has moved to <#CChannelId2>")
+				server.ProcessMessage(&messageEvent)
+				Expect(mockWhiteBoard.HandleInputArgs.Text).To(Equal("i #channel-name has moved to #channel-name-two"))
+			})
 		})
 
 		Context("when the message does not begin with wb", func() {
