@@ -297,7 +297,7 @@ var _ = Describe("QuietWhiteboard", func() {
 					expectedResult = EntryCommandResult{
 						Title:    "HELP",
 						Status:   THUMBS_UP,
-						HelpText: "_Now go update the details. Need help?_ `wb ?`",
+						HelpText: NEW_ENTRY_HELP_TEXT,
 						Entry:    entry,
 					}
 				})
@@ -340,7 +340,7 @@ var _ = Describe("QuietWhiteboard", func() {
 					expectedResult = EntryCommandResult{
 						Title:    "INTERESTING",
 						Status:   THUMBS_UP,
-						HelpText: "_Now go update the details. Need help?_ `wb ?`",
+						HelpText: NEW_ENTRY_HELP_TEXT,
 						Entry:    entry,
 					}
 				})
@@ -383,7 +383,7 @@ var _ = Describe("QuietWhiteboard", func() {
 					expectedResult = EntryCommandResult{
 						Title:    "EVENT",
 						Status:   THUMBS_UP,
-						HelpText: "_Now go update the details. Need help?_ `wb ?`",
+						HelpText: NEW_ENTRY_HELP_TEXT,
 						Entry:    entry,
 					}
 				})
