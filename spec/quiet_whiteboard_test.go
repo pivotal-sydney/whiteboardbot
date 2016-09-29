@@ -836,4 +836,35 @@ var _ = Describe("QuietWhiteboard", func() {
 			})
 		})
 	})
+
+	It("maintains current entry for each user", func() {
+		bob := SlackUser{Username: "bob", Author: "Bob Bobbins"}
+		channel := SlackChannel{Id: "C456", Name: "sydney-standup"}
+		bobContext := SlackContext{User: bob, Channel: channel}
+
+		andrewEntry := NewEntry(clock, "Andrew Leung", "Andrew's Interesting", sydneyStandup, "Interesting")
+		andrewEntry.Id = "1"
+		andrewEntry.Body = "This is very interesting."
+		expectedAndrewResult := EntryCommandResult{
+			Title:  "INTERESTING",
+			Status: THUMBS_UP,
+			Entry:  andrewEntry,
+		}
+
+		bobEntry := NewEntry(clock, "Bob Bobbins", "Bob's Awesome Event", sydneyStandup, "Event")
+		bobEntry.Id = "1"
+		expectedBobResult := EntryCommandResult{
+			Title:  "EVENT",
+			Status: THUMBS_UP,
+			Entry:  bobEntry,
+		}
+
+		whiteboard.ProcessCommand("i Andrew's Interesting", context)
+		whiteboard.ProcessCommand("e Bob's Event", bobContext)
+		bobResult := whiteboard.ProcessCommand("t Bob's Awesome Event", bobContext)
+		andrewResult := whiteboard.ProcessCommand("b This is very interesting.", context)
+
+		Expect(andrewResult).To(Equal(expectedAndrewResult))
+		Expect(bobResult).To(Equal(expectedBobResult))
+	})
 })
