@@ -71,7 +71,7 @@ func (RealRestClient) GetStandup(standupId string) (standup Standup, ok bool) {
 	httpRequest.Header.Add("Accept", "application/json")
 	resp, err := http.DefaultClient.Do(httpRequest)
 	defer resp.Body.Close()
-	ok = err == nil && resp != nil && resp.StatusCode == http.StatusOK
+	ok = err == nil && resp != nil && (resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusFound)
 
 	if ok {
 		jsonBlob, err := ioutil.ReadAll(resp.Body)
